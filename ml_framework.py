@@ -102,11 +102,14 @@ for i_db in range(len(_list_databases_training)):
     for i_simulation in range(len(_list_simulation_samples[i_db])):
         for i_model in range(len(_list_models)):            
 
+            
             _db = _list_databases_training[i_db]
             _db_test = _list_databases_test[i_db]
+            #[TO-DO]: tem que checar se o dataset de training esta alinhadoi com o datasert de test…se nao vai dar merda
             _samples = _list_simulation_samples[i_db][i_simulation]
             # _model = _list_models[i_model]
 
+            #[TO-DO]: fazre um teste se o dataset tem X1, X2... etc
             _temp_X_columns = list(_db.loc[:,_db.columns.str.startswith("X")].columns)
     
             # print("db = ", i_db)
@@ -123,14 +126,14 @@ for i_db in range(len(_list_databases_training)):
 
 #                 #prepara X and y
 #                 X_train = _db[_db['sample_id'].isin(_samples_temp)].loc[:,_temp_X_columns]
-#                 y_train_true = _db[_db['sample_id'].isin(_samples_temp)].loc[:,'label']
+#                 y_train_true = _db[_db['sample_id'].isin(_samples_temp)].loc[:,'labels']
 
 #                 #FIT - train model:
 #                 _list_models[i_model].fit(X_train, y_train_true)
 
 #                 #db test (evaluation):
 #                 X_test = _db_test.loc[:,_temp_X_columns]
-#                 y_test_true = _db_test.loc[:,'label']
+#                 y_test_true = _db_test.loc[:,'labels']
 
 #                 #Predict:
 #                 y_test_predict = _list_models[i_model].predict_proba()

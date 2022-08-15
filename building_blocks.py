@@ -57,10 +57,10 @@ def func_B(x, Vt):
     
     
     
-def func_SPB(Vc, Vt, index, print_count = 25):
+def func_SPB(Vc, Vt, sample_id_list, print_count = 25):
     
     # Vc = feature vector candidates
-    # Vt = training Vector samples    
+    # Vt = training Vector samples (labeled) 
     
     print_count_acc = 0
     _max_distance = None
@@ -83,9 +83,12 @@ def func_SPB(Vc, Vt, index, print_count = 25):
                 None
                     
 
-    candidate = index[candidate]
+    candidate = sample_id_list[candidate]
     #print(candidate)    
     return _max_distance, candidate
+
+
+
 
 
 def func_CLU(Vc, columns):
