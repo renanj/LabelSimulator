@@ -28,9 +28,15 @@ from scipy.spatial import distance_matrix
 
 import building_blocks as bblocks
 
+import os
 
 
 #CUIDADO!: o return 'e o SAMPLE_ID e nao o index...
+
+
+# def f_random(df):
+
+#     #TBD
 
 def f_NSS(df, sample_selector=None):
 
@@ -199,3 +205,15 @@ def f_OUT(df, _k=5):
         _temp_df = _temp_df.reset_index(drop=True)
         
     return list(_temp_df['sample_id_order'])
+
+
+
+# def orchestrator_simulation(simulation_name):
+
+
+#     if ... 
+
+
+
+
+#     else "T"
