@@ -1,7 +1,9 @@
 data/*.png
 data/*/*.png
 data/*/*/*.png
+data/*/*/*/*.png
 
 data/*.pkl
 data/*/*.pkl
 data/*/*/*.pkl
+data/*/*/*/*.pkl
