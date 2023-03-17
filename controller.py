@@ -35,7 +35,7 @@ def label_simulator_run():
     else:
         if input_list.count('9') > 0:
            for _key in scripts_dict.keys():
-              print(scripts_dict[_key])
+                print(scripts_dict[_key])
                 subprocess.run(['python3', scripts_dict[_key]])            
                 
         else:

@@ -17,6 +17,7 @@ def copy_images(imagePaths, folder):
 	if not os.path.exists(folder):
 		os.makedirs(folder)
 
+
 	# loop over the image pathsPLANCTON_DATASET_PATH
 	for path in imagePaths:
 		# grab image name and its label from the path and create
