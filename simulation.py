@@ -19,7 +19,7 @@ from sklearn import neighbors, datasets
 from sklearn.manifold import TSNE
 
 import random
-from celluloid import Camera
+# from celluloid import Camera
 
 import warnings
 warnings.filterwarnings('ignore')

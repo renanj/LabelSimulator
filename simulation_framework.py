@@ -19,8 +19,11 @@ config = config.config
 #Plancton, mnist, etc...
 print('[INFO] Starting Simulation Framework')
 for db_paths in config._list_data_sets_path:
+    print("\n\nPATH -------")
+    print('=====================')
     print(db_paths[0])
     print('=====================')
+    print('=====================\n')
     #folders for db extract (vgg16, vgg18, etc)
     _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]    
     for _deep_learning_arq_sub_folders in _deep_learning_arq_sub_folders:
@@ -90,15 +93,15 @@ for db_paths in config._list_data_sets_path:
                     ]
 
 
-                    _path_training = 'data/plancton/splited/train/plancton_train.pkl'
-                    _path_test = 'data/plancton/splited/val/plancton_val.pkl'
+                    # _path_training = 'data/plancton/splited/train/plancton_train.pkl'
+                    # _path_test = 'data/plancton/splited/val/plancton_val.pkl'
 
-                    df_training = pd.read_pickle(_path_training)
-                    df_test = pd.read_pickle(_path_test)
+                    # df_training = pd.read_pickle(_path_training)
+                    # df_test = pd.read_pickle(_path_test)
 
-                    _list_databases_training.append(df_training)
-                    _list_databases_test.append(df_test)
-                    _list_databases_name.append('plancton')
+                    # _list_databases_training.append(df_training)
+                    # _list_databases_test.append(df_test)
+                    # _list_databases_name.append('plancton')
 
 
 

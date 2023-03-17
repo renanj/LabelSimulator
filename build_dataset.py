@@ -78,4 +78,10 @@ for db_paths in config._list_data_sets_path:
 	print("[INFO] copying training and validation images...")
 	copy_images(trainPaths, db_paths[2])
 	copy_images(valPaths, db_paths[3])
+	# print("valPath = ", valPaths)
+
+	# print("db_paths[2] = ", db_paths[2])
+
+	# print("trainPaths = ", trainPaths)
+	# print("db_paths[3] = ", db_paths[3])
 	print("____________________________")
