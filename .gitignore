@@ -7,3 +7,9 @@ data/*.pkl
 data/*/*.pkl
 data/*/*/*.pkl
 data/*/*/*/*.pkl
+
+
+data/*.zip
+data/*/*.zip
+data/*/*/*.zip
+data/*/*/*/*.zip

@@ -15,6 +15,7 @@ config = config.config
 from imutils import paths
 import pandas as pd
 
+from tqdm import tqdm_notebook as tqdm
 
 
 
@@ -152,5 +153,3 @@ for db_paths in config._list_data_sets_path:
             _pkl_folder_model_name_path = _folder_model_name_path + '/' + _pkl_name
             df.to_pickle(_pkl_folder_model_name_path) 
             model_name_i = model_name_i + 1
-
-
