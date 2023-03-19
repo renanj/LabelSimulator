@@ -25,6 +25,7 @@ class config:
 
     _list_simulation_sample_name = ['Random', 'NSS', 'SPB','DEN', 'OUT']
     _list_train_val = ['train'] #, 'val'
+    #_list_train_val = ['val'] #, 'val'
     #controller: 
     _list_data_sets_path = [      
 
