@@ -30,6 +30,7 @@ import building_blocks as bblocks
 
 import os
 
+import faiss
 
 #CUIDADO!: o return 'e o SAMPLE_ID e nao o index...
 
@@ -38,24 +39,28 @@ import os
 
 #     #TBD
 
-def f_NSS(df, sample_selector=None):
 
-    # nearest_spatial_neighbors
-    # Nearest Spatial Neighbors
+def func_NSN(_df, _columns=None, _neighbors=5):
 
-    # It will give a list with order necessary to be choosed    
-    # df: dataframe with columns 'sample_id', ['X1', 'X2', ... 'X'n], 'manual_label', 'label'
-    # output: order of sample_ids to be selected
+  if _columns == None:
+      _columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)
 
-    _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
-    distances, indices = bblocks.func_NSN(_df=df, _columns=_temp_X_columns, _neighbors=df.shape[0] - 1)
+  # Convert dataframe to numpy array
+  X = np.ascontiguousarray(_df[_columns].values.astype('float32'))
+  
+  # Create index
+  d = X.shape[1]
+  index = faiss.IndexFlatL2(d)
+  index.add(X)
+  
+  # Search for nearest neighbors
+  distances, indices = index.search(X, _neighbors)
+  
 
-    if sample_selector == None:
-        sample_selector = random.randrange(*sorted([0,df.shape[0]]))
-    
-    indices_from_sample = np.insert(indices[sample_selector], 0, sample_selector)
+  return distances, indices
 
-    return list(indices_from_sample)
+
+
 
 def f_SPB(df, samples_with_label=None):
 

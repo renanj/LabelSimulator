@@ -41,7 +41,8 @@ for db_paths in config._list_data_sets_path:
                 if _files !='df_'+ config._list_train_val[i_train_val] + '.pkl':
                     None
                 else:
-                    print ('    ' + _files)
+                    print("run... ")
+                    # print ('    ' + _files)
                     #print('.../' + _deep_learning_arq_sub_folder + '/' + _files)
                     
                     
@@ -124,7 +125,7 @@ for db_paths in config._list_data_sets_path:
                     _list_simulation_samples.append(_temp_list)
 
                     #SPB:
-                    _temp_list = sim.f_NSS(df)
+                    _temp_list = sim.f_SPB(df)
                     _list_simulation_samples.append(_temp_list)
 
                     #DEN:
@@ -273,7 +274,7 @@ for db_paths in config._list_data_sets_path:
                         _temp_df_list.append(_temp_df)
 
                     df_simulation = pd.concat(_temp_df_list)                
-                    df_simulation.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_simulation.pkl')
+                    df_simulation.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_simulation_' + config._list_train_val[i_train_val] + '.pkl')
 
                     #Chart - Chart - Chart:
                     _temp_df_chart = df_simulation[['Simulation Type', '# Samples Evaluated/Interaction Number', 'Accuracy']]
@@ -284,7 +285,7 @@ for db_paths in config._list_data_sets_path:
 
                     palette= _list_simulation_sample_pallete
 
-
+                    _chart = None
                     _chart = sns.lineplot(data=_temp_df_chart, 
                                 x="# Samples Evaluated/Interaction Number", 
                                 y="Accuracy", 
@@ -293,4 +294,4 @@ for db_paths in config._list_data_sets_path:
                                 )
 
                     figure = _chart.get_figure()
-                    figure.savefig(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'chart.png')                                        
+                    figure.savefig(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'chart' + config._list_train_val[i_train_val] + '.png')                                        

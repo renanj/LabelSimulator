@@ -23,14 +23,26 @@ import random
 import warnings
 warnings.filterwarnings('ignore')
 
+import faiss
 
 
-def func_NSN(_df, _columns, _neighbors=5):
-    
-    NSN = NearestNeighbors(n_neighbors=_neighbors, algorithm='ball_tree')
-    NSN.fit(_df[_columns])
-    distances, indices = NSN.kneighbors()    
-    return distances, indices
+
+
+def func_NSN(_df, _columns=None, _neighbors=5):
+
+  if _columns == None:
+      _columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)
+
+
+  X = np.ascontiguousarray(_df[_columns].values.astype('float32'))
+
+  d = X.shape[1]
+  index = faiss.IndexFlatL2(d)
+  index.add(X)
+  
+  
+  distances, indices = index.search(X, _neighbors)
+  return distances, indices    
 
 def func_B(x, Vt):
     # https://stackoverflow.com/questions/1401712/how-can-the-euclidean-distance-be-calculated-with-numpy
