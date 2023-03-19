@@ -56,13 +56,16 @@ class FeatureExtractor(nn.Module):
         return out 
 
 
-
-for db_paths in config._list_data_sets_path:	
+print ('[INFO] - Feature Extractor/n/n')
+for db_paths in config._list_data_sets_path:
+    print('Path = ', db_paths[0])
     model_name_i = 0
     # _l_train_val = ['train', 'val']
     # _l_train_val = ['train']
-    for model in _models:        
+    for model in _models:   
+        print('Model = ', model)             
         for i in range(len(config._list_train_val)):
+            print('Cohort = ', config._list_train_val[i])
             # for train_validation in range(2) --> se fosse fazer para train e validation. Mas no nosso caso so estamos fazendo para train 
 
             # Initialize the model
@@ -97,11 +100,10 @@ for db_paths in config._list_data_sets_path:
 
             df = pd.read_pickle(db_paths[i+2] + '/' + 'df_index_paths_' + config._list_train_val[i] + '.pkl')
             imagePaths = list(df['image_path'].to_list())
-
-
+            
         #     imagePaths = imagePaths[0:5]
             _id_count = 1
-            for path in (imagePaths):
+            for path in tqdm((imagePaths), colour="green"):
                 try:
                     img = cv2.imread(path)
                     img = transform(img)
@@ -158,3 +160,4 @@ for db_paths in config._list_data_sets_path:
             _pkl_folder_model_name_path = _folder_model_name_path + '/' + _pkl_name
             df.to_pickle(_pkl_folder_model_name_path) 
             model_name_i = model_name_i + 1
+            print('---------------/n/n')
