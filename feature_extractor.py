@@ -91,7 +91,12 @@ for db_paths in config._list_data_sets_path:
 
             
             # TRAIN ou VAL:
-            imagePaths = list(paths.list_images(db_paths[i+2])) # 2 and 3
+            imagePaths = list(paths.list_images(db_paths[i+2])) # 2 and 3 #Aqui esta pegando direto da pasta.... 
+            #vamos fazer diferente! vamos usar o INDEX para pegar as imagens da pasta RAW
+            #REad Datagframe and transform in a list
+
+            df = pd.read_picle(db_paths[i+2] + '/' + 'df_index_paths_' + config._list_train_val[i] + '.pkl')
+            imagePaths = list(df['image_path'].to_list())
 
 
         #     imagePaths = imagePaths[0:5]

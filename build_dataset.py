@@ -12,6 +12,9 @@ config = config.config
 
 
 
+
+
+
 def copy_images(imagePaths, folder):
 	# check if the destination folder exists and if not create it
 	if not os.path.exists(folder):
@@ -37,52 +40,69 @@ def copy_images(imagePaths, folder):
 
 
 
-# # load all the image paths and randomly shuffle them
-# print("[INFO] loading image paths...")
-# imagePaths = list(paths.list_images(config.PLANCTON_DATASET_PATH))
-# np.random.shuffle(imagePaths)
+def run_paths (_list_paths, input_index=True,  input_images=False):
+
+	 
+	for db_paths in _list_paths:	
+
+		#Create directory for everyone that is NOT RAW
+		for db_sub in db_paths:
+			if 'raw' in db_sub:
+				None
+			else:
+				if not os.path.exists(db_sub):
+					os.makedirs(db_sub)	
+					file_path = os.path.join(db_sub, '.gitkeep')
+					with open(file_path, 'w') as f:
+					    f.write('')					
 
 
-# ## In case we want to generate split & validation
-# # generate training and validation paths
-# valPathsLen = int(len(imagePaths) * config.VAL_SPLIT)
-# trainPathsLen = len(imagePaths) - valPathsLen
-# trainPaths = imagePaths[:trainPathsLen]
-# valPaths = imagePaths[trainPathsLen:]
-
-# # copy the training and validation images to their respective
-# # directories
-# print("[INFO] copying training and validation images...")
-# copy_images(trainPaths, config.PLANCTON_TRAIN)
-# copy_images(valPaths, config.PLANCTON_VAL)
+		# load all the image paths and randomly shuffle them
+		print("[INFO] loading image paths...")
+		print("db  ==  " , db_paths[0])
+		imagePaths = list(paths.list_images(db_paths[1]))
+		np.random.shuffle(imagePaths)
 
 
-
-for db_paths in config._list_data_sets_path:	
-
-	# load all the image paths and randomly shuffle them
-	print("[INFO] loading image paths...")
-	print("db  ==  " , db_paths[0])
-	imagePaths = list(paths.list_images(db_paths[1]))
-	np.random.shuffle(imagePaths)
+		## In case we want to generate split & validation
+		# generate training and validation paths
+		valPathsLen = int(len(imagePaths) * config.VAL_SPLIT)
+		trainPathsLen = len(imagePaths) - valPathsLen
+		trainPaths = imagePaths[:trainPathsLen]
+		valPaths = imagePaths[trainPathsLen:]
 
 
-	## In case we want to generate split & validation
-	# generate training and validation paths
-	valPathsLen = int(len(imagePaths) * config.VAL_SPLIT)
-	trainPathsLen = len(imagePaths) - valPathsLen
-	trainPaths = imagePaths[:trainPathsLen]
-	valPaths = imagePaths[trainPathsLen:]
+		#Create pkl.index... with train and val
+		df = pd.DataFrame(trainPaths, columns=['image_path'])
+		df.to_pickle(db_paths[2]  + '/' + 'df_index_paths_train.pkl')             
 
-	# copy the training and validation images to their respective
-	# directories
-	print("[INFO] copying training and validation images...")
-	copy_images(trainPaths, db_paths[2])
-	copy_images(valPaths, db_paths[3])
-	# print("valPath = ", valPaths)
 
-	# print("db_paths[2] = ", db_paths[2])
+		df = pd.DataFrame(valPaths, columns=['image_path'])
+		df.to_pickle(db_paths[3]  + '/' + 'df_index_paths_val.pkl')             
 
-	# print("trainPaths = ", trainPaths)
-	# print("db_paths[3] = ", db_paths[3])
-	print("____________________________")
+
+		if input_images == True: 
+			# copy the training and validation images to their respective
+			# directories
+			print("[INFO] copying training and validation images...")
+			copy_images(trainPaths, db_paths[2])
+			copy_images(valPaths, db_paths[3])
+			# print("valPath = ", valPaths)
+
+			# print("db_paths[2] = ", db_paths[2])
+
+			# print("trainPaths = ", trainPaths)
+			# print("db_paths[3] = ", db_paths[3])
+			print("____________________________")
+		else:
+			print("[INFO] images will NOT be copied to train and validation paths")
+			None
+
+
+
+
+run_paths(
+	_list_paths = config._list_data_sets_path,
+	input_index=True,  
+	input_images=False
+)
