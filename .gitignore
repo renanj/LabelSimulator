@@ -1,10 +1,5 @@
 **/.DS_Store
 
-data/*/raw/*
-data/*/splited/*
-data/*/splited/train/*
-data/*/splited/val/*
-
 data/*.png
 data/*/*.png
 data/*/*/*.png
@@ -22,10 +17,10 @@ data/*/*.zip
 data/*/*/*.zip
 data/*/*/*/*.zip
 
-data/*.ppm
-data/*/*.ppm
-data/*/*/*.ppm
-data/*/*/*/*.ppm
+data/*.bmp
+data/*/*.bmp
+data/*/*/*.bmp
+data/*/*/*/*.bmp
 
 data/*.jpeg
 data/*/*.jpeg
@@ -36,3 +31,19 @@ data/*.jpg
 data/*/*.jpg
 data/*/*/*.jpg
 data/*/*/*/*.jpg
+
+
+data/*.avi.ppm
+data/*/*.avi.ppm
+data/*/*/*.avi.ppm
+data/*/*/*/*.avi.ppm
+
+data/*.ppm
+data/*/*.ppm
+data/*/*/*.ppm
+data/*/*/*/*.ppm
+
+data/*.avi
+data/*/*.avi
+data/*/*/*.avi
+data/*/*/*/*.avi
