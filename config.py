@@ -35,16 +35,16 @@ class config:
             "data/mnist/splited/val",
             "data/mnist/db_feature_extractor",
             "data/mnist/results_consolidated"
-        ],
+        ]
 
-        [
-            "data/plancton",
-            "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
-            "data/plancton/splited/train",
-            "data/plancton/splited/val",
-            "data/plancton/db_feature_extractor",
-            "data/plancton/results_consolidated"
-        ],                                   
+        # ,[
+        #     "data/plancton",
+        #     "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
+        #     "data/plancton/splited/train",
+        #     "data/plancton/splited/val",
+        #     "data/plancton/db_feature_extractor",
+        #     "data/plancton/results_consolidated"
+        # ]                                   
 
 
     ]
