@@ -29,36 +29,220 @@ from scipy.spatial import distance_matrix
 import building_blocks as bblocks
 
 import os
-
 import faiss
-
-#CUIDADO!: o return 'e o SAMPLE_ID e nao o index...
-
-
-# def f_random(df):
-
-#     #TBD
+import random
+import math
 
 
-def func_NSN(_df, _columns=None, _neighbors=5):
+#WARNING: "index" and "sample_id" are completing different thngs... !
 
-  if _columns == None:
-      _columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)
+def f_run_simulations(df_embbedings, simulation_list = None):
 
-  # Convert dataframe to numpy array
-  X = np.ascontiguousarray(_df[_columns].values.astype('float32'))
-  
-  # Create index
-  d = X.shape[1]
-  index = faiss.IndexFlatL2(d)
-  index.add(X)
-  
-  # Search for nearest neighbors
-  distances, indices = index.search(X, _neighbors)
-  
+    
+    if simulation_list == None:
+        simulation_list = ['Random', 'Equal_Spread', 'Dense_Areas_First', 'Centroids_First', 'Cluster_Boarder_First',  'Outliers_First']
+    else:
+        if 'Random' not in simulation_list:
+            simulation_list.append('Random')
+        else: 
+            None
 
-  return distances, indices
 
+    #generate array with Embbedings info ("X1, X2, X3..." columns)
+    _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
+    if _temp_X_columns == None:
+      _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
+
+    X = np.ascontiguousarray(df_embbedings[_temp_X_columns].values.astype('float32'))
+    d = X.shape[1]
+    
+    #calculate FAISS index... 
+    index = faiss.IndexFlatL2(d)
+    index.add(X)    
+    _neighbors = df_embbedings.shape[0]
+    faiss_distances, faiss_indices = index.search(X, _neighbors)
+
+
+    #Specific for Random -- we will used for Random as simulation, but also for cold start
+    _random_samples_index = random.sample(range(df_embbedings.shape[0]),df_embbedings.shape[0])
+    _random_samples_id = list(df_embbedings['sample_id'].iloc[_random_samples_index])
+
+    
+
+    _list_simulations_proceeded = []
+    _list_simulations_sample_id = []
+
+
+    #Run each Simulation on "simulation_list":
+    for _sim in simulation_list:
+
+
+        if _sim == 'Random':
+
+            
+            #Output
+            # -------------------------
+            _list_simulations_sample_id.append(_random_samples_id)                    
+            _list_simulations_proceeded.append(_sim)
+
+
+        elif _sim == 'Equal_Spread':
+            
+            #Cold Start:
+            #at least 20% or min 50 samples will need to be labeded on cold start
+            if len(_random_samples_id) >= 500:
+                _cold_start_samples_id  = _random_samples_id[0:50]
+            else:
+                _cold_start_samples_id  = _random_samples_id[0:math.ceil(0.2*len(_random_samples_id))] # 20% of dataset
+
+
+            ###### BEGINNING OF FUNCTION ###### ###### ###### ###### ###### ###### ###### ###### ######
+
+            # Set the random seed for reproducibility
+
+            # Initialize Vc and Vt as indices
+            label_samples_id = _cold_start_samples_id
+            unlabel_samples_id = list(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])
+
+
+            # Initialize the list of selected sample indices during the script
+            selected_sample_id = []            
+
+            while len(unlabel_samples_id) >0:
+
+
+                df_embbedings_label = df_embbedings[df_embbedings['sample_id'].isin(label_samples_id)].copy()
+                df_embbedings_label = df_embbedings_label.reset_index(drop=True)
+                X_label_samples = np.ascontiguousarray(df_embbedings_label[_temp_X_columns].values.astype('float32'))
+                d_label_samples = X_label_samples.shape[1]
+
+
+                df_embbedings_unlabel = df_embbedings[~df_embbedings['sample_id'].isin(label_samples_id)].copy()
+                df_embbedings_unlabel = df_embbedings_unlabel.reset_index(drop=True)
+                X_unlabel_samples = np.ascontiguousarray(df_embbedings_unlabel[_temp_X_columns].values.astype('float32'))
+                d_unlabel_samples = X_unlabel_samples.shape[1]                
+
+
+
+                #calculate FAISS index... 
+                index_label_samples = faiss.IndexFlatL2(d_label_samples)
+                index_label_samples.add(X_label_samples)    
+
+                # _neighbors_labels = df_embbedings_label.shape[0]
+                _query_unlabel = np.ascontiguousarray(df_embbedings_unlabel[_temp_X_columns].values.astype('float32'))
+
+
+                #Min distance
+                min_distances, min_indices = index_label_samples.search(_query_unlabel, k=1)
+                
+                # Find the index of the sample in min_distance array with the maximum minimum distance to labeled
+                index_unlabel_max_min_dist = np.argmax(min_distances)
+                # Using the index found previously, find the correspondet sample_id in unlabeled_df                            
+                result_max_min_sample_id = df_embbedings_unlabel['sample_id'][df_embbedings_unlabel.index ==index_unlabel_max_min_dist]
+                
+
+                #Add the sample_id in label_sample_ids and remove from unlabeled_sample_ids                
+                unlabel_samples_id = np.delete(unlabel_samples_id, result_max_min_sample_id.index[0])                
+                label_samples_id = np.concatenate((label_samples_id , [result_max_min_sample_id.values[0]]))                                
+
+                #Add to the selected_sample_id
+                selected_sample_id.append(result_max_min_sample_id.values[0])
+                
+            ###### END OF FUNCTION ###### ###### ###### ###### ###### ###### ###### ###### ######
+
+            #Output
+            # -------------------------
+            temp_list = _cold_start_samples_id + selected_sample_id
+
+            _list_simulations_sample_id.append(temp_list)                                
+            _list_simulations_proceeded.append(_sim)
+
+
+
+
+        elif _sim == 'Dense_Areas_First' or _sim == 'Outliers_First':
+            
+
+            #[TO-DO] Falta incluir o SPB e balancear com o DEN (50% and 50%)
+
+            k = 5            
+            den_scores_array = -np.sum(faiss_distances[:, :k]**2, axis=-1) / k
+            den_scores_list = list(den_scores_array)
+            den_index_list = range(len(den_scores_list))
+            #create temp_df, sort by score descending order and use den_index to capture the sample_id
+            
+
+            temp_df = df_embbedings[['sample_id']].copy()
+            temp_df['den_score'] = den_scores_array
+
+
+
+            if _sim == 'Dense_Areas_First':
+                temp_df = temp_df.sort_values(by='den_score', ascending=False).reset_index(drop=True)
+            else:
+                temp_df = temp_df.sort_values(by='den_score', ascending=True).reset_index(drop=True)
+
+
+            #Output
+            # -------------------------
+            _list_simulations_sample_id.append(list(temp_df['sample_id']))
+            _list_simulations_proceeded.append(_sim)
+
+
+
+
+        elif _sim == 'Centroids_First':
+            #Run DEN
+
+
+
+
+
+            #Output
+            # -------------------------
+            _list_simulations_sample_id.append(    )                    
+            _list_simulations_proceeded.append(_sim)
+
+
+
+        elif _sim == 'Cluster_Boarder_First':
+            #Run OUT
+
+
+
+            #Output
+            # -------------------------
+            _list_simulations_sample_id.append(    )                    
+            _list_simulations_proceeded.append(_sim)
+
+
+
+        # elif _sim == 'Outliers_First':
+        #     #Run OUT            
+
+
+
+        #     #Output
+        #     # -------------------------
+        #     _list_simulations_sample_id.append(    )                    
+        #     _list_simulations_proceeded.append(_sim)            
+
+        else:
+            print("We don't have a function ready for {} simulation!", _sim)
+
+
+
+
+def f_NSS(df, sample_selector=None):
+
+    _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
+    distances, indices = bblocks.func_NSN(_df=df, _columns=_temp_X_columns, _neighbors=df.shape[0] - 1)
+
+        sample_selector = random.randrange(*sorted([0,df.shape[0]]))
+    
+    indices_from_sample = np.insert(indices[sample_selector], 0, sample_selector)
+
+    return list(indices_from_sample)
 
 
 
@@ -211,14 +395,22 @@ def f_OUT(df, _k=5):
         
     return list(_temp_df['sample_id_order'])
 
-
-
 # def orchestrator_simulation(simulation_name):
 
 
 #     if ... 
 
 
-
-
 #     else "T"
+
+
+
+Vt = random
+Vc = df - random_samples
+distance_matrix = []
+
+for i in range(len(Vc)):
+
+
+    _filtered_distance_matrix = ##### filter index by Vc and columns (Kn) by Vt  
+    #for each V m

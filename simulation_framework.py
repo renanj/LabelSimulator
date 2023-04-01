@@ -94,50 +94,12 @@ for db_paths in config._list_data_sets_path:
                     ]
 
 
-                    # _path_training = 'data/plancton/splited/train/plancton_train.pkl'
-                    # _path_test = 'data/plancton/splited/val/plancton_val.pkl'
 
-                    # df_training = pd.read_pickle(_path_training)
-                    # df_test = pd.read_pickle(_path_test)
-
-                    # _list_databases_training.append(df_training)
-                    # _list_databases_test.append(df_test)
-                    # _list_databases_name.append('plancton')
-
-
-
-                    # INPUT -- INPUT -- INPUT -- INPUT -- INPUT -- INPUT -- INPUT -- INPUT -- 
-                    _list_simulation_sample_name = ['Random', 'NSS', 'SPB','DEN', 'OUT']
+                    # INPUT -- INPUT -- INPUT -- INPUT -- INPUT -- INPUT -- INPUT -- INPUT --                     
                     _list_simulation_sample_pallete = ['#F22B00', '#40498e', '#357ba3', '#38aaac', '#79d6ae']
-
-
-
-                    #_list_simulation_samples.append([])
+                    # _list_simulation_samples = []
+                    _list_simulation_sample_name, _list_simulation_samples = sim.f_run_simulations(df_embbedings = df, simulation_list = None)
                     
-                    #Random:    
-                    _list_simulation_samples.append(random.sample(
-                        range(df.shape[0]), 
-                        df.shape[0]))
-                    
-
-                    #NSS:
-                    _temp_list = sim.f_NSS(df)
-                    _list_simulation_samples.append(_temp_list)
-
-                    #SPB:
-                    _temp_list = sim.f_SPB(df)
-                    _list_simulation_samples.append(_temp_list)
-
-                    #DEN:
-                    _temp_list = sim.f_DEN(df)
-                    _list_simulation_samples.append(_temp_list)    
-
-                    #OUT:
-                    _temp_list = sim.f_OUT(df)
-                    _list_simulation_samples.append(_temp_list)    
-
-
-
 
 
 
@@ -173,7 +135,7 @@ for db_paths in config._list_data_sets_path:
                             for i in range(len(_samples)):
 
                                 if ((i + 1) % LOG_EVERY_N) == 0:
-                                    print ("Interaction = ", i + 1 / len(samples))
+                                    print ("Interaction = ", i + 1 / len(_samples))
 
                                 _samples_temp = _samples[0:i+1]
 
