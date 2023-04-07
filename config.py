@@ -30,9 +30,8 @@ class config:
     _list_data_sets_path = [      
 
         [
-            "data/mnist", 
-            "data/mnist/raw", 
-            # "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
+            "data/mnist",             
+            "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
             "data/mnist/splited/train",
             "data/mnist/splited/val",
             "data/mnist/db_feature_extractor",
