@@ -1,20 +1,13 @@
+import pandas as pd 
+import numpy as np 
 from cuml.manifold import TSNE
+import os
 
-# change feature extraxtion folder to vgg_16__{{RAW}} WHEN THERE Is no dim reduction
-
-
-# https://medium.com/rapids-ai/tsne-with-gpus-hours-to-seconds-9d9c17c941db
-
-
-
-# 1) Read .pkl on feature_extraction folder
-# 2) run tsn-e and:
-    # a) export a .pkl in the same db with structure 'arq_name_{{visualization_mode}}' - e.g.: "vgg_16_tsn_e.pkl"
-    # b) 
+import config as config
+config = config.config
 
 dim_reduction_list = ['t-SNE']
 
-#Plancton, mnist, etc...
 print('[INFO] Starting Dimension Reduction Script')
 for db_paths in config._list_data_sets_path:
     print("\n\nPATH -------")
