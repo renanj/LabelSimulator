@@ -182,7 +182,9 @@ for db_paths in config._list_data_sets_path:
                             _results_output[0].append('Outcome_' + str(i_Outcome_))
                             _results_output[1].append(_name_temp)
                             _results_output[2].append(db_paths[0].split('/')[1])
-                            _results_output[3].append(_deep_learning_arq_sub_folders)                            
+                            _results_output[3].append(_deep_learning_arq_sub_folders)
+                            #aqui teria que fazer uma funccao para separar os nomes ex: vgg_16__tsn_e ou {{dl_arc}}__{{dim_reduction}}
+                            #e criar um novo output com o dim_reduction
                             _results_output[4].append(_list_simulation_sample_name[i_simulation])            
                             _results_output[5].append(_list_models_name[i_model])
                             _results_output[6].append(_model.get_params())            
