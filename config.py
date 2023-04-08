@@ -13,8 +13,8 @@ class config:
     INPUT_WIDTH = 128
 
     # set the batch size and validation data split
-    BATCH_SIZE = 8
-    VAL_SPLIT = 0
+    BATCH_SIZE = 0
+    VAL_SPLIT = 0.9
 
 
 
@@ -31,7 +31,7 @@ class config:
 
         [
             "data/mnist",             
-            "../../../../../q/mnist/raw",  ## Apontar o RAW para code_lab
+            "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
             "data/mnist/splited/train",
             "data/mnist/splited/val",
             "data/mnist/db_feature_extractor",

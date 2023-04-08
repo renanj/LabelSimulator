@@ -10,17 +10,21 @@ dim_reduction_list = ['t-SNE']
 
 
 def f_dim_reduction(df, dim_r, n_dimensions=2):
-    if dim_r == 't-SNE':
-        #colunas X....
-        _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
-        tsne = TSNE(n_components = n_dimensions)
-        X_2dimensions = tsne.fit_transform(df.loc[:,_temp_X_columns])        
-        # X_2dimensions[:,0], X_2dimensions[:,1]        
-        df = pd.concat([df, pd.DataFrame(arr, columns=["X1", "X2"])], axis=1
-        return df 
-    else:
-        print ("We don't have a dim_reduction algo with this name")
-        return None
+  if dim_r == 't-SNE':
+    #colunas X....
+    _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
+    tsne = TSNE(n_components = n_dimensions)
+    X_2dimensions = tsne.fit_transform(df.loc[:,_temp_X_columns])        
+    X_2dimensions = X_2dimensions.rename(columns={0: 'X1', 1: 'X2'})
+    # X_2dimensions[:,0], X_2dimensions[:,1]        
+    df = pd.concat([df[['sample_id',	'name',	'labels',	'manual_label']], X_2dimensions], axis=1)
+    	
+    return df        
+    
+  else:
+    print ("We don't have a dim_reduction algo with this name")
+    
+  
 
 
 
@@ -58,6 +62,9 @@ for db_paths in config._list_data_sets_path:
                     df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folders + '/' + _files) 
                     
                     for dim_r in dim_reduction_list:                        
-                        df = f_dim_reduction(df, dim_r)                                
+                        df = f_dim_reduction(df, dim_r)  
+                        #Check if Folder Exist
+                        if not os.path.exists(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '__' +  dim_r):
+                          os.makedirs(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '__' +  dim_r)
                         df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '__' +  dim_r + '/' + 'df_' + config._list_train_val[i_train_val] + '.pkl')                                                            
                     print('---------------/n/n')
