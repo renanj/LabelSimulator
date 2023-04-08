@@ -31,7 +31,7 @@ class config:
 
         [
             "data/mnist",             
-            "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
+            "../../../../../q/mnist/raw",  ## Apontar o RAW para code_lab
             "data/mnist/splited/train",
             "data/mnist/splited/val",
             "data/mnist/db_feature_extractor",
