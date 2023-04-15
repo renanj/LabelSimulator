@@ -58,11 +58,21 @@ def f_run_simulations(df_embbedings, simulation_list = None):
     
     #calculate FAISS index... 
     index = faiss.IndexFlatL2(d)
-    index.add(X)    
+    #Settings the IDs based on sample_id column & creating the correct "index"
+    sample_ids = df_embbedings['sample_id'].values
+    index = faiss.IndexIDMap(index)    
+    # index.add(X)    
+    index.add_with_ids(X, sample_ids) #creating the index with the sample_ids instead of sequential value
+    #For reference: https://github.com/facebookresearch/faiss/wiki/Pre--and-post-processing
     _neighbors = df_embbedings.shape[0]
     faiss_distances, faiss_indices = index.search(X, _neighbors)
 
+    #Generate DFs for Faiss Indices & Distance
+    df_faiss_indices = pd.DataFrame(faiss_indices, index=sample_ids, columns=sample_ids)
+    df_faiss_distances = pd.DataFrame(faiss_distances, index=sample_ids, columns=sample_ids)
 
+
+    CHWECK!!!
     #Specific for Random -- we will used for Random as simulation, but also for cold start
     _random_samples_index = random.sample(range(df_embbedings.shape[0]),df_embbedings.shape[0])
     _random_samples_id = list(df_embbedings['sample_id'].iloc[_random_samples_index])
@@ -108,6 +118,84 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             # Initialize the list of selected sample indices during the script
             selected_sample_id = []            
 
+
+            while len(unlabel_samples_id) >0:
+               
+
+                # define excluded elements
+                excluded_elements = label_samples_id
+                # create a mask where True corresponds to cells containing the excluded elements
+                mask = df_faiss_indices.isin(excluded_elements)
+                # create a new DataFrame with the values excluding excluded elements
+                df_faiss_indices_with_NaN = df_faiss_indices.mask(mask)
+                # check if length of df and result is the same
+                if len(df_faiss_indices) != len(df_faiss_indices_with_NaN):
+                    df_faiss_indices_with_NaN = df_faiss_indices_with_NaN.reindex(df_faiss_indices.index)
+                #Replace first column with NaN
+                df_faiss_indices_with_NaN.iloc[:,0] = np.NaN
+
+                df_mask_boolean = df_faiss_indices_with_NaN.iloc[:,:].fillna(0)
+                df_mask_boolean = df_mask_boolean.applymap(lambda x: 0 if x == 0 else 1)
+                # df_mask_true_false = df_mask_boolean.applymap(lambda x: False if x == 0 else True)
+
+                df_faiss_distances_with_NaN = df_faiss_distances * df_mask_boolean
+                df_faiss_distances_with_NaN = df_faiss_distances_with_NaN.replace(0, np.NaN)        
+
+                df_faiss_indices_with_NaN = df_faiss_indices_with_NaN[df_faiss_indices_with_NaN.index.isin(label_samples_id)]
+                df_faiss_distances_with_NaN = df_faiss_distances_with_NaN[df_faiss_distances_with_NaN.index.isin(label_samples_id)]
+
+
+                df_faiss_indices_with_NaN['closest_value'] = df_faiss_indices_with_NaN.apply(closest_value, axis=1)
+                df_faiss_distances_with_NaN['closest_value'] = df_faiss_distances_with_NaN.apply(closest_value, axis=1)
+
+                df_faiss_indices_with_NaN_result = df_faiss_indices_with_NaN.loc[:,'closest_value']
+                # df_faiss_distances_with_NaN_result = df_faiss_distances_with_NaN.loc[:,'closest_value']
+                # df_faiss_indices_with_NaN_result[df_faiss_distances_with_NaN_result.idxmax()]
+
+                sample_selected_result = df_faiss_indices_with_NaN_result[df_faiss_distances_with_NaN.loc[:,'closest_value'].idxmax()]
+                
+
+                #Add the sample_id in label_sample_ids and remove from unlabeled_sample_ids                
+                unlabel_samples_id = np.delete(unlabel_samples_id, sample_selected_result)
+                label_samples_id = np.concatenate((label_samples_id , sample_selected_result))                                
+
+                #Add to the selected_sample_id
+                selected_sample_id.append(sample_selected_result)
+
+                
+            ###### END OF FUNCTION ###### ###### ###### ###### ###### ###### ###### ###### ######
+
+            #Output
+            # -------------------------
+            temp_list = _cold_start_samples_id + selected_sample_id
+
+            _list_simulations_sample_id.append(temp_list)                                
+            _list_simulations_proceeded.append(_sim)
+
+
+        elif _sim == 'old_version_Equal_Spread':
+            
+            #Cold Start:
+            #at least 20% or min 50 samples will need to be labeded on cold start
+            if len(_random_samples_id) >= 500:
+                _cold_start_samples_id  = _random_samples_id[0:50]
+            else:
+                _cold_start_samples_id  = _random_samples_id[0:math.ceil(0.2*len(_random_samples_id))] # 20% of dataset
+
+
+            ###### BEGINNING OF FUNCTION ###### ###### ###### ###### ###### ###### ###### ###### ######
+
+            # Set the random seed for reproducibility
+
+            # Initialize Vc and Vt as indices
+            label_samples_id = _cold_start_samples_id
+            unlabel_samples_id = list(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])
+
+
+            # Initialize the list of selected sample indices during the script
+            selected_sample_id = []            
+
+
             while len(unlabel_samples_id) >0:
 
 
@@ -147,6 +235,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
 
                 #Add to the selected_sample_id
                 selected_sample_id.append(result_max_min_sample_id.values[0])
+
                 
             ###### END OF FUNCTION ###### ###### ###### ###### ###### ###### ###### ###### ######
 
@@ -156,6 +245,8 @@ def f_run_simulations(df_embbedings, simulation_list = None):
 
             _list_simulations_sample_id.append(temp_list)                                
             _list_simulations_proceeded.append(_sim)
+
+
 
 
 
