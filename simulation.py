@@ -71,8 +71,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
     df_faiss_indices = pd.DataFrame(faiss_indices, index=sample_ids, columns=sample_ids)
     df_faiss_distances = pd.DataFrame(faiss_distances, index=sample_ids, columns=sample_ids)
 
-
-    CHWECK!!!
+    
     #Specific for Random -- we will used for Random as simulation, but also for cold start
     _random_samples_index = random.sample(range(df_embbedings.shape[0]),df_embbedings.shape[0])
     _random_samples_id = list(df_embbedings['sample_id'].iloc[_random_samples_index])
@@ -96,7 +95,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             _list_simulations_proceeded.append(_sim)
 
 
-        elif _sim == 'Equal_Spread':
+        elif _sim == 'Equal_SpreadE':
             
             #Cold Start:
             #at least 20% or min 50 samples will need to be labeded on cold start
