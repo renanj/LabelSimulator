@@ -36,6 +36,13 @@ import math
 
 #WARNING: "index" and "sample_id" are completing different thngs... !
 
+def closest_value(row):
+    non_null_values = row.dropna()
+    if non_null_values.empty:
+        return None
+    else:
+        return non_null_values.iloc[0]
+
 def f_run_simulations(df_embbedings, simulation_list = None):
 
     
@@ -152,11 +159,13 @@ def f_run_simulations(df_embbedings, simulation_list = None):
                 # df_faiss_indices_with_NaN_result[df_faiss_distances_with_NaN_result.idxmax()]
 
                 sample_selected_result = df_faiss_indices_with_NaN_result[df_faiss_distances_with_NaN.loc[:,'closest_value'].idxmax()]
+                sample_selected_result = int(sample_selected_result)
                 
 
                 #Add the sample_id in label_sample_ids and remove from unlabeled_sample_ids                
-                unlabel_samples_id = np.delete(unlabel_samples_id, sample_selected_result)
-                label_samples_id = np.concatenate((label_samples_id , sample_selected_result))                                
+                unlabel_samples_id = np.delete(unlabel_samples_id, np.where(unlabel_samples_id == sample_selected_result))
+                label_samples_id = np.concatenate([label_samples_id , np.array([sample_selected_result])])                
+                                             
 
                 #Add to the selected_sample_id
                 selected_sample_id.append(sample_selected_result)
@@ -328,7 +337,7 @@ def f_NSS(df, sample_selector=None):
     _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
     distances, indices = bblocks.func_NSN(_df=df, _columns=_temp_X_columns, _neighbors=df.shape[0] - 1)
 
-        sample_selector = random.randrange(*sorted([0,df.shape[0]]))
+    sample_selector = random.randrange(*sorted([0,df.shape[0]]))
     
     indices_from_sample = np.insert(indices[sample_selector], 0, sample_selector)
 
@@ -484,23 +493,3 @@ def f_OUT(df, _k=5):
         _temp_df = _temp_df.reset_index(drop=True)
         
     return list(_temp_df['sample_id_order'])
-
-# def orchestrator_simulation(simulation_name):
-
-
-#     if ... 
-
-
-#     else "T"
-
-
-
-Vt = random
-Vc = df - random_samples
-distance_matrix = []
-
-for i in range(len(Vc)):
-
-
-    _filtered_distance_matrix = ##### filter index by Vc and columns (Kn) by Vt  
-    #for each V m
