@@ -33,6 +33,8 @@ import faiss
 import random
 import math
 
+import tqdm
+
 
 #WARNING: "index" and "sample_id" are completing different thngs... !
 
@@ -47,7 +49,8 @@ def f_run_simulations(df_embbedings, simulation_list = None):
 
     
     if simulation_list == None:
-        simulation_list = ['Random', 'Equal_Spread', 'Dense_Areas_First', 'Centroids_First', 'Cluster_Boarder_First',  'Outliers_First']
+        # simulation_list = ['Random', 'Equal_Spread', 'Dense_Areas_First', 'Centroids_First', 'Cluster_Boarder_First',  'Outliers_First']
+        simulation_list = ['Random', 'Equal_Spread']
     else:
         if 'Random' not in simulation_list:
             simulation_list.append('Random')
@@ -131,50 +134,52 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             selected_sample_id = []            
 
 
-            while len(unlabel_samples_id) >0:
-               
+            with tqdm(total=len(unlabel_samples_id)) as pbar:            
+                while len(unlabel_samples_id) >0:
+                   
 
-                # define excluded elements
-                excluded_elements = label_samples_id
-                # create a mask where True corresponds to cells containing the excluded elements
-                mask = df_faiss_indices.isin(excluded_elements)
-                # create a new DataFrame with the values excluding excluded elements
-                df_faiss_indices_with_NaN = df_faiss_indices.mask(mask)
-                # check if length of df and result is the same
-                if len(df_faiss_indices) != len(df_faiss_indices_with_NaN):
-                    df_faiss_indices_with_NaN = df_faiss_indices_with_NaN.reindex(df_faiss_indices.index)
-                #Replace first column with NaN
-                df_faiss_indices_with_NaN.iloc[:,0] = np.NaN
+                    # define excluded elements
+                    excluded_elements = label_samples_id
+                    # create a mask where True corresponds to cells containing the excluded elements
+                    mask = df_faiss_indices.isin(excluded_elements)
+                    # create a new DataFrame with the values excluding excluded elements
+                    df_faiss_indices_with_NaN = df_faiss_indices.mask(mask)
+                    # check if length of df and result is the same
+                    if len(df_faiss_indices) != len(df_faiss_indices_with_NaN):
+                        df_faiss_indices_with_NaN = df_faiss_indices_with_NaN.reindex(df_faiss_indices.index)
+                    #Replace first column with NaN
+                    df_faiss_indices_with_NaN.iloc[:,0] = np.NaN
 
-                df_mask_boolean = df_faiss_indices_with_NaN.iloc[:,:].fillna(0)
-                df_mask_boolean = df_mask_boolean.applymap(lambda x: 0 if x == 0 else 1)
-                # df_mask_true_false = df_mask_boolean.applymap(lambda x: False if x == 0 else True)
+                    df_mask_boolean = df_faiss_indices_with_NaN.iloc[:,:].fillna(0)
+                    df_mask_boolean = df_mask_boolean.applymap(lambda x: 0 if x == 0 else 1)
+                    # df_mask_true_false = df_mask_boolean.applymap(lambda x: False if x == 0 else True)
 
-                df_faiss_distances_with_NaN = df_faiss_distances * df_mask_boolean
-                df_faiss_distances_with_NaN = df_faiss_distances_with_NaN.replace(0, np.NaN)        
+                    df_faiss_distances_with_NaN = df_faiss_distances * df_mask_boolean
+                    df_faiss_distances_with_NaN = df_faiss_distances_with_NaN.replace(0, np.NaN)        
 
-                df_faiss_indices_with_NaN = df_faiss_indices_with_NaN[df_faiss_indices_with_NaN.index.isin(label_samples_id)]
-                df_faiss_distances_with_NaN = df_faiss_distances_with_NaN[df_faiss_distances_with_NaN.index.isin(label_samples_id)]
+                    df_faiss_indices_with_NaN = df_faiss_indices_with_NaN[df_faiss_indices_with_NaN.index.isin(label_samples_id)]
+                    df_faiss_distances_with_NaN = df_faiss_distances_with_NaN[df_faiss_distances_with_NaN.index.isin(label_samples_id)]
 
 
-                df_faiss_indices_with_NaN['closest_value'] = df_faiss_indices_with_NaN.apply(closest_value, axis=1)
-                df_faiss_distances_with_NaN['closest_value'] = df_faiss_distances_with_NaN.apply(closest_value, axis=1)
+                    df_faiss_indices_with_NaN['closest_value'] = df_faiss_indices_with_NaN.apply(closest_value, axis=1)
+                    df_faiss_distances_with_NaN['closest_value'] = df_faiss_distances_with_NaN.apply(closest_value, axis=1)
 
-                df_faiss_indices_with_NaN_result = df_faiss_indices_with_NaN.loc[:,'closest_value']
-                # df_faiss_distances_with_NaN_result = df_faiss_distances_with_NaN.loc[:,'closest_value']
-                # df_faiss_indices_with_NaN_result[df_faiss_distances_with_NaN_result.idxmax()]
+                    df_faiss_indices_with_NaN_result = df_faiss_indices_with_NaN.loc[:,'closest_value']
+                    # df_faiss_distances_with_NaN_result = df_faiss_distances_with_NaN.loc[:,'closest_value']
+                    # df_faiss_indices_with_NaN_result[df_faiss_distances_with_NaN_result.idxmax()]
 
-                sample_selected_result = df_faiss_indices_with_NaN_result[df_faiss_distances_with_NaN.loc[:,'closest_value'].idxmax()]
-                sample_selected_result = int(sample_selected_result)
-                
+                    sample_selected_result = df_faiss_indices_with_NaN_result[df_faiss_distances_with_NaN.loc[:,'closest_value'].idxmax()]
+                    sample_selected_result = int(sample_selected_result)
+                    
 
-                #Add the sample_id in label_sample_ids and remove from unlabeled_sample_ids                
-                unlabel_samples_id = np.delete(unlabel_samples_id, np.where(unlabel_samples_id == sample_selected_result))
-                label_samples_id = np.concatenate([label_samples_id , np.array([sample_selected_result])])                
-                                             
+                    #Add the sample_id in label_sample_ids and remove from unlabeled_sample_ids                
+                    unlabel_samples_id = np.delete(unlabel_samples_id, np.where(unlabel_samples_id == sample_selected_result))
+                    label_samples_id = np.concatenate([label_samples_id , np.array([sample_selected_result])])                
+                                                 
 
-                #Add to the selected_sample_id
-                selected_sample_id.append(sample_selected_result)
+                    #Add to the selected_sample_id
+                    selected_sample_id.append(sample_selected_result)
+                    pbar.update(1)
 
                 
             ###### END OF FUNCTION ###### ###### ###### ###### ###### ###### ###### ###### ######
