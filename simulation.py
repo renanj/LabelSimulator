@@ -55,6 +55,8 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             None
 
 
+    print("[INFO - Simulation]")
+    print("Starting Faiss")
     #generate array with Embbedings info ("X1, X2, X3..." columns)
     _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
     if _temp_X_columns == None:
@@ -87,6 +89,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
 
     _list_simulations_proceeded = []
     _list_simulations_sample_id = []
+    print("End Faiss")
 
 
     #Run each Simulation on "simulation_list":
@@ -94,6 +97,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
 
 
         if _sim == 'Random':
+            print("Starting Random")
 
             
             #Output
@@ -102,8 +106,9 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             _list_simulations_proceeded.append(_sim)
 
 
-        elif _sim == 'Equal_SpreadE':
-            
+        elif _sim == 'Equal_Spread':
+            print("Equal Spread")
+
             #Cold Start:
             #at least 20% or min 50 samples will need to be labeded on cold start
             if len(_random_samples_id) >= 500:
@@ -116,9 +121,10 @@ def f_run_simulations(df_embbedings, simulation_list = None):
 
             # Set the random seed for reproducibility
 
-            # Initialize Vc and Vt as indices
-            label_samples_id = _cold_start_samples_id
-            unlabel_samples_id = list(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])
+            # Initialize Vc and Vt as indices            
+            #transform to array...
+            label_samples_id = np.array(_cold_start_samples_id)
+            unlabel_samples_id = np.array(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])            
 
 
             # Initialize the list of selected sample indices during the script

@@ -41,8 +41,8 @@ for db_paths in config._list_data_sets_path:
                 if _files !='df_'+ config._list_train_val[i_train_val] + '.pkl':
                     None
                 else:
-                    print("run... ")
-                    # print ('    ' + _files)
+                    # print("run... ")
+                    print ("run...     ", _files)
                     #print('.../' + _deep_learning_arq_sub_folder + '/' + _files)
                     
                     
@@ -98,6 +98,7 @@ for db_paths in config._list_data_sets_path:
                     # INPUT -- INPUT -- INPUT -- INPUT -- INPUT -- INPUT -- INPUT -- INPUT --                     
                     _list_simulation_sample_pallete = ['#F22B00', '#40498e', '#357ba3', '#38aaac', '#79d6ae']
                     # _list_simulation_samples = []
+                    print("starting simulations...")
                     _list_simulation_sample_name, _list_simulation_samples = sim.f_run_simulations(df_embbedings = df, simulation_list = None)
                     
 
