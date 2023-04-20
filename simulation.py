@@ -33,7 +33,7 @@ import faiss
 import random
 import math
 
-import tqdm
+from tqdm import tqdm
 
 
 #WARNING: "index" and "sample_id" are completing different thngs... !
@@ -339,6 +339,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
 
         else:
             print("We don't have a function ready for {} simulation!", _sim)
+    return list_simulations_proceeded, _list_simulations_sample_id            
 
 
 
