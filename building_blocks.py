@@ -27,113 +27,169 @@ import faiss
 
 
 
+def f_faiss(df_embbedings):
 
-def func_NSN(_df, _columns=None, _neighbors=5):
+    print("[FAISS] - Start")
 
-  if _columns == None:
-      _columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)
+    # 1) generate array with Embbedings info ("X1, X2, X3..." columns)
+    _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
+    if _temp_X_columns == None:
+      _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
+
+    X = np.ascontiguousarray(df_embbedings[_temp_X_columns].values.astype('float32'))
+    d = X.shape[1]
+
+    
+    # 2) calculate FAISS index...     
+    res = faiss.StandardGpuResources() #index = faiss.IndexFlatL2(d)
+    index = faiss.GpuIndexFlatL2(res, X.shape[1])
+
+    # 3) Settings the IDs based on sample_id column & creating the correct "index"
+    sample_ids = df_embbedings['sample_id'].values
+    index = faiss.IndexIDMap(index)        
+    index.add_with_ids(X, sample_ids) # index.add(X) #creating the index with the sample_ids instead of sequential value #For reference: https://github.com/facebookresearch/faiss/wiki/Pre--and-post-processing    
+    _neighbors = df_embbedings.shape[0]
+    faiss_distances, faiss_indices = index.search(X, _neighbors)
 
 
-  X = np.ascontiguousarray(_df[_columns].values.astype('float32'))
+    # 4) Generate DFs for Faiss Indices & Distance
+    df_faiss_indices = pd.DataFrame(faiss_indices, index=sample_ids, columns=sample_ids)
+    df_faiss_distances = pd.DataFrame(faiss_distances, index=sample_ids, columns=sample_ids)
 
-  d = X.shape[1]
-  index = faiss.IndexFlatL2(d)
-  index.add(X)
-  
-  
-  distances, indices = index.search(X, _neighbors)
-  return distances, indices    
+    print("[FAISS] - End")
+    return df_faiss_indices, df_faiss_distances
 
-def func_B(x, Vt):
-    # https://stackoverflow.com/questions/1401712/how-can-the-euclidean-distance-be-calculated-with-numpy
-    # Vt = labeled/trained feature vector 
-    
-    _min_dist = None
-    
-    for i in range(len(Vt)):         
-        _d_temp = np.linalg.norm(x-Vt[i])
-        
-        #print(i, "   =  ", Vt[i])
-        #print(_d_temp)
-        #print("---------\n")
-        
-        if _min_dist == None:
-            _min_dist = _d_temp 
-        else:
-            if _d_temp < _min_dist:
-                _min_dist = _d_temp
-            else:
-                None
-    
-    return _min_dist
-    
-    
-    
-def func_SPB(Vc, Vt, sample_id_list, print_count = 25):
-    
-    # Vc = feature vector candidates
-    # Vt = training Vector samples (labeled) 
-    
-    print_count_acc = 0
-    _max_distance = None
-    for i in range(len(Vc)):  
-        if i % print_count == 0:
-            print_count_acc = print_count_acc + print_count            
-            # print('{:,.2%}'.format((print_count_acc / len(Vc))))
-            print(str(print_count_acc) + '/' + str(len(Vc)))
 
-        _dist = func_B(x=Vc[i], Vt=Vt)
-        
-        if _max_distance is None:
-            _max_distance = _dist
-            candidate = i
-        else:
-            if _max_distance < _dist:
-                _max_distance = _dist
-                candidate = i
-            else:
-                None
-                    
 
-    candidate = sample_id_list[candidate]
-    #print(candidate)    
-    return _max_distance, candidate
+def f_cold_start(df_embbedings, _random_state=42):
+
+    random.seed(_random_state)
+    _random_samples_index = random.sample(range(df_embbedings.shape[0]),df_embbedings.shape[0])
+    _random_samples_id = list(df_embbedings['sample_id'].iloc[_random_samples_index])
+
+    if len(_random_samples_id) >= 500:
+        _cold_start_samples_id  = _random_samples_id[0:50]
+    else:
+        _cold_start_samples_id  = _random_samples_id[0:math.ceil(0.2*len(_random_samples_id))]
+
+    return _cold_start_samples_id
 
 
 
 
+def f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=None):
 
-def func_CLU(Vc, columns):
-    
-    
-    kmeans = KMeans(n_clusters=3, random_state=0).fit(Vc[columns].values)      
-    
-    Vc['kmeans_labels'] = None
-    Vc['kmeans_labels'] = kmeans.labels_
-    
-    return Vc, kmeans.cluster_centers_
-   
-    
-    
-def func_DEN(df, columns, sample_id, k=5):
-    
-    #Vc = dataframe
-    
-    
-    NSN = NearestNeighbors(n_neighbors=k, algorithm='ball_tree')
-    NSN.fit(df[columns])
-    distances, indices = NSN.kneighbors()
-    
-    _index = df[df['sample_id'] == sample_id].index[0]
-    DEN = (distances[_index].sum() * distances[_index].sum() / len(distances[_index])) * - 1
-    return DEN
+    if _cold_start_samples_id == None: 
+        _cold_start_samples_id = f_cold_start(df_embbedings)
+
+    #Initiatize Labels and Unlabels Samples
+    label_samples_id = np.array(_cold_start_samples_id)
+    unlabel_samples_id = np.array(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])            
+
+    # Initialize the list of selected sample indices during the script
+    selected_sample_id = []            
 
 
-def func_OUT(df, columns, sample_id, threshold, k=5):
+    with tqdm(total=len(unlabel_samples_id)) as pbar:            
+        while len(unlabel_samples_id) >0:
+           
 
-        return func_DEN(df, columns, sample_id, k) * -1
+            
+            excluded_elements = label_samples_id # define excluded elements            
+            mask = df_faiss_indices.isin(excluded_elements) # create a mask where True corresponds to cells containing the excluded elements            
+            df_faiss_indices_with_NaN = df_faiss_indices.mask(mask) # create a new DataFrame with the values excluding excluded elements
+            
+            if len(df_faiss_indices) != len(df_faiss_indices_with_NaN): # check if length of df and result is the same
+                df_faiss_indices_with_NaN = df_faiss_indices_with_NaN.reindex(df_faiss_indices.index)
+            
+            df_faiss_indices_with_NaN.iloc[:,0] = np.NaN
+            df_mask_boolean = df_faiss_indices_with_NaN.iloc[:,:].fillna(0)
+            df_mask_boolean = df_mask_boolean.applymap(lambda x: 0 if x == 0 else 1) # df_mask_true_false = df_mask_boolean.applymap(lambda x: False if x == 0 else True)
+            
+
+            df_faiss_distances_with_NaN = df_faiss_distances * df_mask_boolean
+            df_faiss_distances_with_NaN = df_faiss_distances_with_NaN.replace(0, np.NaN)        
+
+            df_faiss_indices_with_NaN = df_faiss_indices_with_NaN[df_faiss_indices_with_NaN.index.isin(label_samples_id)]
+            df_faiss_distances_with_NaN = df_faiss_distances_with_NaN[df_faiss_distances_with_NaN.index.isin(label_samples_id)]
+
+
+            df_faiss_indices_with_NaN['closest_value'] = df_faiss_indices_with_NaN.apply(closest_value, axis=1)
+            df_faiss_distances_with_NaN['closest_value'] = df_faiss_distances_with_NaN.apply(closest_value, axis=1)
+
+            df_faiss_indices_with_NaN_result = df_faiss_indices_with_NaN.loc[:,'closest_value']
+            
+            sample_selected_result = df_faiss_indices_with_NaN_result[df_faiss_distances_with_NaN.loc[:,'closest_value'].idxmax()]
+            sample_selected_result = int(sample_selected_result)
+            
+
+            #Add the sample_id in label_sample_ids and remove from unlabeled_sample_ids                
+            unlabel_samples_id = np.delete(unlabel_samples_id, np.where(unlabel_samples_id == sample_selected_result))
+            label_samples_id = np.concatenate([label_samples_id , np.array([sample_selected_result])])                
+                                         
+            #Add to the selected_sample_id
+            selected_sample_id.append(sample_selected_result)
+            pbar.update(1)
+
+
+    ordered_selected_samples_id = _cold_start_samples_id + selected_sample_id
+
+    return ordered_selected_samples_id
+
+
     
+
+def f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=None, k=5):
+
+    _array_with_values = df_faiss_distances.iloc[:,:k].values
+    den_scores_array -np.sum(_array_with_values**2, axis=-1) / k 
+
     
-# def func_CE(_df, _feature_columns, _predicated_class=True, k=None):
+    temp_df = df_embbedings[['sample_id']].copy()
+    temp_df['den_score'] = den_scores_array
+
+    temp_df = temp_df.sort_values(by='den_score', ascending=False).reset_index(drop=True)
+
+
+
+    ordered_selected_samples_id = list(temp_df['sample_id'].values)
+    return ordered_selected_samples_id
+
+
+def f_out(desentity_ordered_selected_samples_id):
+
+    desentity_ordered_selected_samples_id.reverse()
+    return desentity_ordered_selected_samples_id
+
+
+
+def f_clu(df_embbedings):
+
+    k = round(df_embbedings.shape[0] * 0.20)
+
     
-  
+    # 1) generate array with Embbedings info ("X1, X2, X3..." columns)
+    _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
+    if _temp_X_columns == None:
+      _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
+
+    X = np.ascontiguousarray(df_embbedings[_temp_X_columns].values.astype('float32'))
+    d = X.shape[1]
+
+    
+    # 2) calculate FAISS index...     
+    res = faiss.StandardGpuResources() #index = faiss.IndexFlatL2(d)
+    index = faiss.GpuIndexFlatL2(res, X.shape[1])
+
+    # train the K-means clustering
+    kmeans = faiss.Kmeans(128, k)
+    kmeans.train(X)
+    centroids = kmeans.centroids
+
+    # add the centroids to the index
+    index.add(centroids)   
+    index.add_with_ids(X, sample_ids) 
+
+
+
+
