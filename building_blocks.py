@@ -158,14 +158,21 @@ def f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_sampl
 
 def f_out(desentity_ordered_selected_samples_id):
 
+    print("Before:")
+    print("First 5 = ", desentity_ordered_selected_samples_id[:5])
+    print("Final 5 = ", desentity_ordered_selected_samples_id[:-5])     
     desentity_ordered_selected_samples_id.reverse()
+    print("After:")
+    print("First 5 = ", desentity_ordered_selected_samples_id[:5])
+    print("Final 5 = ", desentity_ordered_selected_samples_id[:-5])    
     return desentity_ordered_selected_samples_id
 
 
 
-def f_clu(df_embbedings):
+def f_clu(df_embbedings, k=None):
 
-    k = round(df_embbedings.shape[0] * 0.20)
+    if k is None:
+        k = round(df_embbedings.shape[0] * 0.20)
 
     
     # 1) generate array with Embbedings info ("X1, X2, X3..." columns)
@@ -189,6 +196,9 @@ def f_clu(df_embbedings):
     # add the centroids to the index
     index.add(centroids)   
     index.add_with_ids(X, sample_ids) 
+
+
+    return centroids_samples_id
 
 
 
