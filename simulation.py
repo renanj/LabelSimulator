@@ -119,16 +119,16 @@ def f_run_simulations(df_embbedings, simulation_list = None):
         #         _samples_id_ordered_by_cluster.append(_temp_list)
 
             
-            _samples_id_ordered = [val for pair in zip(*_samples_id_ordered_by_cluster) for val in pair]
-            print("Len List = ", len(_samples_id_ordered))
-            _samples_id_ordered = list(set(_samples_id_ordered))                
-            print("Len List = ", len(_samples_id_ordered))
+            # _samples_id_ordered = [val for pair in zip(*_samples_id_ordered_by_cluster) for val in pair]
+            # print("Len List = ", len(_samples_id_ordered))
+            # _samples_id_ordered = list(set(_samples_id_ordered))                
+            # print("Len List = ", len(_samples_id_ordered))
 
-            _list_simulations_sample_id.append(_samples_id_ordered)
-            _list_simulations_proceeded.append(_sim)
-            print("Qtd Samples = ", len(_samples_id_ordered))
-            print("End Cluster_Borders_First'!")
-            print("--------------------")    
+            # _list_simulations_sample_id.append(_samples_id_ordered)
+            # _list_simulations_proceeded.append(_sim)
+            # print("Qtd Samples = ", len(_samples_id_ordered))
+            # print("End Cluster_Borders_First'!")
+            # print("--------------------")    
 
 
         elif _sim == 'Outliers_First':
