@@ -32,14 +32,16 @@ def f_run_simulations(df_embbedings, simulation_list = None):
     df_faiss_indices, df_faiss_distances = bblocks.f_faiss(df_embbedings)
 
     #BUILDING BLOCKS:
-    _samples_id_list_random = bblocks.f_cold_start(df_embbedings)    
-    _samples_id_list_ordered_SPB = bblocks.f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random)
-    _samples_id_list_ordered_DEN = bblocks.f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random, k=5)
+    _samples_id_list_random, _samples_id_list_random_cold_start = bblocks.f_cold_start(df_embbedings)    
+    _samples_id_list_ordered_SPB = bblocks.f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start)
+    _samples_id_list_ordered_DEN = bblocks.f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start, k=5)
     _samples_id_list_ordered_OUT = bblocks.f_out(_samples_id_list_ordered_DEN)
     _centroids_samples_id_list_ordered_CLU, _clusters_samples_id_list_of_lists_ordered_CLU = bblocks.f_clu(df_embbedings, num_clusters=None, num_iterations=25, gpu_index=True)
 
 
     
+    _list_simulations_sample_id = []
+    _list_simulations_proceeded = []
 
     #SIMULATION RUN based on "simulation_list":
     for _sim in simulation_list:
@@ -61,7 +63,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             print("--------------------")
 
 
-        elif _sim == 'Dense_Areas_First'
+        elif _sim == 'Dense_Areas_First':
             print("Starting Dense_Areas_First...")            
             _samples_id_ordered = [val for pair in zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_DEN) for val in pair]
             _samples_id_ordered = list(set(_samples_id_ordered))
@@ -98,11 +100,11 @@ def f_run_simulations(df_embbedings, simulation_list = None):
                 df_faiss_indices_temp = df_faiss_distances[df_faiss_distances.index.isin(samples_id_in_cluster)].copy()
                 df_faiss_indices_temp = df_faiss_indices_temp.reset_index(drop=True)
 
-                _temp_samples_id_list_random = bblocks.f_cold_start(df_temp)    
-                _temp_samples_id_list_ordered_SPB = bblocks.f_SPB(df_temp, df_faiss_distances_temp, df_faiss_indices_temp, _cold_start_samples_id=_temp_samples_id_list_random)
+                _temp_samples_id_list_random, _temp_samples_id_list_random_cold_start = bblocks.f_cold_start(df_temp)    
+                _temp_samples_id_list_ordered_SPB = bblocks.f_SPB(df_temp, df_faiss_distances_temp, df_faiss_indices_temp, _cold_start_samples_id=_temp_samples_id_list_random_cold_start)
 
                 #OUT:
-                _temp_samples_id_list_ordered_DEN = bblocks.f_den(df_temp, df_faiss_distances_temp, df_faiss_indices_temp, _cold_start_samples_id=_temp_samples_id_list_random, k=5)
+                _temp_samples_id_list_ordered_DEN = bblocks.f_den(df_temp, df_faiss_distances_temp, df_faiss_indices_temp, _cold_start_samples_id=_temp_samples_id_list_random_cold_start, k=5)
                 _temp_samples_id_list_ordered_OUT = bblocks.f_out(_temp_samples_id_list_ordered_DEN)                
 
 
@@ -123,7 +125,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             print("--------------------")    
 
 
-        elif _sim == 'Outliers_First'
+        elif _sim == 'Outliers_First':
             print("Starting Outliers_First...")            
             _samples_id_ordered = [val for pair in zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_OUT) for val in pair]
             _samples_id_ordered = list(set(_samples_id_ordered))

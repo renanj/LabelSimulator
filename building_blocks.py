@@ -1,10 +1,29 @@
 import pandas as pd
 import numpy as np
 import random
+import math
 import warnings
 warnings.filterwarnings('ignore')
 import faiss
-from faiss import StandardGpuResources, StandardGpuIndexFlatL2
+from faiss import StandardGpuResources
+
+from sklearn.datasets import make_blobs
+import matplotlib.pyplot as plt
+
+def generate_data(n_samples, cluster_std_ratio, n_outliers):
+    # Generate data with 2 clusters where cluster 1 is more disperse than cluster 2
+    X, y = make_blobs(n_samples=n_samples-n_outliers, centers=2, cluster_std=[1.5*cluster_std_ratio, 0.5], random_state=42)
+    outliers = np.random.uniform(low=-10, high=10, size=(n_outliers, 2))
+    X = np.concatenate((X, outliers), axis=0)
+    y = np.concatenate((y, np.full((n_outliers,), fill_value=-1)), axis=0)
+
+    # Create a dataframe with X1 and X2
+    df = pd.DataFrame(X, columns=['X1', 'X2'])
+    df['labels'] = y
+    df['manual_label'] = "-"
+    df['sample_id'] = range(1, n_samples+1)  # Add sample IDs starting from 1
+    return df
+
 
 def closest_value(row):
     non_null_values = row.dropna()

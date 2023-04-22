@@ -111,8 +111,7 @@ for db_paths in config._list_data_sets_path:
                         #Baseado no Framework de Simulation Samples
                         for i_simulation in range(len(_list_simulation_samples)):
                             
-                            print (db_paths[0].split('/')[1], " | ", _deep_learning_arq_sub_folders , '| ', _list_simulation_sample_name[i_simulation], " | ", _list_models_name[i_model])
-
+                            print (db_paths[0].split('/')[1], " | ", _deep_learning_arq_sub_folders , '| ', _list_simulation_sample_name[i_simulation], " | ", _list_models_name[i_model])                            
                             
                             # _db = _list_databases_training[i_db]
                             # _db_test = _list_databases_test[i_db]
@@ -131,7 +130,7 @@ for db_paths in config._list_data_sets_path:
                             
 
                             _list_accuracy_on_labels_evaluated = []
-                            LOG_EVERY_N = 1000
+                            LOG_EVERY_N = 500
                             #Framework de Accuracy
                             for i in range(len(_samples)):
 
