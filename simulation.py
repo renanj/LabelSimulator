@@ -20,7 +20,8 @@ def f_run_simulations(df_embbedings, simulation_list = None):
 
     if simulation_list is None:
         # simulation_list = ['Random', 'Equal_Spread', 'Dense_Areas_First', 'Centroids_First', 'Cluster_Boarder_First',  'Outliers_First']
-        simulation_list = ['Random', 'Equal_Spread']
+        simulation_list = ['Random', 'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First']
+        # simulation_list = ['Random', 'Equal_Spread']
     else:
         if 'Random' not in simulation_list:
             simulation_list.append('Random')
@@ -87,35 +88,35 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             print("--------------------")    
 
 
-        elif _sim == 'Cluster_Borders_First':
-            print("Starting Cluster_Borders_First'...")            
+        # elif _sim == 'Cluster_Borders_First':
+        #     print("Starting Cluster_Borders_First'...")            
             
-            _samples_id_ordered_by_cluster = []
-            for i in range(len(_clusters_samples_id_list_of_lists_ordered_CLU)):
-                samples_id_in_cluster = _clusters_samples_id_list_of_lists_ordered_CLU[i]
+        #     _samples_id_ordered_by_cluster = []
+        #     for i in range(len(_clusters_samples_id_list_of_lists_ordered_CLU)):
+        #         samples_id_in_cluster = _clusters_samples_id_list_of_lists_ordered_CLU[i]
 
-                #SPB:
-                df_temp = df_embbedings[df_embbedings['sample_id'].isin(samples_id_in_cluster)].copy()
-                df_temp = df_temp.reset_index(drop=True)
+        #         #SPB:
+        #         df_temp = df_embbedings[df_embbedings['sample_id'].isin(samples_id_in_cluster)].copy()
+        #         df_temp = df_temp.reset_index(drop=True)
 
-                df_faiss_distances_temp = df_faiss_distances[df_faiss_distances.index.isin(samples_id_in_cluster)].copy()
-                df_faiss_distances_temp = df_faiss_distances_temp.reset_index(drop=True)
+        #         df_faiss_distances_temp = df_faiss_distances[df_faiss_distances.index.isin(samples_id_in_cluster)].copy()
+        #         df_faiss_distances_temp = df_faiss_distances_temp.reset_index(drop=True)
 
-                df_faiss_indices_temp = df_faiss_distances[df_faiss_distances.index.isin(samples_id_in_cluster)].copy()
-                df_faiss_indices_temp = df_faiss_indices_temp.reset_index(drop=True)
+        #         df_faiss_indices_temp = df_faiss_distances[df_faiss_distances.index.isin(samples_id_in_cluster)].copy()
+        #         df_faiss_indices_temp = df_faiss_indices_temp.reset_index(drop=True)
 
-                _temp_samples_id_list_random, _temp_samples_id_list_random_cold_start = bblocks.f_cold_start(df_temp)    
-                _temp_samples_id_list_ordered_SPB = bblocks.f_SPB(df_temp, df_faiss_distances_temp, df_faiss_indices_temp, _cold_start_samples_id=_temp_samples_id_list_random_cold_start)
+        #         _temp_samples_id_list_random, _temp_samples_id_list_random_cold_start = bblocks.f_cold_start(df_temp)    
+        #         _temp_samples_id_list_ordered_SPB = bblocks.f_SPB(df_temp, df_faiss_distances_temp, df_faiss_indices_temp, _cold_start_samples_id=_temp_samples_id_list_random_cold_start)
 
-                #OUT:
-                _temp_samples_id_list_ordered_DEN = bblocks.f_den(df_temp, df_faiss_distances_temp, df_faiss_indices_temp, _cold_start_samples_id=_temp_samples_id_list_random_cold_start, k=5)
-                _temp_samples_id_list_ordered_OUT = bblocks.f_out(_temp_samples_id_list_ordered_DEN)                
+        #         #OUT:
+        #         _temp_samples_id_list_ordered_DEN = bblocks.f_den(df_temp, df_faiss_distances_temp, df_faiss_indices_temp, _cold_start_samples_id=_temp_samples_id_list_random_cold_start, k=5)
+        #         _temp_samples_id_list_ordered_OUT = bblocks.f_out(_temp_samples_id_list_ordered_DEN)                
 
 
-                #SPB(50%) + OUT(50%) within Cluster:
-                _temp_list = [val for pair in zip(_temp_samples_id_list_ordered_SPB, _temp_samples_id_list_ordered_OUT) for val in pair]
-                _temp_list = list(set(_temp_list))                
-                _samples_id_ordered_by_cluster.append(_temp_list)
+        #         #SPB(50%) + OUT(50%) within Cluster:
+        #         _temp_list = [val for pair in zip(_temp_samples_id_list_ordered_SPB, _temp_samples_id_list_ordered_OUT) for val in pair]
+        #         _temp_list = list(set(_temp_list))                
+        #         _samples_id_ordered_by_cluster.append(_temp_list)
 
             
             _samples_id_ordered = [val for pair in zip(*_samples_id_ordered_by_cluster) for val in pair]
