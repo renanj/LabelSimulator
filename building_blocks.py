@@ -6,6 +6,7 @@ import warnings
 warnings.filterwarnings('ignore')
 import faiss
 from faiss import StandardGpuResources
+from tqdm import tqdm
 
 from sklearn.datasets import make_blobs
 import matplotlib.pyplot as plt
@@ -78,7 +79,7 @@ def f_cold_start(df_embbedings, _random_state=42):
     else:
         _cold_start_samples_id  = _random_samples_id[0:math.ceil(0.2*len(_random_samples_id))]
 
-    return _cold_start_samples_id
+    return _random_samples_id, _cold_start_samples_id
 
 
 
