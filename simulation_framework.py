@@ -10,6 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from imutils import paths
 import os
+from tqdm import tqdm
 
 import config as config
 config = config.config
@@ -130,12 +131,13 @@ for db_paths in config._list_data_sets_path:
                             
 
                             _list_accuracy_on_labels_evaluated = []
-                            LOG_EVERY_N = 500
+                            # LOG_EVERY_N = len(_samples) / 10
                             #Framework de Accuracy
-                            for i in range(len(_samples)):
+                            print("NUMERO Samples = _samples")
+                            for i in tqdm(range(len(_samples))):
 
-                                if ((i + 1) % LOG_EVERY_N) == 0:
-                                    print ("Interaction = ", i + 1 / len(_samples))
+                                # if ((i + 1) % LOG_EVERY_N) == 0:
+                                #     print ("Interaction = ", i + 1 / len(_samples))
 
                                 _samples_temp = _samples[0:i+1]
 
@@ -197,7 +199,7 @@ for db_paths in config._list_data_sets_path:
                     _temp_df_list = []
                     for _i_outcome in range(len(_results_output[0])):
                         
-                        _number_of_samples = len(_results_output[6][_i_outcome])
+                        _number_of_samples = len(_results_output[7][_i_outcome])
                         
                         _pd_list_0 = [_results_output[0][_i_outcome]] * _number_of_samples
                         _pd_list_1 = [_results_output[1][_i_outcome]] * _number_of_samples
