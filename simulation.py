@@ -1,52 +1,18 @@
 from re import S
 import pandas as pd
 import numpy as np
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-#K-means
-from sklearn.cluster import KMeans
-from sklearn import metrics
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-#KNN
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neighbors import NearestNeighbors
-from sklearn.datasets import make_blobs
-from sklearn import datasets
-
-from sklearn import neighbors, datasets
-from sklearn.manifold import TSNE
-
+import os
 import random
-# from celluloid import Camera
-
+import math
+import building_blocks as bblocks
+from scipy.spatial import distance_matrix
+from tqdm import tqdm
 import warnings
 warnings.filterwarnings('ignore')
 
-from scipy.spatial import distance_matrix
-
-import building_blocks as bblocks
-
-import os
-import faiss
-from faiss import StandardGpuResources, StandardGpuIndexFlatL2
-
-import random
-import math
-
-from tqdm import tqdm
 
 
 #WARNING: "index" and "sample_id" are completing different thngs... !
-
-def closest_value(row):
-    non_null_values = row.dropna()
-    if non_null_values.empty:
-        return None
-    else:
-        return non_null_values.iloc[0]
-
 
 
 def f_run_simulations(df_embbedings, simulation_list = None):
@@ -68,9 +34,10 @@ def f_run_simulations(df_embbedings, simulation_list = None):
     #BUILDING BLOCKS:
     _samples_id_list_random = bblocks.f_cold_start(df_embbedings)    
     _samples_id_list_ordered_SPB = bblocks.f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random)
-    _samples_id_list_ordered_DEN = bblocks.f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random, k=5):
-    _samples_id_list_ordered_OUT = bblocks.f_out(_samples_id_ordered_DEN)
-    _samples_id_list_ordered_CLU = bblocks.f_clu(df_embbedings, k=None)
+    _samples_id_list_ordered_DEN = bblocks.f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random, k=5)
+    _samples_id_list_ordered_OUT = bblocks.f_out(_samples_id_list_ordered_DEN)
+    _centroids_samples_id_list_ordered_CLU, _clusters_samples_id_list_of_lists_ordered_CLU = bblocks.f_clu(df_embbedings, num_clusters=None, num_iterations=25, gpu_index=True)
+
 
     
 
@@ -106,7 +73,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
 
         elif _sim == 'Centroids_First':
             print("Starting Centroids_First...")            
-            _samples_id_ordered = [val for pair in zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_CLU) for val in pair]
+            _samples_id_ordered = [val for pair in zip(_samples_id_list_ordered_SPB, _centroids_samples_id_list_ordered_CLU) for val in pair]
             _samples_id_ordered = list(set(_samples_id_ordered))
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
@@ -114,14 +81,46 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             print("--------------------")    
 
 
-        # elif _sim == 'Cluster_Borders_First':
-        #     print("Starting Cluster_Borders_First'...")            
-        #     TBD... 
+        elif _sim == 'Cluster_Borders_First':
+            print("Starting Cluster_Borders_First'...")            
+            
+            _samples_id_ordered_by_cluster = []
+            for i in range(len(_clusters_samples_id_list_of_lists_ordered_CLU)):
+                samples_id_in_cluster = _clusters_samples_id_list_of_lists_ordered_CLU[i]
 
-        #     _list_simulations_sample_id.append(_samples_id_ordered)
-        #     _list_simulations_proceeded.append(_sim)
-        #     print("End Cluster_Borders_First'!")
-        #     print("--------------------")    
+                #SPB:
+                df_temp = df_embbedings[df_embbedings['sample_id'].isin(samples_id_in_cluster)].copy()
+                df_temp = df_temp.reset_index(drop=True)
+
+                df_faiss_distances_temp = df_faiss_distances[df_faiss_distances.index.isin(samples_id_in_cluster)].copy()
+                df_faiss_distances_temp = df_faiss_distances_temp.reset_index(drop=True)
+
+                df_faiss_indices_temp = df_faiss_distances[df_faiss_distances.index.isin(samples_id_in_cluster)].copy()
+                df_faiss_indices_temp = df_faiss_indices_temp.reset_index(drop=True)
+
+                _temp_samples_id_list_random = bblocks.f_cold_start(df_temp)    
+                _temp_samples_id_list_ordered_SPB = bblocks.f_SPB(df_temp, df_faiss_distances_temp, df_faiss_indices_temp, _cold_start_samples_id=_temp_samples_id_list_random)
+
+                #OUT:
+                _temp_samples_id_list_ordered_DEN = bblocks.f_den(df_temp, df_faiss_distances_temp, df_faiss_indices_temp, _cold_start_samples_id=_temp_samples_id_list_random, k=5)
+                _temp_samples_id_list_ordered_OUT = bblocks.f_out(_temp_samples_id_list_ordered_DEN)                
+
+
+                #SPB(50%) + OUT(50%) within Cluster:
+                _temp_list = [val for pair in zip(_temp_samples_id_list_ordered_SPB, _temp_samples_id_list_ordered_OUT) for val in pair]
+                _temp_list = list(set(_temp_list))                
+                _samples_id_ordered_by_cluster.append(_temp_list)
+
+            
+            _samples_id_ordered = [val for pair in zip(*_samples_id_ordered_by_cluster) for val in pair]
+            print("Len List = ", len(_samples_id_ordered))
+            _samples_id_ordered = list(set(_samples_id_ordered))                
+            print("Len List = ", len(_samples_id_ordered))
+
+            _list_simulations_sample_id.append(_samples_id_ordered)
+            _list_simulations_proceeded.append(_sim)
+            print("End Cluster_Borders_First'!")
+            print("--------------------")    
 
 
         elif _sim == 'Outliers_First'

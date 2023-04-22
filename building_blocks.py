@@ -1,30 +1,17 @@
 import pandas as pd
 import numpy as np
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-#K-means
-from sklearn.cluster import KMeans
-from sklearn import metrics
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-#KNN
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neighbors import NearestNeighbors
-from sklearn.datasets import make_blobs
-from sklearn import datasets
-
-from sklearn import neighbors, datasets
-from sklearn.manifold import TSNE
-
 import random
-# from celluloid import Camera
-
 import warnings
 warnings.filterwarnings('ignore')
-
 import faiss
+from faiss import StandardGpuResources, StandardGpuIndexFlatL2
 
+def closest_value(row):
+    non_null_values = row.dropna()
+    if non_null_values.empty:
+        return None
+    else:
+        return non_null_values.iloc[0]
 
 
 def f_faiss(df_embbedings):
@@ -142,7 +129,7 @@ def f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_sampl
 def f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=None, k=5):
 
     _array_with_values = df_faiss_distances.iloc[:,:k].values
-    den_scores_array -np.sum(_array_with_values**2, axis=-1) / k 
+    den_scores_array = -np.sum(_array_with_values**2, axis=-1) / k 
 
     
     temp_df = df_embbedings[['sample_id']].copy()
@@ -158,24 +145,22 @@ def f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_sampl
 
 def f_out(desentity_ordered_selected_samples_id):
 
-    print("Before:")
-    print("First 5 = ", desentity_ordered_selected_samples_id[:5])
-    print("Final 5 = ", desentity_ordered_selected_samples_id[:-5])     
+    # print("Before:")
+    # print("First 5 = ", desentity_ordered_selected_samples_id[:5])
+    # print("Final 5 = ", desentity_ordered_selected_samples_id[:-5])     
     desentity_ordered_selected_samples_id.reverse()
-    print("After:")
-    print("First 5 = ", desentity_ordered_selected_samples_id[:5])
-    print("Final 5 = ", desentity_ordered_selected_samples_id[:-5])    
+    # print("After:")
+    # print("First 5 = ", desentity_ordered_selected_samples_id[:5])
+    # print("Final 5 = ", desentity_ordered_selected_samples_id[:-5])    
     return desentity_ordered_selected_samples_id
 
 
 
-def f_clu(df_embbedings, k=None):
+def f_clu(df_embbedings, num_clusters=None, num_iterations=25, gpu_index=True):
 
-    if k is None:
-        k = round(df_embbedings.shape[0] * 0.20)
+    if num_clusters is None:
+        num_clusters = round(df_embbedings.shape[0] * 0.20)
 
-    
-    # 1) generate array with Embbedings info ("X1, X2, X3..." columns)
     _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
     if _temp_X_columns == None:
       _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
@@ -183,23 +168,43 @@ def f_clu(df_embbedings, k=None):
     X = np.ascontiguousarray(df_embbedings[_temp_X_columns].values.astype('float32'))
     d = X.shape[1]
 
-    
-    # 2) calculate FAISS index...     
+
     res = faiss.StandardGpuResources() #index = faiss.IndexFlatL2(d)
     index = faiss.GpuIndexFlatL2(res, X.shape[1])
 
-    # train the K-means clustering
-    kmeans = faiss.Kmeans(128, k)
+
+    sample_ids = df_embbedings['sample_id'].values
+    index = faiss.IndexIDMap(index)        
+    index.add_with_ids(X, sample_ids)
+
+
+    # Run k-means clustering
+    kmeans = faiss.Kmeans(X.shape[1], num_clusters, niter=num_iterations, verbose=True)
     kmeans.train(X)
     centroids = kmeans.centroids
 
-    # add the centroids to the index
-    index.add(centroids)   
-    index.add_with_ids(X, sample_ids) 
+    # Assign one (closest) samples for each Centroid
+    D, I = index.search(centroids, 1)
+    centroids_sample_ids = list(I.reshape(1, -1)[0])
+    df_embbedings['centroid'] = False 
+    df_embbedings['centroid'][df_embbedings['sample_id'].isin(centroids_sample_ids)] = True
 
 
-    return centroids_samples_id
+    # Assign cluster labels to each sample
+    _, labels = kmeans.index.search(X, 1)
+    # Merge the labels with the original dataframe
+    df_embbedings["kmeans_label"] = labels
 
 
+    # Store the sample_ids for each kmeans_label in a dictionary
+    label_dict = {}
+    for i, label in enumerate(labels):
+        if label[0] not in label_dict:
+            label_dict[label[0]] = []
+        label_dict[label[0]].append(sample_ids[i])
 
+    # Convert the dictionary to a list of lists
+    sample_ids_list = [label_dict[label] for label in range(num_clusters)]    
 
+    # return centroids_sample_ids, label_dict, sample_ids_list, df_embbedings
+    return centroids_sample_ids, sample_ids_list
