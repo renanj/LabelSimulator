@@ -50,6 +50,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             print("Starting Random...")            
             _list_simulations_sample_id.append(_samples_id_list_random)
             _list_simulations_proceeded.append(_sim)
+            print("Qtd Samples = ", len(_samples_id_list_random))
             print("End Random!")
             print("--------------------")
 
@@ -59,6 +60,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             _samples_id_ordered = _samples_id_list_ordered_SPB
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
+            print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Equal Spread!")
             print("--------------------")
 
@@ -69,6 +71,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             _samples_id_ordered = list(set(_samples_id_ordered))
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
+            print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Dense_Areas_First!")
             print("--------------------")
 
@@ -79,6 +82,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             _samples_id_ordered = list(set(_samples_id_ordered))
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
+            print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Centroids_First!")
             print("--------------------")    
 
@@ -121,6 +125,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
 
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
+            print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Cluster_Borders_First'!")
             print("--------------------")    
 
@@ -131,6 +136,7 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             _samples_id_ordered = list(set(_samples_id_ordered))
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
+            print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Outliers_First!")
             print("--------------------")
 
