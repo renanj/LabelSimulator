@@ -34,33 +34,28 @@ _models_name = [
   #'resnet50'  
 ]
 
+
 def torch_feature_creation(path):
   try:
       img = cv2.imread(path)
       img = transform(img)
       img = img.reshape(1, 3, 448, 448)
       img = img.to(device)  
-
+      
       image_name = path.split(os.path.sep)[-1]
       image_true_label = path.split(os.path.sep)[-2]
       image_manual_label = "-"
-      image_id = _id_count
-      _id_count = _id_count + 1
-      
-      list_image_names.append(image_name)
-      list_image_true_label.append(image_true_label)
-      list_image_manual_label.append(image_manual_label)
-      list_image_id.append(image_id)
-      
-      
+
+
       with torch.no_grad():
           # Extract the feature from the image
           feature = new_model(img)
           # Convert to NumPy Array, Reshape it, and save it to features variable
           feature = feature.cpu().detach().numpy().reshape(-1)
-          return feature      
+          return feature, image_name, image_true_label, image_manual_label
+
   except:
-      return None
+      return None, None, None, None
 
 
 class FeatureExtractor(nn.Module):
@@ -160,17 +155,24 @@ for db_paths in config._list_data_sets_path:
             #     except:
             #         None
 
+
+
+
             start_time = time.time()
             num_cores = multiprocessing.cpu_count()
             print("[INFO] num_cores = ", num_cores)
 
             torch_results = Parallel(n_jobs=num_cores)(delayed(torch_feature_creation)(args) for args in tqdm(imagePaths))
-            features = list(torch_results)
+            list_torch_results = list(torch_results)
+
+            features, list_image_names, list_image_true_label, list_image_manual_label, list_image_id = zip(*list_torch_results)
+
 
             end_time = time.time()                            
             time_taken = (end_time - start_time)/60
             print("Time taken: {:.2f} minutes".format(time_taken))            
-            
+
+            list_image_id = list(range(1, len(list_image_names) +1))            
             features = np.array(features) 
 
             #Dataframe Build:
