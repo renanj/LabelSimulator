@@ -164,7 +164,7 @@ for db_paths in config._list_data_sets_path:
             num_cores = multiprocessing.cpu_count()
             print("[INFO] num_cores = ", num_cores)
 
-            torch_results = Parallel(n_jobs=num_cores)(delayed(torch_feature_creation)(args) for args in imagePaths)
+            torch_results = Parallel(n_jobs=num_cores)(delayed(torch_feature_creation)(args) for args in tqdm(imagePaths))
             features = list(torch_results)
 
             end_time = time.time()                            
