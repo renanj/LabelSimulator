@@ -12,6 +12,7 @@ from imutils import paths
 import os
 from tqdm import tqdm
 
+import time
 
 import concurrent.futures
 from joblib import Parallel, delayed
@@ -145,7 +146,7 @@ for db_paths in config._list_data_sets_path:
                             _model = _list_models[i_model]                               
                         
                             start_time = time.time()
-                            
+
                             list1 = [df.copy(deep=True) for _ in range(len(_ordered_samples_id))]
                             list2 = [_model for _ in range(len(_ordered_samples_id))]
                             list3 = [_ordered_samples_id for _ in range(len(_ordered_samples_id))]  
