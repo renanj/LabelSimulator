@@ -165,7 +165,7 @@ for db_paths in config._list_data_sets_path:
             torch_results = Parallel(n_jobs=num_cores)(delayed(torch_feature_creation)(args) for args in tqdm(imagePaths))
             list_torch_results = list(torch_results)
 
-            features, list_image_names, list_image_true_label, list_image_manual_label, list_image_id = zip(*list_torch_results)
+            features, list_image_names, list_image_true_label, list_image_manual_label = zip(*list_torch_results)
 
 
             end_time = time.time()                            

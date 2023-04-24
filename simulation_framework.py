@@ -157,7 +157,7 @@ for db_paths in config._list_data_sets_path:
                             tuple_f_model_accuracy = [(a, b, c, d, e) for a, b, c, d, e in zip(list1, list2, list3, list4, list5)]
                                                                             
                             #[TO-DO] Create a function and parallelize with Multithread --> "Done, check if is ok"
-                            results = Parallel(n_jobs=num_cores)(delayed(f_model_accuracy_5)(args) for args in tuple_f_model_accuracy)
+                            results = Parallel(n_jobs=num_cores)(delayed(f_model_accuracy)(args) for args in tuple_f_model_accuracy)
                             _list_accuracy_on_labels_evaluated = list(results)
 
                             end_time = time.time()                            
@@ -197,7 +197,7 @@ for db_paths in config._list_data_sets_path:
                         #[TO-DO] Create a cuDF
                         _temp_df = pd.DataFrame(
                             list(zip(_pd_list_0, _pd_list_1, _pd_list_2, _pd_list_3, _pd_list_4, _pd_list_5 ,_pd_list_7,_pd_list_8))
-                            ,columns=["Outcome", "Interaction", "Database", "DL Architecture", "Simulation Type", "Model", "# Samples Evaluated/Interaction Number", ,"Accuracy"]
+                            ,columns=["Outcome", "Interaction", "Database", "DL Architecture", "Simulation Type", "Model", "# Samples Evaluated/Interaction Number","Accuracy"]
                             # ,_pd_list_6 ,"Model Parameters"
                         )                                                        
                         _temp_df_list.append(_temp_df)
