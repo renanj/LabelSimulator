@@ -34,39 +34,6 @@ def closest_value(row):
         return non_null_values.iloc[0]
 
 
-def f_faiss(df_embbedings):
-
-    print("[FAISS] - Start")
-
-    # 1) generate array with Embbedings info ("X1, X2, X3..." columns)
-    _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
-    if _temp_X_columns == None:
-      _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
-
-    X = np.ascontiguousarray(df_embbedings[_temp_X_columns].values.astype('float32'))
-    d = X.shape[1]
-
-    
-    # 2) calculate FAISS index...     
-    res = faiss.StandardGpuResources() #index = faiss.IndexFlatL2(d)
-    index = faiss.GpuIndexFlatL2(res, X.shape[1])
-
-    # 3) Settings the IDs based on sample_id column & creating the correct "index"
-    sample_ids = df_embbedings['sample_id'].values
-    index = faiss.IndexIDMap(index)        
-    index.add_with_ids(X, sample_ids) # index.add(X) #creating the index with the sample_ids instead of sequential value #For reference: https://github.com/facebookresearch/faiss/wiki/Pre--and-post-processing    
-    _neighbors = df_embbedings.shape[0]
-    faiss_distances, faiss_indices = index.search(X, _neighbors)
-
-
-    # 4) Generate DFs for Faiss Indices & Distance
-    df_faiss_indices = pd.DataFrame(faiss_indices, index=sample_ids, columns=sample_ids)
-    df_faiss_distances = pd.DataFrame(faiss_distances, index=sample_ids, columns=sample_ids)
-
-    print("[FAISS] - End")
-    return df_faiss_indices, df_faiss_distances
-
-
 
 def f_cold_start(df_embbedings, _random_state=42):
 

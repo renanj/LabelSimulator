@@ -124,14 +124,27 @@ for db_paths in config._list_data_sets_path:
                     else:
                         _list_models = [LogisticRegression(random_state=0)]  # list
                     
-
                     _list_models_name = []
                     for i in range(len(_list_models)): 
                         _list_models_name.append(type(_list_models[0]).__name__)
 
+
+                    #[TO-DO] transform to cuDF
+                    if _GPU_flag is True:
+                        df_faiss_indices = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_indices_' + config._list_train_val[i_train_val]  + '.pkl')
+                        df_faiss_distances = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')     
+                        df_faiss_indices = cudf.DataFrame.from_pandas(df_faiss_indices)
+                        df_faiss_distances = cudf.DataFrame.from_pandas(df_faiss_distances)
+                        print("[HILIGHT] as GPU_Flag = True, using cuDF Library for optmization")
+                    else:
+                        df_faiss_indices = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_indices_' + config._list_train_val[i_train_val]  + '.pkl')
+                        df_faiss_distances = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')                             
+
     
                     print("[INFO] Starting simulation.py...")
-                    _list_simulation_sample_name, _list_simulation_ordered_samples_id = sim.f_run_simulations(df_embbedings = df, simulation_list = None)
+                    _list_simulation_sample_name, _list_simulation_ordered_samples_id = sim.f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)
+
+
                     
                     print("[INFO] Starting ML Framework") 
                     i_Outcome_ = 1

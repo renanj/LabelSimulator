@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 #WARNING: "index" and "sample_id" are completing different thngs... !
 
 
-def f_run_simulations(df_embbedings, simulation_list = None):
+def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simulation_list = None):
 
 
     if simulation_list is None:
@@ -29,8 +29,8 @@ def f_run_simulations(df_embbedings, simulation_list = None):
             None
 
 
-    #FAISS INDICES & DISTANCES DATAFRAME
-    df_faiss_indices, df_faiss_distances = bblocks.f_faiss(df_embbedings)
+    #FAISS INDICES & DISTANCES DATAFRAME    
+    # df_faiss_indices, df_faiss_distances = bblocks.f_faiss(df_embbedings)
 
     #BUILDING BLOCKS:
     _samples_id_list_random, _samples_id_list_random_cold_start = bblocks.f_cold_start(df_embbedings)    
