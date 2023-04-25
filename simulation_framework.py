@@ -142,8 +142,12 @@ for db_paths in config._list_data_sets_path:
 
     
                     print("[INFO] Starting simulation.py...")
-                    _list_simulation_sample_name, _list_simulation_ordered_samples_id = sim.f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)
-
+                    # _list_simulation_sample_name, _list_simulation_ordered_samples_id = sim.f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)
+                    _df_simulation_ordered = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folders + '/' + df_simulation_ordered_ + config._list_train_val[i_train_val]  + '.pkl')
+                    _list_simulation_sample_name = list(_df_simulation_ordered.columns)
+                    _list_simulation_ordered_samples_id = _df_simulation_ordered.values.tolist()                     
+                    _df_simulation_ordered = None
+                    
 
                     
                     print("[INFO] Starting ML Framework") 
