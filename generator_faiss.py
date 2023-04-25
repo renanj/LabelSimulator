@@ -1,7 +1,9 @@
 import pandas as pd
 import numpy as np
-import faiss
+import os
+
 from faiss import StandardGpuResources
+import faiss
 from tqdm import tqdm
 
 
@@ -26,8 +28,10 @@ def f_faiss(df_embbedings, _GPU_flag=True):
     # 2) calculate FAISS index...  
     if _GPU_flag is True:   
         print("[Using GPU...")
-        res = faiss.StandardGpuResources() #index = faiss.IndexFlatL2(d)
-        index = faiss.GpuIndexFlatL2(res, X.shape[1])
+        # res = faiss.StandardGpuResources() 
+        # index = faiss.GpuIndexFlatL2(res, X.shape[1])
+        index = faiss.IndexFlatL2(d)
+
     else:
         index = faiss.IndexFlatL2(d)
 
@@ -81,14 +85,12 @@ for db_paths in config._list_data_sets_path:
                 if _files !='df_'+ config._list_train_val[i_train_val] + '.pkl':
                     None
                 else:                    
-                    print ("run Faiss for...     ", _files)                    
-                    
-                    
-            #Here Starts the Simulation for Each DB        
-            #++++++ ++++++ ++++++ ++++++ ++++++ ++++++ ++++++ ++++++ ++++++ ++++++ ++++++                    
+                    print ("run Faiss for...     ", _files)                                                                        
                      
                     df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folders + '/' + _files)
-					df_faiss_indices, df_faiss_distances = f_faiss(df, _GPU_flag=True):
+                    
+                    df_faiss_indices, df_faiss_distances = f_faiss(df, _GPU_flag=True)
 
-					df_faiss_indices.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_indices_' + config._list_train_val[i_train_val]  + '.pkl')
-					df_faiss_distances.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')
+                    df_faiss_indices.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_indices_' + config._list_train_val[i_train_val]  + '.pkl')
+                    df_faiss_distances.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')
+
