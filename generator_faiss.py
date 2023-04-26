@@ -5,13 +5,21 @@ import os
 from faiss import StandardGpuResources
 import faiss
 from tqdm import tqdm
-
+import simulation as sim
 
 import config as config
 config = config.config
 
+import sys
+
+try:
+    import cudf
+except ImportError:
+    print("Not possible to import cudf")
 
 
+
+run_simulation_option = sys.argv[1]
 
 def f_faiss(df_embbedings, _GPU_flag=True):
 
@@ -93,4 +101,21 @@ for db_paths in config._list_data_sets_path:
 
                     df_faiss_indices.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_indices_' + config._list_train_val[i_train_val]  + '.pkl')
                     df_faiss_distances.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')
+
+
+                    
+                    
+                    if run_simulation_option == 'yes':
+                        print("[INFO] will run Simulation too")
+                        print("should be on GPU...")
+                        df = cudf.DataFrame.from_pandas(df)
+                        df_faiss_indices = cudf.DataFrame.from_pandas(df_faiss_indices)
+                        df_faiss_distances = cudf.DataFrame.from_pandas(df_faiss_distances)
+
+
+                        _list_simulation_sample_name, _list_simulation_ordered_samples_id = sim.f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)                        
+
+                        _simulation_order_df = pd.DataFrame(_list_simulation_ordered_samples_id ,columns=_list_simulation_sample_name)                                                        
+                        _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_simulation_ordered_' + config._list_train_val[i_train_val]  + '.pkl')
+                    
 

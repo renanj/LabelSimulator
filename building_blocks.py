@@ -8,6 +8,15 @@ import faiss
 from faiss import StandardGpuResources
 from tqdm import tqdm
 
+try:
+    import cudf
+except ImportError:
+    print("Not possible to import cudf")
+
+
+
+
+
 from sklearn.datasets import make_blobs
 import matplotlib.pyplot as plt
 
