@@ -1,7 +1,7 @@
 from shelve import DbfilenameShelf
 from sqlite3 import DatabaseError
 from tkinter.ttk import LabeledScale
-import simulation as sim
+# import simulation as sim
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -20,11 +20,42 @@ import multiprocessing
 
 # import cudf
 # import cuml
+import sys
+
+import warnings
+from sklearn.exceptions import DataConversionWarning, ConvergenceWarning
+
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
+warnings.filterwarnings(action='ignore', category=DataConversionWarning)
+
+
+os.environ["PYTHONWARNINGS"] = "ignore::UserWarning"
+os.environ["PYTHONWARNINGS"] = "ignore:Liblinear failed to converge:UserWarning:sklearn.svm.base"
+
+import logging
+
+logging.captureWarnings(capture=True)
+
+# Get logger for warnings
+logger = logging.getLogger("py.warnings")
+
+# StreamHandler outputs on sys.stderr by default
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+
+# Set rule to ignore warnings
+logger.addFilter(lambda record: "ConvergenceWarning" not in record.getMessage())
+
+
+from sklearn.utils import parallel_backend
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 import config as config
 config = config.config
 
+from warnings import filterwarnings
+filterwarnings('ignore')
 
 
 num_cores = multiprocessing.cpu_count()
@@ -34,6 +65,9 @@ print("[INFO] num_cores = ", num_cores)
 _GPU_flag = False
 
 def f_model_accuracy(_args):
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
     _df, _model, _ordered_samples_id, _qtd_samples_to_train, _GPU_flag = _args
     
@@ -55,15 +89,16 @@ def f_model_accuracy(_args):
         y_test = df.loc[:,'labels']
 
 
-    try:                                    
-        _model.fit(X_train, y_train)                                    
-        _score = _model.score(X_test, y_test)
-        print("worked for..", _qtd_samples_to_train)
-        return _score
+    try:      
+        with parallel_backend('multiprocessing'):                              
+            _model.fit(X_train, y_train)                                    
+            _score = _model.score(X_test, y_test)
+            #print("worked for..", _qtd_samples_to_train)
+            return _score
         
     except:                                            
         _score = 0
-        print("entered i expection...")
+        #print("entered i expection...")
         return _score
 
 
@@ -143,39 +178,56 @@ for db_paths in config._list_data_sets_path:
     
                     print("[INFO] Starting simulation.py...")
                     # _list_simulation_sample_name, _list_simulation_ordered_samples_id = sim.f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)
-                    _df_simulation_ordered = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folders + '/' + df_simulation_ordered_ + config._list_train_val[i_train_val]  + '.pkl')
-                    _list_simulation_sample_name = list(_df_simulation_ordered.columns)
-                    _list_simulation_ordered_samples_id = _df_simulation_ordered.values.tolist()                     
+                    _df_simulation_ordered = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folders + '/' + 'df_simulation_ordered_' + config._list_train_val[i_train_val]  + '.pkl')
+                    _list_simulation_sample_name = list(_df_simulation_ordered.columns)                    
+                    _list_simulation_ordered_samples_id = _df_simulation_ordered.T.values.tolist()                                       
                     _df_simulation_ordered = None
                     
+
 
                     
                     print("[INFO] Starting ML Framework") 
                     i_Outcome_ = 1
                     for i_model in range(len(_list_models)):                               
-                        for i_simulation in range(len(_list_simulation_ordered_samples_id)):
+                        for i_simulation in range(len(_list_simulation_sample_name)):
 
                             _list_accuracy_on_labels_evaluated = []
                             _list_labels_evaluated = np.arange(1, df.shape[0] + 1, 1).tolist()
 
+                            print (db_paths[0].split('/')[1])
+                            print("_deep_learning_arq_sub_folders = ", _deep_learning_arq_sub_folders)
+                            print(" i_simulation = ", i_simulation)
+                            print(" i_model = ", i_model)
+                            print(" _list_simulation_sample_name = ", _list_simulation_sample_name[i_simulation])
+                            print(" _list_models_name[i_model] = ", _list_models_name[i_model])
+
                             print (db_paths[0].split('/')[1], " | ", _deep_learning_arq_sub_folders , '| ', _list_simulation_sample_name[i_simulation], " | ", _list_models_name[i_model])                                                    
                             _ordered_samples_id = _list_simulation_ordered_samples_id[i_simulation]
+                            print("_ordered_samples_id _ordered_samples_id _ordered_samples_id ====" , len(_ordered_samples_id))
                             _model = _list_models[i_model]                               
                         
                             start_time = time.time()
+                            
+                            chunk_size = round(len(_ordered_samples_id) / 250)
+                            with tqdm(total=len(_ordered_samples_id)) as pbar:
 
-                            list1 = [df.copy(deep=True) for _ in range(len(_ordered_samples_id))]
-                            list2 = [_model for _ in range(len(_ordered_samples_id))]
-                            list3 = [_ordered_samples_id for _ in range(len(_ordered_samples_id))]  
-                            list4 = list(range(0, len(_ordered_samples_id)))
-                            list5 = [_GPU_flag for _ in range(len(_ordered_samples_id))]
+                                pbar.update(chunk_size)                                
+                                for i in range(0, len(_ordered_samples_id), chunk_size):                                
+                                    # chunk = _ordered_samples_id[i:i+chunk_size]                                
 
-                            #list_of_lists_f_model_accuracy = [list1, list2, list3, list4, list5]
-                            tuple_f_model_accuracy = [(a, b, c, d, e) for a, b, c, d, e in zip(list1, list2, list3, list4, list5)]
-                                                                            
-                            #[TO-DO] Create a function and parallelize with Multithread --> "Done, check if is ok"
-                            results = Parallel(n_jobs=num_cores)(delayed(f_model_accuracy)(args) for args in tuple_f_model_accuracy)
-                            _list_accuracy_on_labels_evaluated = list(results)
+                                    list1 = [df.copy(deep=True) for _ in range(chunk_size)]
+                                    list2 = [_model for _ in range(chunk_size)]
+                                    list3 = [_ordered_samples_id for _ in range(chunk_size)]
+                                    list4 = list(range(i, (i+chunk_size)))
+                                    list5 = [_GPU_flag for _ in range(chunk_size)]
+
+                                    #list_of_lists_f_model_accuracy = [list1, list2, list3, list4, list5]
+                                    tuple_f_model_accuracy = [(a, b, c, d, e) for a, b, c, d, e in zip(list1, list2, list3, list4, list5)]
+                                                                                
+                                    #[TO-DO] Create a function and parallelize with Multithread --> "Done, check if is ok"
+                                    results = Parallel(n_jobs=num_cores)(delayed(f_model_accuracy)(args) for args in tuple_f_model_accuracy)                                                                    
+                                    _list_accuracy_on_labels_evaluated.append(results)                                                
+                            
 
                             end_time = time.time()                            
                             time_taken = (end_time - start_time)/60
@@ -191,8 +243,9 @@ for db_paths in config._list_data_sets_path:
                             _results_output[5].append(_list_models_name[i_model])
                             _results_output[6].append(_model.get_params())            
                             _results_output[7].append(_list_labels_evaluated)
-                            _results_output[8].append(_list_accuracy_on_labels_evaluated)                                    
+                            _results_output[8].append([num for sublist in _list_accuracy_on_labels_evaluated for num in sublist])                                    
                             i_Outcome_ = i_Outcome_ + 1
+
 
                     
                     print("[INFO] Results DataFrame Creation") 
