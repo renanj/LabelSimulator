@@ -7,6 +7,7 @@ warnings.filterwarnings('ignore')
 import faiss
 from faiss import StandardGpuResources
 from tqdm import tqdm
+import cupy as cp
 
 try:
     import cudf
@@ -59,66 +60,29 @@ def f_cold_start(df_embbedings, _random_state=42):
 
 
 
-
 def f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=None):
 
-    if _cold_start_samples_id == None: 
-        _cold_start_samples_id = f_cold_start(df_embbedings)
 
-    #Initiatize Labels and Unlabels Samples
-    label_samples_id = np.array(_cold_start_samples_id)
-    unlabel_samples_id = np.array(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])            
+  if _cold_start_samples_id is None: 
+      _cold_start_samples_id = f_cold_start(df_embbedings)
 
-    # Initialize the list of selected sample indices during the script
-    selected_sample_id = []            
+  array_labels_sample_ids = cp.array(_cold_start_samples_id)
+  array_unlabels_sample_ids = cp.array(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])            
 
+  array_faiss_indices = cp.array(df_faiss_indices)
+  array_faiss_distances = cp.array(df_faiss_distances)
 
-    with tqdm(total=len(unlabel_samples_id)) as pbar:            
-        while len(unlabel_samples_id) >0:
-           
+  while len(array_labels_sample_ids) < 100:            
+      array_mask_false_true = cp.isin(array_faiss_indices, array_labels_sample_ids)
+      array_faiss_indices_filtered = cp.where(~array_mask_false_true, array_faiss_indices, cp.nan)      
+      indices_to_be_filtered = cp.argpartition(cp.isnan(array_faiss_indices_filtered), 1, axis=1)[:, 0]
+      result_indices = array_faiss_indices[cp.arange(len(array_faiss_indices)), indices_to_be_filtered]
+      result_distance = array_faiss_distances[cp.arange(len(array_faiss_distances)), indices_to_be_filtered]
+      selected_sample_id = result_indices[cp.argmax(result_distance)]
+      array_unlabels_sample_ids = array_labels_sample_ids[array_labels_sample_ids != selected_sample_id]
+      array_labels_sample_ids= cp.append(array_unlabels_sample_ids, selected_sample_id)
 
-            
-            excluded_elements = label_samples_id # define excluded elements            
-            mask = df_faiss_indices.isin(excluded_elements) # create a mask where True corresponds to cells containing the excluded elements            
-            df_faiss_indices_with_NaN = df_faiss_indices.mask(mask) # create a new DataFrame with the values excluding excluded elements
-            
-            if len(df_faiss_indices) != len(df_faiss_indices_with_NaN): # check if length of df and result is the same
-                df_faiss_indices_with_NaN = df_faiss_indices_with_NaN.reindex(df_faiss_indices.index)
-            
-            df_faiss_indices_with_NaN.iloc[:,0] = np.NaN
-            df_mask_boolean = df_faiss_indices_with_NaN.iloc[:,:].fillna(0)
-            df_mask_boolean = df_mask_boolean.applymap(lambda x: 0 if x == 0 else 1) # df_mask_true_false = df_mask_boolean.applymap(lambda x: False if x == 0 else True)
-            
-
-            df_faiss_distances_with_NaN = df_faiss_distances * df_mask_boolean
-            df_faiss_distances_with_NaN = df_faiss_distances_with_NaN.replace(0, np.NaN)        
-
-            df_faiss_indices_with_NaN = df_faiss_indices_with_NaN[df_faiss_indices_with_NaN.index.isin(label_samples_id)]
-            df_faiss_distances_with_NaN = df_faiss_distances_with_NaN[df_faiss_distances_with_NaN.index.isin(label_samples_id)]
-
-
-            df_faiss_indices_with_NaN['closest_value'] = df_faiss_indices_with_NaN.apply(closest_value, axis=1)
-            df_faiss_distances_with_NaN['closest_value'] = df_faiss_distances_with_NaN.apply(closest_value, axis=1)
-
-            df_faiss_indices_with_NaN_result = df_faiss_indices_with_NaN.loc[:,'closest_value']
-            
-            sample_selected_result = df_faiss_indices_with_NaN_result[df_faiss_distances_with_NaN.loc[:,'closest_value'].idxmax()]
-            sample_selected_result = int(sample_selected_result)
-            
-
-            #Add the sample_id in label_sample_ids and remove from unlabeled_sample_ids                
-            unlabel_samples_id = np.delete(unlabel_samples_id, np.where(unlabel_samples_id == sample_selected_result))
-            label_samples_id = np.concatenate([label_samples_id , np.array([sample_selected_result])])                
-                                         
-            #Add to the selected_sample_id
-            selected_sample_id.append(sample_selected_result)
-            pbar.update(1)
-
-
-    ordered_selected_samples_id = _cold_start_samples_id + selected_sample_id
-
-    return ordered_selected_samples_id
-
+  return list(array_labels_sample_ids) 
 
     
 
