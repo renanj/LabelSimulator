@@ -8,12 +8,7 @@ import faiss
 from faiss import StandardGpuResources
 from tqdm import tqdm
 import cupy as cp
-
-try:
-    import cudf
-except ImportError:
-    print("Not possible to import cudf")
-
+import cudf
 
 
 
@@ -58,7 +53,7 @@ def f_cold_start(df_embbedings, _random_state=42):
 
     return _random_samples_id, _cold_start_samples_id
 
-
+ter
 
 def f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=None):
 

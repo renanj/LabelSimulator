@@ -6,16 +6,10 @@ from faiss import StandardGpuResources
 import faiss
 from tqdm import tqdm
 import simulation as sim
-
 import config as config
 config = config.config
-
 import sys
-
-try:
-    import cudf
-except ImportError:
-    print("Not possible to import cudf")
+import cudf
 
 
 
@@ -58,11 +52,6 @@ def f_faiss(df_embbedings, _GPU_flag=True):
 
     print("[FAISS] - End")
     return df_faiss_indices, df_faiss_distances
-
-
-
-
-
 
 
 

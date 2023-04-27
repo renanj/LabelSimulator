@@ -10,11 +10,7 @@ from tqdm import tqdm
 import warnings
 warnings.filterwarnings('ignore')
 import sys
-
-try:
-    import cudf
-except ImportError:
-    print("Not possible to import cudf")
+import cudf
 
 import config as config
 config = config.config
@@ -42,16 +38,24 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
     # df_faiss_indices, df_faiss_distances = bblocks.f_faiss(df_embbedings)
 
     #BUILDING BLOCKS:
+    print("[INFO] -- Creating Building Blocks...")
+    print("Random:")
     _samples_id_list_random, _samples_id_list_random_cold_start = bblocks.f_cold_start(df_embbedings)    
+    print("SPB:")
     _samples_id_list_ordered_SPB = bblocks.f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start)
+    print("DEN:")
     _samples_id_list_ordered_DEN = bblocks.f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start, k=5)
+    print("OUT:")
     _samples_id_list_ordered_OUT = bblocks.f_out(_samples_id_list_ordered_DEN)
+    print("CLU:")
     _centroids_samples_id_list_ordered_CLU, _clusters_samples_id_list_of_lists_ordered_CLU = bblocks.f_clu(df_embbedings, num_clusters=None, num_iterations=25, gpu_index=True)
+    print("------------------------------------------------\n\n")
 
 
     
     _list_simulations_sample_id = []
     _list_simulations_proceeded = []
+    print("[INFO] -- Starting Simulation...")
 
     #SIMULATION RUN based on "simulation_list":
     for _sim in simulation_list:
@@ -62,7 +66,7 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
             _list_simulations_proceeded.append(_sim)
             print("Qtd Samples = ", len(_samples_id_list_random))
             print("End Random!")
-            print("--------------------")
+            print("--------------------\n")
 
 
         elif _sim == 'Equal_Spread':
@@ -72,18 +76,20 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
             _list_simulations_proceeded.append(_sim)
             print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Equal Spread!")
-            print("--------------------")
+            print("--------------------\n")
 
 
         elif _sim == 'Dense_Areas_First':
-            print("Starting Dense_Areas_First...")            
+            print("Starting Dense_Areas_First...")    
+            print("_samples_id_list_ordered_SPB type =", type(_samples_id_list_ordered_SPB))        
+            print("_samples_id_list_ordered_DEN type =", type(_samples_id_list_ordered_DEN))                    
             _samples_id_ordered = [val for pair in zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_DEN) for val in pair]
             _samples_id_ordered = list(set(_samples_id_ordered))
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
             print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Dense_Areas_First!")
-            print("--------------------")
+            print("--------------------\n")
 
 
         elif _sim == 'Centroids_First':
@@ -94,7 +100,7 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
             _list_simulations_proceeded.append(_sim)
             print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Centroids_First!")
-            print("--------------------")    
+            print("--------------------\n")    
 
 
         # elif _sim == 'Cluster_Borders_First':
@@ -148,7 +154,7 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
             _list_simulations_proceeded.append(_sim)
             print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Outliers_First!")
-            print("--------------------")
+            print("--------------------\n")
 
         
         else:
