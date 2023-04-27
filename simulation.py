@@ -11,13 +11,46 @@ import warnings
 warnings.filterwarnings('ignore')
 import sys
 import cudf
-
+import cupy as cp
 import config as config
 config = config.config
+
+import itertools
+from collections import OrderedDict
+
 
 
 
 #WARNING: "index" and "sample_id" are completing different thngs... !
+
+
+
+def join_lists_equal_distance(_list_a, _list_b):
+
+    if len(_list_a) <= len(_list_b):
+        list_1 = _list_a
+        list_2 = _list_b
+    else:
+        list_1 = _list_b
+        list_2 = _list_a        
+
+
+    #To dynamically insert elements from list_1 into list_2 with equal distance between each insert
+    list_1 = cp.array(list_1)
+    list_2 = cp.array(list_2)
+    # Calculate the spacing between each insert
+    spacing = len(list_2) // len(list_1) + 1
+    # Generate a range of indices to insert the elements from list_1
+    indices = cp.arange(spacing, len(list_2), spacing)
+    indices_tuple = tuple(map(int, indices))
+    # Slice list_2 into segments between the insertion indices
+    segments = [cp.array(list_2[i:j]) for i,j in zip([0]+indices.tolist(), indices.tolist()+[None])]
+    # Concatenate the segments with list_1
+    result = cp.concatenate([cp.concatenate([s, cp.array([l])]) for s,l in zip(segments, list_1)])
+    result = result.tolist()
+    return result
+
+    
 
 
 def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simulation_list = None):
@@ -83,19 +116,24 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
             print("Starting Dense_Areas_First...")    
             print("_samples_id_list_ordered_SPB type =", type(_samples_id_list_ordered_SPB))        
             print("_samples_id_list_ordered_DEN type =", type(_samples_id_list_ordered_DEN))                    
-            _samples_id_ordered = [val for pair in zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_DEN) for val in pair]
-            _samples_id_ordered = list(set(_samples_id_ordered))
+            _samples_id_ordered = list(itertools.chain.from_iterable(zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_DEN)))
+            _samples_id_ordered = list(OrderedDict.fromkeys(_samples_id_ordered))
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
+
+
+            _samples_id_ordered = list(itertools.chain.from_iterable(zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_DEN)))
+            _samples_id_ordered = list(OrderedDict.fromkeys(_samples_id_ordered))
+
             print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Dense_Areas_First!")
             print("--------------------\n")
 
 
         elif _sim == 'Centroids_First':
-            print("Starting Centroids_First...")            
-            _samples_id_ordered = [val for pair in zip(_samples_id_list_ordered_SPB, _centroids_samples_id_list_ordered_CLU) for val in pair]
-            _samples_id_ordered = list(set(_samples_id_ordered))
+            print("Starting Centroids_First...")                        
+            _samples_id_ordered = join_lists_equal_distance(_samples_id_list_ordered_SPB, _centroids_samples_id_list_ordered_CLU)
+            _samples_id_ordered = list(OrderedDict.fromkeys(_samples_id_ordered))        
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
             print("Qtd Samples = ", len(_samples_id_ordered))
@@ -147,9 +185,9 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
 
 
         elif _sim == 'Outliers_First':
-            print("Starting Outliers_First...")            
-            _samples_id_ordered = [val for pair in zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_OUT) for val in pair]
-            _samples_id_ordered = list(set(_samples_id_ordered))
+            print("Starting Outliers_First...")                        
+            _samples_id_ordered = list(itertools.chain.from_iterable(zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_OUT)))
+            _samples_id_ordered = list(OrderedDict.fromkeys(_samples_id_ordered))
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
             print("Qtd Samples = ", len(_samples_id_ordered))
@@ -197,5 +235,7 @@ for db_paths in config._list_data_sets_path:
                     df_faiss_distances = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')
 
                     _list_simulation_sample_name, _list_simulation_ordered_samples_id = f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)                        
-                    _simulation_order_df = pd.DataFrame(_list_simulation_ordered_samples_id ,columns=_list_simulation_sample_name)                                                        
+
+                    _simulation_order_df = pd.DataFrame(_list_simulation_ordered_samples_id).T
+                    _simulation_order_df.columns = _list_simulation_sample_name                
                     _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_simulation_ordered_' + config._list_train_val[i_train_val]  + '.pkl')

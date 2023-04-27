@@ -53,7 +53,7 @@ def f_cold_start(df_embbedings, _random_state=42):
 
     return _random_samples_id, _cold_start_samples_id
 
-ter
+
 
 def f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=None):
 
@@ -67,17 +67,23 @@ def f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_sampl
   array_faiss_indices = cp.array(df_faiss_indices)
   array_faiss_distances = cp.array(df_faiss_distances)
 
-  while len(array_labels_sample_ids) < 100:            
-      array_mask_false_true = cp.isin(array_faiss_indices, array_labels_sample_ids)
-      array_faiss_indices_filtered = cp.where(~array_mask_false_true, array_faiss_indices, cp.nan)      
-      indices_to_be_filtered = cp.argpartition(cp.isnan(array_faiss_indices_filtered), 1, axis=1)[:, 0]
-      result_indices = array_faiss_indices[cp.arange(len(array_faiss_indices)), indices_to_be_filtered]
-      result_distance = array_faiss_distances[cp.arange(len(array_faiss_distances)), indices_to_be_filtered]
-      selected_sample_id = result_indices[cp.argmax(result_distance)]
-      array_unlabels_sample_ids = array_labels_sample_ids[array_labels_sample_ids != selected_sample_id]
-      array_labels_sample_ids= cp.append(array_unlabels_sample_ids, selected_sample_id)
+  while len(array_unlabels_sample_ids) > 0:            
+    array_mask_false_true = cp.isin(array_faiss_indices, array_labels_sample_ids)
+    array_faiss_indices_filtered = cp.where(~array_mask_false_true, array_faiss_indices, cp.nan)      
+    indices_to_be_filtered = cp.argpartition(cp.isnan(array_faiss_indices_filtered), 1, axis=1)[:, 0]
+    result_indices = array_faiss_indices[cp.arange(len(array_faiss_indices)), indices_to_be_filtered]
+    result_distance = array_faiss_distances[cp.arange(len(array_faiss_distances)), indices_to_be_filtered]
+    selected_sample_id = result_indices[cp.argmax(result_distance)]    
 
-  return list(array_labels_sample_ids) 
+    array_unlabels_sample_ids = array_unlabels_sample_ids[array_unlabels_sample_ids != selected_sample_id]
+    array_labels_sample_ids= cp.append(array_labels_sample_ids, selected_sample_id)
+    # selected_sample_mask = (array_unlabels_sample_ids == selected_sample_id)    
+    # array_unlabels_sample_ids = array_unlabels_sample_ids[~selected_sample_mask]
+    # array_labels_sample_ids = cp.append(array_labels_sample_ids, array_unlabels_sample_ids[selected_sample_mask])          
+
+  ordered_selected_samples_id = array_labels_sample_ids.tolist()      
+
+  return ordered_selected_samples_id
 
     
 
