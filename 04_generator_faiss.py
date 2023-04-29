@@ -66,12 +66,12 @@ for db_paths in config._list_data_sets_path:
     print(db_paths[0])
     print('=====================')
     print('=====================\n')    
-    _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]    
-    for _deep_learning_arq_sub_folders in _deep_learning_arq_sub_folders:
+    _deep_learning_arq_sub_folder =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]    
+    for _deep_learning_arq_sub_folder in _deep_learning_arq_sub_folder:
         print('-------')
-        print('.../' + _deep_learning_arq_sub_folders)
+        print('.../' + _deep_learning_arq_sub_folder)
         #list of files
-        _list_files = [_files for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folders) if not _files.startswith('.')]
+        _list_files = [_files for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder) if not _files.startswith('.')]
         print("LIST_FILES --->")
         print(_list_files)
         #split in train & validation (currently we use only validation)        
@@ -84,12 +84,12 @@ for db_paths in config._list_data_sets_path:
                 else:                    
                     print ("run Faiss for...     ", _files)                                                                        
                      
-                    df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folders + '/' + _files)
+                    df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder + '/' + _files)
                     
                     df_faiss_indices, df_faiss_distances = f_faiss(df, _GPU_flag=True)
 
-                    df_faiss_indices.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_indices_' + config._list_train_val[i_train_val]  + '.pkl')
-                    df_faiss_distances.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')
+                    df_faiss_indices.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_faiss_indices_' + config._list_train_val[i_train_val]  + '.pkl')
+                    df_faiss_distances.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')
 
 
                     
@@ -105,6 +105,5 @@ for db_paths in config._list_data_sets_path:
                         _list_simulation_sample_name, _list_simulation_ordered_samples_id = sim.f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)                        
 
                         _simulation_order_df = pd.DataFrame(_list_simulation_ordered_samples_id ,columns=_list_simulation_sample_name)                                                        
-                        _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folders + '/' + 'df_simulation_ordered_' + config._list_train_val[i_train_val]  + '.pkl')
+                        _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_simulation_ordered_' + config._list_train_val[i_train_val]  + '.pkl')
                     
-

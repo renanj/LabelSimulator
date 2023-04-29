@@ -16,12 +16,28 @@ class config:
     BATCH_SIZE = 0
     VAL_SPLIT = 0.9
 
-
+    _logs_path = [ "logs"]
 
     # 0: RAW
     # 1: SPLITED-TRAIN
     # 2: SPLITED-TEST        
     # 3: DB
+
+
+    _GPU_Flag_dict = {
+        '01_build_dataset.py': True,
+        '02_feature_extractor.py': True,
+        '03_dim_reduction.py': True,
+        '04_generator_faiss.py': True,
+        '05_simulations.py': True,
+        '05_01_building_blocks.py': True,
+        '05_02_active_learning.py': True,
+        '06_framework.py': False,
+        '07_results_consolidation.py': False        
+    }    
+
+
+    
 
     _list_simulation_sample_name = ['Random', 'NSS', 'SPB','DEN', 'OUT']
     _list_train_val = ['train'] #, 'val'
