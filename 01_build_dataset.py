@@ -9,6 +9,14 @@ import shutil
 import os
 import config
 config = config.config
+
+#Inputs:
+_GPU_flag = config._GPU_Flag_dict['01_build_dataset.py']
+
+_list_data_sets_path = config._list_data_sets_path
+_list_train_val = config._list_train_val
+
+
 import pandas as pd
 
 from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy

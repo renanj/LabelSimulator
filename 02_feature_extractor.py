@@ -12,12 +12,20 @@ import pickle as pkl
 import config as config
 config = config.config
 
+
 from imutils import paths
 import pandas as pd
 
 from tqdm import tqdm_notebook as tqdm
 
 from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy
+
+#Inputs:
+_GPU_flag = config._GPU_Flag_dict['02_feature_extractor.py']
+
+_list_data_sets_path = config._list_data_sets_path
+_list_train_val = config._list_train_val
+
 
 
 _models = [
