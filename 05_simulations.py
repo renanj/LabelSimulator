@@ -17,9 +17,11 @@ import sys
 import cudf
 import cupy as cp
 
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy
 import building_blocks as bblocks
 import config as config
 config = config.config
+
 
 
 
@@ -214,36 +216,34 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
 
 
 
-with open(f_time_now(_type='datetime_') + "logs/05_simulations_py_" + ".txt", "a") as f:
+with open(f_time_now(_type='datetime_') + "logs/05_simulations_py_" + ".txt", "a") as _file:
 
-    _string_log_input = ['[INFO] Starting Simulations', 0]    
-    f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-    f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))            
 
-    _string_log_input = ['[INFO] num_cores = ' + multiprocessing.cpu_count(), 0]    
-    f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-    f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))            
+    _string_log_input = [0, '[INFO] Starting Simulations']    
+    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+
+
+    _string_log_input = [0, '[INFO] num_cores = ' + multiprocessing.cpu_count()]    
+    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+
 
 
     for db_paths in _list_data_sets_path:
 
-        _string_log_input = ['[IMAGE DATABASE] = ' + db_paths[0], 1]
-        f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-        f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))        
+        _string_log_input = [1, '[IMAGE DATABASE] = ' + db_paths[0]]    
+        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
         _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
         for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders:            
 
-            _string_log_input = ['Architecture ' + _deep_learning_arq_sub_folder_name, 2]    
-            f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-            f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))                              
+            _string_log_input = [2, 'Architecture ' + _deep_learning_arq_sub_folder_name]    
+            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
             _list_files = [_file_name for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name) if not _file_name.startswith('.')]        
 
+            _string_log_input = [3, 'List of Files = ' + _list_files]    
+            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
-            _string_log_input = ['List of Files = ' + _list_files, 3]    
-            f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-            f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))                              
 
             
             _list_files_temp = []
@@ -254,26 +254,25 @@ with open(f_time_now(_type='datetime_') + "logs/05_simulations_py_" + ".txt", "a
             _list_files = None
             _list_files = _list_files_temp.copy()
 
-            _string_log_input = ['line_split_01', 3]    
-            f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-            f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))                              
-            
+
+            _string_log_input = [3, 'line_split_01']    
+            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+
             
             for i_train_val in range(len(_list_train_val)):                            
 
-                _string_log_input = ['[RUN] ' + _list_train_val[i_train_val], 4]                    
-                f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
+                _string_log_input = [4, '[RUN] ' + _list_train_val[i_train_val]]    
+                f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
                 for _file_name in _list_files:             
                     if _file_name !='df_'+ _list_train_val[i_train_val] + '.pkl':
                         #f_print(' ' * 6 + 'Aborting... File not valid for this run!' + '\n\n', _level=4)
                         None
                     else:
-                        _string_log_input = ['Running File = ' + _file_name, 4]    
-                        f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                        f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
+                        _string_log_input = [4, 'Running File = ' + _file_name]    
+                        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
+                        
 
                         ###Start Simulations:
 
@@ -281,15 +280,15 @@ with open(f_time_now(_type='datetime_') + "logs/05_simulations_py_" + ".txt", "a
                         df_faiss_indices = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_faiss_indices_' + _list_train_val[i_train_val]  + '.pkl')
                         df_faiss_distances = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_faiss_distances_' + _list_train_val[i_train_val]  + '.pkl')
 
-                        _string_log_input = ['[INFO] Starting Simulations', 5]                    
-                        f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                        f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
+                        _string_log_input = [5, '[INFO] Starting Simulations']    
+                        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                        
 
+                        
                         _list_simulation_sample_name, _list_simulation_ordered_samples_id = f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)                        
 
-                        _string_log_input = ['Exporting .pkl related to = ' + dim_r, 6]    
-                        f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                        f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))                                                    
+                        _string_log_input = [6, 'Exporting .pkl related to = ' + dim_r]    
+                        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                        
+
 
 
                         _simulation_order_df = pd.DataFrame(_list_simulation_ordered_samples_id).T

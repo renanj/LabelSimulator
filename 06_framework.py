@@ -23,7 +23,7 @@ from joblib import Parallel, delayed
 # import cudf
 # import cuml
 
-import aux_functions
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy
 import config as config
 config = config.config
 
@@ -39,35 +39,34 @@ filterwarnings('ignore')
 
 
 
-with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a") as f:
-    _string_log_input = ['[INFO] Starting Simulation Framework', 0]    
-    f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-    f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))            
+with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a") as _file:
 
-    _string_log_input = ['[INFO] num_cores = ' + multiprocessing.cpu_count(), 0]    
-    f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-    f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))            
+
+    _string_log_input = [0, '[INFO] Starting Simulation Framework']    
+    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+
+    _string_log_input = [0, '[INFO] num_cores = ' + multiprocessing.cpu_count()]    
+    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+
 
 
     for db_paths in _list_data_sets_path:
 
-        _string_log_input = ['[IMAGE DATABASE] = ' + db_paths[0], 1]
-        f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-        f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))        
-
+        _string_log_input = [1, '[IMAGE DATABASE] = ' + db_paths[0]]    
+        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+    
         _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
         for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders:            
 
-            _string_log_input = ['Architecture ' + _deep_learning_arq_sub_folder_name, 2]    
-            f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-            f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))                              
+
+            _string_log_input = [2, 'Architecture ' + _deep_learning_arq_sub_folder_name]    
+            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
             _list_files = [_file_name for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name) if not _file_name.startswith('.')]        
 
 
-            _string_log_input = ['List of Files = ' + _list_files, 3]    
-            f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-            f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))                              
+            _string_log_input = [3, 'List of Files = ' + _list_files]    
+            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
             
             _list_files_temp = []
@@ -78,26 +77,25 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
             _list_files = None
             _list_files = _list_files_temp.copy()
 
-            _string_log_input = ['line_split_01', 3]    
-            f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-            f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))                              
-            
+
+            _string_log_input = [3, 'line_split_01']    
+            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+    
 
             for i_train_val in range(len(_list_train_val)):                            
 
-                _string_log_input = ['[RUN] ' + _list_train_val[i_train_val], 4]                    
-                f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
+
+                _string_log_input = [4, '[RUN] ' + _list_train_val[i_train_val]]    
+                f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
                 for _file_name in _list_files:             
                     if _file_name !='df_'+ _list_train_val[i_train_val] + '.pkl':
                         #f_print(' ' * 6 + 'Aborting... File not valid for this run!' + '\n\n', _level=4)
                         None
                     else:
-                        _string_log_input = ['Running File = ' + _file_name, 4]    
-                        f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                        f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
 
+                        _string_log_input = [4, 'Running File = ' + _file_name]    
+                        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)    
 
                         _list_databases_training = [] # list
                         _list_databases_test = [] # list
@@ -122,9 +120,8 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
                             df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + _file_name)                        
                             df = cudf.DataFrame.from_pandas(df)
 
-                            _string_log_input = ['[HILIGHT] as GPU_Flag = True, using cuDF Library for optmization' + _file_name, 5]    
-                            f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                            f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
+                            _string_log_input = [5, '[HILIGHT] as GPU_Flag = True, using cuDF Library for optmization' + _file_name]    
+                            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)    
 
                         else:
                             df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + _file_name)
@@ -147,21 +144,21 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
                             df_faiss_indices = cudf.DataFrame.from_pandas(df_faiss_indices)
                             df_faiss_distances = cudf.DataFrame.from_pandas(df_faiss_distances)
 
-                            _string_log_input = ['[HILIGHT] as GPU_Flag = True, using cuDF Library for optmization' + _file_name, 5]    
-                            f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                            f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))                            
+
+                            _string_log_input = [5, '[HILIGHT] as GPU_Flag = True, using cuDF Library for optmization' + _file_name]    
+                            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
 
                             
                             
                         else:
                             df_faiss_indices = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_faiss_indices_' + _list_train_val[i_train_val]  + '.pkl')
                             df_faiss_distances = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_faiss_distances_' + _list_train_val[i_train_val]  + '.pkl')                             
+
                             
+                        _string_log_input = [5, '[INFO] Importing Simulations .pkl...' + _file_name]    
+                        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
 
-                        _string_log_input = ['[INFO] Importing Simulations .pkl...' + _file_name, 5]    
-                        f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                        f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))                            
-
+                
 
                         # _list_simulation_sample_name, _list_simulation_ordered_samples_id = sim.f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)
                         _df_simulation_ordered = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_ordered_' + _list_train_val[i_train_val]  + '.pkl')
@@ -170,24 +167,23 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
                         _df_simulation_ordered = None
                         
 
-                        _string_log_input = ['[INFO] Starting ML Framework.py....' + _file_name, 5]    
-                        f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                        f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))  
-
+                        _string_log_input = [5, '[INFO] Starting ML Framework.py....' + _file_name]    
+                        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
 
                         i_Outcome_ = 1
                         for i_model in range(len(_list_models)):                                  
-                            _string_log_input = ['Model = ' +  _list_models_name[i_model] + _file_name, 6]    
-                            f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                            f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))  
+
+                            _string_log_input = [6, 'Model = ' +  _list_models_name[i_model] + _file_name]    
+                            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
 
                             start_time_model = time.time()
                             for i_simulation in range(len(_list_simulation_sample_name)):
 
-                                _string_log_input = ['Simulation = ' +  _list_simulation_sample_name[i_simulation], 7]    
-                                f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                                f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
 
+                                _string_log_input = [7, 'Simulation = ' +  _list_simulation_sample_name[i_simulation]]    
+                                f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
+
+                            
                                 _list_accuracy_on_labels_evaluated = []
                                 _list_labels_evaluated = np.arange(1, df.shape[0] + 1, 1).tolist()
 
@@ -196,9 +192,9 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
                                 # print (db_paths[0].split('/')[1], " | ", _deep_learning_arq_sub_folder_name , '| ', _list_simulation_sample_name[i_simulation], " | ", _list_models_name[i_model])
                                 _ordered_samples_id = _list_simulation_ordered_samples_id[i_simulation]
 
-                                _string_log_input = ['Qtd. Samples To Run = ' +  '{:,.0f}'.format(len(_ordered_samples_id)).replace(',', ';').replace('.', ',').replace(';', '.'), 8]    
-                                f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                                f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
+                                _string_log_input = [8, 'Qtd. Samples To Run = ' +  '{:,.0f}'.format(len(_ordered_samples_id)).replace(',', ';').replace('.', ',').replace(';', '.')]    
+                                f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
+
 
                                 _model = _list_models[i_model]                               
                             
@@ -228,9 +224,9 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
                                 time_taken_simulation = (end_time_simulation - start_time_simulation)
                                 
 
-                                _string_log_input = ['Time Taken Simulation: {:.2f} minutes'.format(time_taken_simulation), 8]    
-                                f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                                f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
+                                _string_log_input = [8, 'Time Taken Simulation: {:.2f} minutes'.format(time_taken_simulation)]    
+                                f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
+
 
                 
                                 _name_temp = db_paths[0].split('/')[1] + " | " + _deep_learning_arq_sub_folder_name  + '| ' + _list_simulation_sample_name[i_simulation] + " | " + _list_models_name[i_model]                            
@@ -248,14 +244,13 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
                             end_time_model = time.time()                            
                             time_taken_model = (end_time_model - start_time_model)
 
-                            _string_log_input = ['Time Taken Model: {:.2f} minutes'.format(time_taken_simulation), 7]    
-                            f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                            f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
+
+                            _string_log_input = [7, 'Time Taken Model: {:.2f} minutes'.format(time_taken_simulation)]    
+                            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
 
 
-                        _string_log_input = ['[INFO] Simulation Results - DataFrame Creation', 5]    
-                        f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                        f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))
+                        _string_log_input = [5, '[INFO] Simulation Results - DataFrame Creation']    
+                        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
                         
                         _temp_df_list = []
                         #[TO-DO] Parallelize this looping with multithread
@@ -285,10 +280,8 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
                         df_simulation.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_' + _list_train_val[i_train_val] + '.pkl')
                         
                         
-
-                        _string_log_input = ['[INFO] Chart Creation', 5]    
-                        f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=False)        
-                        f_write(f_print(_string_log_input[0], _level=_string_log_input[1], _write_option=True))                        
+                        _string_log_input = [5, '[INFO] Chart Creation']    
+                        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
 
 
                         #[TO-DO] Create a function to generate the chart

@@ -25,40 +25,43 @@ def f_saved_strings(_string):
         return _string
 
 
-def f_print(_string, _level=0, _write_option=False):
-
+def f_log(_string, _level, _file):
 
     _levels_allowed = [0,1,2,3,4,5,6,7,8,9,10,11,12]
-
     _string = f_saved_strings(_string)
 
     if _level not in _levels_allowed:
-        return None
-    else:
-        if _write_option == False:
-            return print(('  ' * _level) + _string)
+        _file.write('')
+        _file.flush                
+        return None 
+    else:                    
+        #write
+        _write_string = ('\t' * _level) + _string + '\n'
+        _file.write(_write_string)
+        _file.flush()
 
-        else: 
-            new_string = ('\t' * _level) + _string + '\n'
-            return new_string
+        #print
+        _print_string = ('  ' * _level) + _string
+        return _print_string
 
 
 
-def f_write(_string, _level=0):
 
-    _levels_allowed = [0,1,2,3,4,5,6,7,8,9,10,11,12]
 
-    _string = f_saved_strings(_string)
 
-    if _string is None:
-      _string = ''
 
-    if _level not in _levels_allowed:                
-        f.write('')
-        f.flush                
-    else:
-        f.write(_string)
-        f.flush()
+    _string_log_input = ['[INFO] Starting Dimension Reduction', 0]    
+
+    f_print(_string=_string, _level=__level)
+    f_write(f_print(_string=_string, _level=_level, _write_option=True), )
+
+    string 
+    level 
+    file 
+
+
+
+
 
 def f_create_chart(_df, _path, _col_x ='# Samples Evaluated/Interaction Number', _col_y='Accuracy', _hue='Simulation Type'):
 

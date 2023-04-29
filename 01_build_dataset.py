@@ -11,7 +11,7 @@ import config
 config = config.config
 import pandas as pd
 
-
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy
 
 
 
@@ -48,6 +48,7 @@ def run_paths (_list_paths, input_index=True,  input_images=False):
 
 		#Create directory for everyone that is NOT RAW
 		for db_sub in db_paths:
+			print(db_sub)
 			if 'raw' in db_sub:
 				None
 			else:
@@ -98,7 +99,6 @@ def run_paths (_list_paths, input_index=True,  input_images=False):
 		else:
 			print("[INFO] images will NOT be copied to train and validation paths")
 			None
-
 
 
 

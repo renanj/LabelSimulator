@@ -10,7 +10,7 @@ import config as config
 config = config.config
 import sys
 import cudf
-
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy
 
 
 run_simulation_option = sys.argv[1]

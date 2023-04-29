@@ -17,6 +17,7 @@ import pandas as pd
 
 from tqdm import tqdm_notebook as tqdm
 
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy
 
 
 _models = [
