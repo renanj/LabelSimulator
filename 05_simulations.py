@@ -26,6 +26,7 @@ config = config.config
 
 
 
+
 ######## WARNING ########
 
 # "index" and "sample_id" are completing different thngs!
@@ -216,15 +217,13 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
 
 
 
-
-with open(f_time_now(_type='datetime_') + "logs/05_simulations_py_" + ".txt", "a") as _file:
-
+with open('logs/' + f_time_now(_type='datetime_') + "_05_simulations_py_" + ".txt", "a") as _f:
 
     _string_log_input = [0, '[INFO] Starting Simulations']    
     f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 
-    _string_log_input = [0, '[INFO] num_cores = ' + multiprocessing.cpu_count()]    
+    _string_log_input = [0, '[INFO] num_cores = ' + str(multiprocessing.cpu_count())]    
     f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 
@@ -237,25 +236,13 @@ with open(f_time_now(_type='datetime_') + "logs/05_simulations_py_" + ".txt", "a
         _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
         for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders:            
 
+            _list_files = [_files for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name) if not _files.startswith('.')]
+            
+
             _string_log_input = [2, 'Architecture ' + _deep_learning_arq_sub_folder_name]    
             f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-
-            _list_files = [_file_name for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name) if not _file_name.startswith('.')]        
-
-            _string_log_input = [3, 'List of Files = ' + _list_files]    
+            _string_log_input = [3, 'List of Files = ' + str(_list_files)]    
             f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-
-
-            
-            _list_files_temp = []
-            for _file_name in _list_files:
-                if _file_name !='df_'+ _list_train_val[i_train_val] + '.pkl':                    
-                else:                                        
-                    _list_files_temp.append(_file_name)
-            _list_files = None
-            _list_files = _list_files_temp.copy()
-
-
             _string_log_input = [3, 'line_split_01']    
             f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
@@ -277,9 +264,9 @@ with open(f_time_now(_type='datetime_') + "logs/05_simulations_py_" + ".txt", "a
 
                         ###Start Simulations:
 
-                        df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder + '/' + _files)
-                        df_faiss_indices = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_faiss_indices_' + _list_train_val[i_train_val]  + '.pkl')
-                        df_faiss_distances = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_faiss_distances_' + _list_train_val[i_train_val]  + '.pkl')
+                        df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + _file_name)
+                        df_faiss_indices = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_faiss_indices_' + _list_train_val[i_train_val]  + '.pkl')
+                        df_faiss_distances = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_faiss_distances_' + _list_train_val[i_train_val]  + '.pkl')
 
                         _string_log_input = [5, '[INFO] Starting Simulations']    
                         f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                        
@@ -287,11 +274,9 @@ with open(f_time_now(_type='datetime_') + "logs/05_simulations_py_" + ".txt", "a
                         
                         _list_simulation_sample_name, _list_simulation_ordered_samples_id = f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)                        
 
-                        _string_log_input = [6, 'Exporting .pkl related to = ' + dim_r]    
+                        _string_log_input = [6, 'Exporting .pkl']    
                         f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                        
-
-
 
                         _simulation_order_df = pd.DataFrame(_list_simulation_ordered_samples_id).T
                         _simulation_order_df.columns = _list_simulation_sample_name                
-                        _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_simulation_ordered_' + _list_train_val[i_train_val]  + '.pkl')
+                        _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_ordered_' + _list_train_val[i_train_val]  + '.pkl')

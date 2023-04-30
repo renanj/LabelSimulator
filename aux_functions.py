@@ -42,11 +42,7 @@ def f_log(_string, _level, _file):
 
         #print
         _print_string = ('  ' * _level) + _string
-        return _print_string
-
-
-
-
+        return print(_print_string)
 
 
 

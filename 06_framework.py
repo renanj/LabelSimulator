@@ -62,7 +62,7 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
             _string_log_input = [2, 'Architecture ' + _deep_learning_arq_sub_folder_name]    
             f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
-            _list_files = [_file_name for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name) if not _file_name.startswith('.')]        
+            _list_files = [_files for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder) if not _files.startswith('.')]
 
 
             _string_log_input = [3, 'List of Files = ' + _list_files]    
