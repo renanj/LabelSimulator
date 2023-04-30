@@ -123,10 +123,11 @@ def generate_gif_chart_scatterplots(df, selected_samples, n_charts, chart_title,
 
 
     # save the figure as a .png file
-    if _path is None:
-        fig.savefig(f'{chart_title}.png', dpi=300)
+    if _path != None:
+        fig.savefig(f'{_path}/{chart_title}.png', dpi=300)        
     else:
-        fig.savefig(f'{_path}/{chart_title}.png', dpi=300)
+        fig.savefig(f'{chart_title}.png', dpi=300)
+        
 
     # create a scatter plot with all data points
     fig, ax = plt.subplots()
@@ -146,7 +147,7 @@ def generate_gif_chart_scatterplots(df, selected_samples, n_charts, chart_title,
     ani = animation.FuncAnimation(fig, update, frames=len(selected_samples), interval=1000, blit=True)
 
     # save the animation as a .gif file
-    if _path is None:        
+    if _path != None:        
         ani.save(f'{_path}/{chart_title}.gif', writer='imagemagick', fps=0.5)    
     else:
         ani.save(f'{chart_title}.gif', writer='imagemagick', fps=0.5)    
