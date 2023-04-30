@@ -97,7 +97,7 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
     print("OUT:")
     _samples_id_list_ordered_OUT = bblocks.f_out(_samples_id_list_ordered_DEN)
     print("CLU:")
-    _centroids_samples_id_list_ordered_CLU, _clusters_samples_id_list_of_lists_ordered_CLU = bblocks.f_clu(df_embbedings, num_clusters=None, num_iterations=25, gpu_index=True)
+    _centroids_samples_id_list_ordered_CLU, _clusters_samples_id_list_of_lists_ordered_CLU = bblocks.f_clu(df_embbedings, num_clusters=None, num_iterations=10, gpu_index=True)
     print("------------------------------------------------\n\n")
 
 

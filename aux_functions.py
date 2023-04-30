@@ -1,5 +1,12 @@
 import time 
 import datetime
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt 
+import matplotlib.animation as animation
+
+
 
 
 
@@ -51,12 +58,101 @@ def f_log(_string, _level, _file):
     f_print(_string=_string, _level=__level)
     f_write(f_print(_string=_string, _level=_level, _write_option=True), )
 
-    string 
-    level 
-    file 
 
 
 
+def generate_data(n_samples, cluster_std_ratio, n_outliers):
+    # Generate data with 2 clusters where cluster 1 is more disperse than cluster 2
+    X, y = make_blobs(n_samples=n_samples-n_outliers, centers=2, cluster_std=[1.5*cluster_std_ratio, 0.5], random_state=42)
+    outliers = np.random.uniform(low=-10, high=10, size=(n_outliers, 2))
+    X = np.concatenate((X, outliers), axis=0)
+    y = np.concatenate((y, np.full((n_outliers,), fill_value=-1)), axis=0)
+
+    # Create a dataframe with X1 and X2
+    df = pd.DataFrame(X, columns=['X1', 'X2'])    
+    df['name'] = ['name_' + str(i) for i in  range(1, n_samples+1)]
+    df['labels'] = y
+    df['manual_label'] = "-"
+    df['sample_id'] = range(1, n_samples+1)  # Add sample IDs starting from 1    
+    
+    df = df[['sample_id','name','labels','manual_label','X1','X2']]
+    return df
+
+
+def closest_value(row):
+    non_null_values = row.dropna()
+    if non_null_values.empty:
+        return None
+    else:
+        return non_null_values.iloc[0]
+        
+
+
+def generate_gif_chart_scatterplots(df, selected_samples, n_charts, chart_title, _path=None):
+    # define the figure size and layout
+
+    nrows = int(n_charts ** 0.5)
+    ncols = int(n_charts / nrows)
+    if n_charts > nrows * ncols:
+        ncols += 1
+
+    fig_size = (ncols * 6, nrows * 5)        
+        
+          
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=fig_size)
+
+    _color_start = 'darkblue'
+    _color_end = 'lightgray'
+
+    # create a scatter plot for each chart
+    for i, ax in enumerate(axes.flat):
+        # calculate the number of selected samples for the current chart
+        n_samples = int(len(selected_samples) * ((i + 1) / n_charts))
+        samples = selected_samples[:n_samples]
+
+        # create the scatter plot
+        colors = [_color_start if s in samples else _color_end for s in df['sample_id']]
+        ax.scatter(df['X1'], df['X2'], c=colors)
+        ax.set_title(f'{int(((i + 1) / n_charts) * 100)}% of selected samples')
+
+    # add the chart title to the top center of the figure
+    fig.suptitle(chart_title, fontsize=16, y=1.05, x=0.5)
+
+    # adjust the spacing between subplots
+    fig.tight_layout()
+
+
+    # save the figure as a .png file
+    if _path is None:
+        fig.savefig(f'{chart_title}.png', dpi=300)
+    else:
+        fig.savefig(f'{_path}/{chart_title}.png', dpi=300)
+
+    # create a scatter plot with all data points
+    fig, ax = plt.subplots()
+    sc = ax.scatter(df['X1'], df['X2'], c='gray')
+
+    # define the update function for the animation
+    def update(frame):
+        colors = [_color_start if s in selected_samples[:frame+1] else _color_end for s in df['sample_id']]
+        sc.set_color(colors)
+
+        # add the chart title to the top center of the figure
+        ax.set_title(chart_title, fontsize=16, y=1.05, x=0.5)
+
+        return sc,
+
+    # create the animation object
+    ani = animation.FuncAnimation(fig, update, frames=len(selected_samples), interval=1000, blit=True)
+
+    # save the animation as a .gif file
+    if _path is None:        
+        ani.save(f'{_path}/{chart_title}.gif', writer='imagemagick', fps=0.5)    
+    else:
+        ani.save(f'{chart_title}.gif', writer='imagemagick', fps=0.5)    
+
+    # show the figure
+    plt.show()
 
 
 def f_create_chart(_df, _path, _col_x ='# Samples Evaluated/Interaction Number', _col_y='Accuracy', _hue='Simulation Type'):
@@ -82,41 +178,3 @@ def f_create_chart(_df, _path, _col_x ='# Samples Evaluated/Interaction Number',
     figure = _chart.get_figure()
     figure.savefig(_path)
 
-
-
-def f_model_accuracy(_args):
-
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=ConvergenceWarning)
-
-    _df, _model, _ordered_samples_id, _qtd_samples_to_train, _GPU_flag = _args
-    
-    _ordered_samples_id_temp = _ordered_samples_id[0:_qtd_samples_to_train+1]
-    # print("LEN == ", len(_ordered_samples_id_temp))
-    
-    if _GPU_flag is True:
-        _temp_X_columns = [x for x, mask in zip(_df.columns.values, _df.columns.str.startswith("X")) if mask]
-        X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns].astype('float32')
-        y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels'].astype('float32')       
-        X_test = _df.loc[:,_temp_X_columns].astype('float32')
-        y_test = _df.loc[:,'labels'].astype('float32')
-
-    else:                                                                    
-        _temp_X_columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)                                                                
-        X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns]
-        y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels']                      
-        X_test = df.loc[:,_temp_X_columns]
-        y_test = df.loc[:,'labels']
-
-
-    try:      
-        with parallel_backend('multiprocessing'):                              
-            _model.fit(X_train, y_train)                                    
-            _score = _model.score(X_test, y_test)
-            #print("worked for..", _qtd_samples_to_train)
-            return _score
-        
-    except:                                            
-        _score = 0
-        #print("entered i expection...")
-        return _score

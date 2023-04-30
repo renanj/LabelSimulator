@@ -10,25 +10,8 @@ from tqdm import tqdm
 import cupy as cp
 import cudf
 
-
-
-
 from sklearn.datasets import make_blobs
 import matplotlib.pyplot as plt
-
-def generate_data(n_samples, cluster_std_ratio, n_outliers):
-    # Generate data with 2 clusters where cluster 1 is more disperse than cluster 2
-    X, y = make_blobs(n_samples=n_samples-n_outliers, centers=2, cluster_std=[1.5*cluster_std_ratio, 0.5], random_state=42)
-    outliers = np.random.uniform(low=-10, high=10, size=(n_outliers, 2))
-    X = np.concatenate((X, outliers), axis=0)
-    y = np.concatenate((y, np.full((n_outliers,), fill_value=-1)), axis=0)
-
-    # Create a dataframe with X1 and X2
-    df = pd.DataFrame(X, columns=['X1', 'X2'])
-    df['labels'] = y
-    df['manual_label'] = "-"
-    df['sample_id'] = range(1, n_samples+1)  # Add sample IDs starting from 1
-    return df
 
 
 def closest_value(row):
@@ -37,7 +20,6 @@ def closest_value(row):
         return None
     else:
         return non_null_values.iloc[0]
-
 
 
 def f_cold_start(df_embbedings, _random_state=42):
@@ -117,10 +99,10 @@ def f_out(desentity_ordered_selected_samples_id):
 
 
 
-def f_clu(df_embbedings, num_clusters=None, num_iterations=25, gpu_index=True):
+def f_clu(df_embbedings, num_clusters=None, num_iterations=15, gpu_index=True):
 
     if num_clusters is None:
-        num_clusters = round(df_embbedings.shape[0] * 0.20)
+        num_clusters = round(df_embbedings.shape[0] * 0.15)
 
     _temp_X_columns = list(df_embbedings.loc[:,df_embbedings.columns.str.startswith("X")].columns)
     if _temp_X_columns == None:

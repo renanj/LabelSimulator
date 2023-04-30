@@ -1,7 +1,5 @@
 import os
 import sys
-import warnings
-from warnings import filterwarnings
 import random
 import time
 import datetime
@@ -13,7 +11,7 @@ from imutils import paths
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-from sklearn.exceptions import DataConversionWarning, ConvergenceWarning
+# from sklearn.exceptions import DataConversionWarning, ConvergenceWarning
 
 from tqdm import tqdm
 import concurrent.futures
@@ -23,9 +21,12 @@ from joblib import Parallel, delayed
 # import cudf
 # import cuml
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart
 import config as config
 config = config.config
+
+
+
 
 #Inputs:
 _GPU_flag = config._GPU_Flag_dict['06_framework.py']
@@ -33,19 +34,51 @@ _GPU_flag = config._GPU_Flag_dict['06_framework.py']
 _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
 
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-filterwarnings('ignore')
 
 
 
+def f_model_accuracy(_args):
 
-with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a") as _file:
 
+    _df, _model, _ordered_samples_id, _qtd_samples_to_train, _GPU_flag = _args
+    
+    _ordered_samples_id_temp = _ordered_samples_id[0:_qtd_samples_to_train+1]
+    # print("LEN == ", len(_ordered_samples_id_temp))
+    
+    if _GPU_flag is True:
+        _temp_X_columns = [x for x, mask in zip(_df.columns.values, _df.columns.str.startswith("X")) if mask]
+        X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns].astype('float32')
+        y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels'].astype('float32')       
+        X_test = _df.loc[:,_temp_X_columns].astype('float32')
+        y_test = _df.loc[:,'labels'].astype('float32')
+
+    else:                                                                    
+        _temp_X_columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)                                                                
+        X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns]
+        y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels']                      
+        X_test = _df.loc[:,_temp_X_columns]
+        y_test = _df.loc[:,'labels']
+
+
+    try:      
+        with parallel_backend('multiprocessing'):                              
+            _model.fit(X_train, y_train)                                    
+            _score = _model.score(X_test, y_test)
+            #print("worked for..", _qtd_samples_to_train)
+            return _score
+        
+    except:                                            
+        _score = 0
+        #print("entered i expection...")
+        return _score
+
+
+with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt", "a") as _f:
 
     _string_log_input = [0, '[INFO] Starting Simulation Framework']    
     f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
-    _string_log_input = [0, '[INFO] num_cores = ' + multiprocessing.cpu_count()]    
+    _string_log_input = [0, '[INFO] num_cores = ' + str(multiprocessing.cpu_count())]    
     f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 
@@ -57,43 +90,26 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
     
         _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
         for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders:            
-
+            
+            _list_files = [_files for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name) if not _files.startswith('.')]
 
             _string_log_input = [2, 'Architecture ' + _deep_learning_arq_sub_folder_name]    
             f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-
-            _list_files = [_files for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder) if not _files.startswith('.')]
-
-
-            _string_log_input = [3, 'List of Files = ' + _list_files]    
+            _string_log_input = [3, 'List of Files = ' + str(_list_files)]    
             f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-
-            
-            _list_files_temp = []
-            for _file_name in _list_files:
-                if _file_name !='df_'+ _list_train_val[i_train_val] + '.pkl':                    
-                else:                                        
-                    _list_files_temp.append(_file_name)
-            _list_files = None
-            _list_files = _list_files_temp.copy()
-
-
             _string_log_input = [3, 'line_split_01']    
             f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
     
 
             for i_train_val in range(len(_list_train_val)):                            
 
-
                 _string_log_input = [4, '[RUN] ' + _list_train_val[i_train_val]]    
                 f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
                 for _file_name in _list_files:             
                     if _file_name !='df_'+ _list_train_val[i_train_val] + '.pkl':
-                        #f_print(' ' * 6 + 'Aborting... File not valid for this run!' + '\n\n', _level=4)
                         None
                     else:
-
                         _string_log_input = [4, 'Running File = ' + _file_name]    
                         f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)    
 
@@ -216,7 +232,7 @@ with open(f_time_now(_type='datetime_') + 'logs/06_framework_py_' + ".txt", "a")
                                     tuple_f_model_accuracy = [(a, b, c, d, e) for a, b, c, d, e in zip(list1, list2, list3, list4, list5)]
                                                                                 
                                     #[TO-DO] Create a function and parallelize with Multithread --> "Done, check if is ok"
-                                    results = Parallel(n_jobs=num_cores)(delayed(f_model_accuracy)(args) for args in tuple_f_model_accuracy)                                                                    
+                                    results = Parallel(n_jobs=multiprocessing.cpu_count())(delayed(f_model_accuracy)(args) for args in tuple_f_model_accuracy)
                                     _list_accuracy_on_labels_evaluated.append(results)                                                
                                 
 
