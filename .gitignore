@@ -1,5 +1,14 @@
 **/.DS_Store
 
+
+!data/foo/bar/*.png
+
+#Excpetion
+!data/toy_example/*.png
+!data/toy_example/*/*.png
+!data/toy_example/*/*/*.png
+
+
 data/*.png
 data/*/*.png
 data/*/*/*.png

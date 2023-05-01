@@ -69,16 +69,16 @@ def f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_sampl
 
     
 
-def f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=None, k=5):
+def f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=None, k=6):
 
-    _array_with_values = df_faiss_distances.iloc[:,:k].values
+    _array_with_values = df_faiss_distances.iloc[1:,:k].values
     den_scores_array = -np.sum(_array_with_values**2, axis=-1) / k 
 
     
     temp_df = df_embbedings[['sample_id']].copy()
     temp_df['den_score'] = den_scores_array
 
-    temp_df = temp_df.sort_values(by='den_score', ascending=False).reset_index(drop=True)
+    temp_df = temp_df.sort_values(by='den_score', ascending=True).reset_index(drop=True)
 
 
 

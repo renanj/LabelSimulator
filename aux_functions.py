@@ -5,6 +5,8 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt 
 import matplotlib.animation as animation
+from sklearn.datasets import make_blobs
+
 
 
 
@@ -87,13 +89,84 @@ def closest_value(row):
         return non_null_values.iloc[0]
         
 
+def f_generate_gif_chart_multiple_simulation(_df,_file_name_png, _file_name_gif,  _list_selected_samples, _list_chart_titles, fractions, _fps=3):
+    num_simulations = len(_list_selected_samples)
+    nrows = 1
+    ncols = num_simulations
+    figsize = (4 * num_simulations, 4)
 
-def generate_gif_chart_scatterplots(df, selected_samples, n_charts, chart_title, _path=None):
+    fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=figsize, tight_layout=True)
+
+    if num_simulations == 1:
+        axs = [axs]
+
+
+
+
+    scatter_plots = []
+    for i in range(num_simulations):
+        sample_ids = _list_selected_samples[i]
+        df_subset = _df.copy()
+        df_subset['color'] = 'gray'
+        df_subset['fraction'] = ''
+        scatter_plot = axs[i].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
+        scatter_plots.append(scatter_plot)
+        axs[i].set_title(_list_chart_titles[i])
+
+
+    def animate(i):
+        for j in range(num_simulations):
+            sample_ids = _list_selected_samples[j]
+            df_subset = _df.copy()
+            df_subset['color'] = 'gray'
+            index = i % len(sample_ids)
+            df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index+1]), 'color'] = 'blue'
+            df_subset.loc[df_subset.index <= math.ceil((index+1)/len(sample_ids)*fractions)*len(df_subset)/fractions,'fraction'] = f"{math.ceil((index+1)/len(sample_ids)*100)}%"
+            scatter_plots[j].set_color(df_subset['color'])
+            axs[j].set_xlabel('fraction')
+
+        # axs[0].table(cellText=[df_subset['fraction'].unique()], loc='bottom', cellLoc='center')
+        # axs[0].axis('off')
+
+    anim = animation.FuncAnimation(fig, animate, frames=len(_list_selected_samples[0]), interval=100, repeat=True)
+    anim.save(_file_name_gif + '.gif', writer='imagemagick', fps=_fps)
+
+    df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index+1]), 'color'] = 'blue'
+    _df['color'] = 'gray'
+    
+    scatter_plot = axs[0].scatter(df_subset['X1'], df_subset['X2'], c='gray')
+    fig2, axs2 = plt.subplots(nrows=fractions, ncols=num_simulations, figsize=(4*num_simulations, 4*fractions), tight_layout=True)
+    i = 0
+    for i in range(fractions):
+        for j in range(num_simulations):
+            sample_ids = _list_selected_samples[j]
+            df_subset = _df.copy()
+            df_subset['color'] = 'gray'
+            df_subset['fraction'] = ''
+            index = math.ceil((i+1)/fractions*len(sample_ids))
+            df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index]), 'color'] = 'red'
+            axs2[i][j].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
+            axs2[i][j].set_title(_list_chart_titles[j])
+            axs2[i][j].set_xlabel('X1')
+            axs2[i][j].set_ylabel('X2')
+        axs2[i][0].set_ylabel(f"{math.ceil((i+1)/fractions*100)}% of samples selected")    
+        
+    plt.savefig(_file_name_png + '.png')
+
+
+
+def f_generate_gif_chart_one_simulation(_df, _selected_samples, _n_charts, _chart_title, _fps=5):
     # define the figure size and layout
 
-    nrows = int(n_charts ** 0.5)
-    ncols = int(n_charts / nrows)
-    if n_charts > nrows * ncols:
+    _temp_X_columns = [x for x, mask in zip(_df.columns.values, _df.columns.str.startswith("X")) if mask]
+    if len(_temp_X_columns) > 2:
+        print("Aborting... The dataframe is not valid. It has more than two [X1, X2] dimensions")
+        return None
+
+
+    nrows = int(_n_charts ** 0.5)
+    ncols = int(_n_charts / nrows)
+    if _n_charts > nrows * ncols:
         ncols += 1
 
     fig_size = (ncols * 6, nrows * 5)        
@@ -107,16 +180,16 @@ def generate_gif_chart_scatterplots(df, selected_samples, n_charts, chart_title,
     # create a scatter plot for each chart
     for i, ax in enumerate(axes.flat):
         # calculate the number of selected samples for the current chart
-        n_samples = int(len(selected_samples) * ((i + 1) / n_charts))
-        samples = selected_samples[:n_samples]
+        n_samples = int(len(_selected_samples) * ((i + 1) / _n_charts))
+        samples = _selected_samples[:n_samples]
 
         # create the scatter plot
-        colors = [_color_start if s in samples else _color_end for s in df['sample_id']]
-        ax.scatter(df['X1'], df['X2'], c=colors)
-        ax.set_title(f'{int(((i + 1) / n_charts) * 100)}% of selected samples')
+        colors = [_color_start if s in samples else _color_end for s in _df['sample_id']]
+        ax.scatter(_df['X1'], _df['X2'], c=colors)
+        ax.set_title(f'{int(((i + 1) / _n_charts) * 100)}% of selected samples')
 
     # add the chart title to the top center of the figure
-    fig.suptitle(chart_title, fontsize=16, y=1.05, x=0.5)
+    fig.suptitle(_chart_title, fontsize=16, y=1.05, x=0.5)
 
     # adjust the spacing between subplots
     fig.tight_layout()
@@ -124,36 +197,37 @@ def generate_gif_chart_scatterplots(df, selected_samples, n_charts, chart_title,
 
     # save the figure as a .png file
     if _path != None:
-        fig.savefig(f'{_path}/{chart_title}.png', dpi=300)        
+        fig.savefig(f'{_path}/{_chart_title}.png', dpi=300)        
     else:
-        fig.savefig(f'{chart_title}.png', dpi=300)
+        fig.savefig(f'{_chart_title}.png', dpi=300)
         
 
     # create a scatter plot with all data points
     fig, ax = plt.subplots()
-    sc = ax.scatter(df['X1'], df['X2'], c='gray')
+    sc = ax.scatter(_df['X1'], _df['X2'], c='gray')
 
     # define the update function for the animation
     def update(frame):
-        colors = [_color_start if s in selected_samples[:frame+1] else _color_end for s in df['sample_id']]
+        colors = [_color_start if s in _selected_samples[:frame+1] else _color_end for s in _df['sample_id']]
         sc.set_color(colors)
 
         # add the chart title to the top center of the figure
-        ax.set_title(chart_title, fontsize=16, y=1.05, x=0.5)
+        ax.set_title(_chart_title, fontsize=16, y=1.05, x=0.5)
 
         return sc,
 
     # create the animation object
-    ani = animation.FuncAnimation(fig, update, frames=len(selected_samples), interval=1000, blit=True)
+    ani = animation.FuncAnimation(fig, update, frames=len(_selected_samples), interval=1000, blit=True)
 
-    # save the animation as a .gif file
-    if _path != None:        
-        ani.save(f'{_path}/{chart_title}.gif', writer='imagemagick', fps=0.5)    
-    else:
-        ani.save(f'{chart_title}.gif', writer='imagemagick', fps=0.5)    
+    # save the animation as a .gif file    
+    ani.save(f'{_chart_title}.gif', writer='imagemagick', fps=_fps)    
 
     # show the figure
-    plt.show()
+    # plt.show()
+    return print("Exported Chart .png and .gif")
+
+
+
 
 
 def f_create_chart(_df, _path, _col_x ='# Samples Evaluated/Interaction Number', _col_y='Accuracy', _hue='Simulation Type'):

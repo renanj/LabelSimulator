@@ -18,7 +18,7 @@ import sys
 import cudf
 import cupy as cp
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart
 import _05_01_building_blocks as bblocks
 import config as config
 config = config.config
