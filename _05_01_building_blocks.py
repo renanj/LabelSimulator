@@ -86,15 +86,17 @@ def f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_sampl
 
 
 def f_out(desentity_ordered_selected_samples_id):
+    
+    out_ordered_selected_samples_id = desentity_ordered_selected_samples_id.copy()
+    out_ordered_selected_samples_id.reverse()
+    # print("Before:")
+    # print("First 5 = ", desentity_ordered_selected_samples_id[:5])
+    # print("Final 5 = ", desentity_ordered_selected_samples_id[:-5])     
+    # print("After:")
+    # print("First 5 = ", out_ordered_selected_samples_id[:5])
+    # print("Final 5 = ", out_ordered_selected_samples_id[:-5])  
 
-    print("Before:")
-    print("First 5 = ", desentity_ordered_selected_samples_id[:5])
-    print("Final 5 = ", desentity_ordered_selected_samples_id[:-5])     
-    desentity_ordered_selected_samples_id_new = desentity_ordered_selected_samples_id.reverse().copy()
-    print("After:")
-    print("First 5 = ", desentity_ordered_selected_samples_id_new[:5])
-    print("Final 5 = ", desentity_ordered_selected_samples_id_new[:-5])    
-    return desentity_ordered_selected_samples_id_new
+    return out_ordered_selected_samples_id
 
 
 

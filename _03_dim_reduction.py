@@ -64,7 +64,6 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
             f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)            
 
 
-                        
             for i_train_val in range(len(_list_train_val)):                            
 
                 _string_log_input = [4, '[RUN] ' + _list_train_val[i_train_val]]    

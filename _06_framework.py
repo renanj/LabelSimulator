@@ -3,6 +3,7 @@ import sys
 import random
 import time
 import datetime
+import math
 
 import pandas as pd
 import numpy as np
@@ -21,7 +22,8 @@ from joblib import Parallel, delayed
 # import cudf
 # import cuml
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_accuracy_chart
+# f_generate_gif_chart_scatterplots
 import config as config
 config = config.config
 
@@ -215,7 +217,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
                                 _model = _list_models[i_model]                               
                             
                                 start_time_simulation = time.time()                                
-                                chunk_size = round(len(_ordered_samples_id) / 250)
+                                chunk_size = math.ceil(len(_ordered_samples_id) / 250)
                                 # with tqdm(total=len(_ordered_samples_id)) as pbar:
                                 # pbar.update(chunk_size)                           
 
@@ -298,8 +300,18 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
                         
                         _string_log_input = [5, '[INFO] Chart Creation']    
                         f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
-
-
                         #[TO-DO] Create a function to generate the chart
-                        f_create_chart(df_simulation, 
-                                        _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'chart' + _list_train_val[i_train_val] + '.png')
+                        f_create_accuracy_chart(df_simulation, 
+                                        _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'accuracy_chart' + _list_train_val[i_train_val] + '.png')
+
+                        
+
+                        
+                        f_create_visualization_chart_animation(_df_2D, 
+                            _path=_path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name, 
+                            _file_name = 'animation_',
+                             _list_simulation_names,
+                              _list_selected_samples, 
+                              _n_fractions, 
+                              _fps=3)                        
+

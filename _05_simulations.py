@@ -137,10 +137,6 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
             _list_simulations_sample_id.append(_samples_id_ordered)
             _list_simulations_proceeded.append(_sim)
 
-
-            _samples_id_ordered = list(itertools.chain.from_iterable(zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_DEN)))
-            _samples_id_ordered = list(OrderedDict.fromkeys(_samples_id_ordered))
-
             print("Qtd Samples = ", len(_samples_id_ordered))
             print("End Dense_Areas_First!")
             print("--------------------\n")
