@@ -43,16 +43,29 @@ class config:
     _list_train_val = ['train'] #, 'val'
     #_list_train_val = ['val'] #, 'val'
     #controller: 
-    _list_data_sets_path = [      
+    _list_data_sets_path = [   
+
 
         [
-            "data/mnist",             
-            "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
-            "data/mnist/splited/train",
-            "data/mnist/splited/val",
-            "data/mnist/db_feature_extractor",
-            "data/mnist/results_consolidated"
+            "data/toy_example",                         
+            "data/toy_example/raw",
+            "data/toy_example/splited/train",
+            "data/toy_example/splited/val",
+            "data/toy_example/db_feature_extractor",
+            "data/toy_example/results_consolidated"
         ]
+
+
+        # [
+        #     "data/mnist",             
+        #     "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
+        #     "data/mnist/splited/train",
+        #     "data/mnist/splited/val",
+        #     "data/mnist/db_feature_extractor",
+        #     "data/mnist/results_consolidated"
+        # ]
+
+
 
         # ,[
         #     "data/plancton",
