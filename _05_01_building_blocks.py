@@ -31,7 +31,7 @@ def f_cold_start(df_embbedings, _random_state=42):
     if len(_random_samples_id) >= 500:
         _cold_start_samples_id  = _random_samples_id[0:50]
     else:
-        _cold_start_samples_id  = _random_samples_id[0:math.ceil(0.2*len(_random_samples_id))]
+        _cold_start_samples_id  = _random_samples_id[0:math.ceil(0.05*len(_random_samples_id))]
 
     return _random_samples_id, _cold_start_samples_id
 

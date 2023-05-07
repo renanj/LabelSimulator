@@ -54,24 +54,29 @@ def f_model_accuracy(_args):
         X_test = _df.loc[:,_temp_X_columns].astype('float32')
         y_test = _df.loc[:,'labels'].astype('float32')
 
-    else:                                                                    
+    else:        
+        # print("TPU")                                                            
         _temp_X_columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)                                                                
         X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns]
         y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels']                      
         X_test = _df.loc[:,_temp_X_columns]
         y_test = _df.loc[:,'labels']
+        # print("X_train .shape = ", X_train.shape)
+        # print("X_test .shape = ", X_test.shape)
 
 
-    try:      
-        with parallel_backend('multiprocessing'):                              
-            _model.fit(X_train, y_train)                                    
-            _score = _model.score(X_test, y_test)
-            #print("worked for..", _qtd_samples_to_train)
-            return _score
-        
+    try:                    
+        _model.fit(X_train, y_train)                                    
+        _score = _model.score(X_test, y_test)
+        # print("worked for..", _qtd_samples_to_train)
+        # print("_score = ", _score)
+        # print("\n\n")
+        return _score
+    
     except:                                            
-        _score = 0
-        #print("entered i expection...")
+        _score = -1
+        print("entered i expection...", i)
+        print("\n\n")
         return _score
 
 
