@@ -18,10 +18,11 @@ import pandas as pd
 
 from tqdm import tqdm_notebook as tqdm
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy, f_get_files_to_delete, f_delete_files, f_get_subfolders
 
 #Inputs:
-_GPU_flag = config._GPU_Flag_dict['02_feature_extractor.py']
+_script_name = os.path.basename(__file__)
+_GPU_flag = config._GPU_Flag_dict[_script_name]
 
 _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
@@ -66,6 +67,14 @@ class FeatureExtractor(nn.Module):
 print ('[INFO] - Feature Extractor/n/n')
 for db_paths in config._list_data_sets_path:
     print('Path = ', db_paths[0])
+
+
+    _string_log_input = [1, '[INFO] Deleting All Files...']
+    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)        
+    _sub_folders_to_check = f_get_subfolders(db_paths[0])
+    for _sub_folder in _sub_folders_to_check:    
+        f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)        
+                
     model_name_i = 0
     # _l_train_val = ['train', 'val']
     # _l_train_val = ['train']

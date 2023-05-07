@@ -11,7 +11,8 @@ import config
 config = config.config
 
 #Inputs:
-_GPU_flag = config._GPU_Flag_dict['01_build_dataset.py']
+_script_name = os.path.basename(__file__)
+_GPU_flag = config._GPU_Flag_dict[_script_name]
 
 _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
@@ -19,7 +20,7 @@ _list_train_val = config._list_train_val
 
 import pandas as pd
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy, f_get_files_to_delete, f_delete_files, f_get_subfolders
 
 
 
@@ -53,6 +54,12 @@ def run_paths (_list_paths, input_index=True,  input_images=False):
 
 	 
 	for db_paths in _list_paths:	
+
+	    _string_log_input = [1, '[INFO] Deleting All Files...']
+	    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)        
+	    _sub_folders_to_check = f_get_subfolders(db_paths[0])
+	    for _sub_folder in _sub_folders_to_check:    
+	        f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)        		
 
 		#Create directory for everyone that is NOT RAW
 		for db_sub in db_paths:

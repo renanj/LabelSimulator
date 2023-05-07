@@ -18,7 +18,7 @@ import sys
 import cudf
 import cupy as cp
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart
+from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
 import _05_01_building_blocks as bblocks
 import config as config
 config = config.config
@@ -35,7 +35,8 @@ config = config.config
 
 
 #Inputs:
-_GPU_flag = config._GPU_Flag_dict['05_simulations.py']
+_script_name = os.path.basename(__file__)
+_GPU_flag = config._GPU_Flag_dict[_script_name]
 
 _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
@@ -229,6 +230,14 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_simulations_py_" + ".tx
         _string_log_input = [1, '[IMAGE DATABASE] = ' + db_paths[0]]    
         f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
+
+        _string_log_input = [1, '[INFO] Deleting All Files...']
+        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)        
+        _sub_folders_to_check = f_get_subfolders(db_paths[0])
+        for _sub_folder in _sub_folders_to_check:    
+            f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)        
+                    
+
         _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
         for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders:            
 
@@ -275,4 +284,4 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_simulations_py_" + ".tx
 
                         _simulation_order_df = pd.DataFrame(_list_simulation_ordered_samples_id).T
                         _simulation_order_df.columns = _list_simulation_sample_name                
-                        _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_ordered_' + _list_train_val[i_train_val]  + '.pkl')
+                        _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_samples_ordered_' + _list_train_val[i_train_val]  + '.pkl')

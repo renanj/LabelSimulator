@@ -11,11 +11,12 @@ import config as config
 config = config.config
 import sys
 import cudf
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_get_files_to_delete, f_delete_files, f_get_subfolders
 
 
 #Inputs:
-_GPU_flag = config._GPU_Flag_dict['04_generator_faiss.py']
+_script_name = os.path.basename(__file__)
+_GPU_flag = config._GPU_Flag_dict[_script_name]
 
 _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
@@ -67,11 +68,23 @@ def f_faiss(df_embbedings, _GPU_flag=True):
 print('[INFO] Starting Faiss')
 for db_paths in config._list_data_sets_path:
 
+
+
+
     print("\n\nPATH -------")
     print('=====================')
     print(db_paths[0])
     print('=====================')
     print('=====================\n')    
+
+
+    _string_log_input = [1, '[INFO] Deleting All Files...']
+    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)        
+    _sub_folders_to_check = f_get_subfolders(db_paths[0])
+    for _sub_folder in _sub_folders_to_check:    
+        f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)        
+
+
     _deep_learning_arq_sub_folder =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]    
     for _deep_learning_arq_sub_folder in _deep_learning_arq_sub_folder:
         print('-------')

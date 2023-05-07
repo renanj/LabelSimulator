@@ -22,7 +22,7 @@ from joblib import Parallel, delayed
 # import cudf
 # import cuml
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_accuracy_chart, f_create_visualization_chart_animation
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_accuracy_chart, f_create_visualization_chart_animation, f_get_files_to_delete, f_delete_files, f_get_subfolders
 # f_generate_gif_chart_scatterplots
 import config as config
 config = config.config
@@ -31,16 +31,16 @@ config = config.config
 
 
 #Inputs:
-_GPU_flag = config._GPU_Flag_dict['06_framework.py']
-
+_script_name = os.path.basename(__file__)
+_GPU_flag = config._GPU_Flag_dict[_script_name]
 _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
 
 
 
 
-def f_model_accuracy(_args):
 
+def f_model_accuracy(_args):
 
     _df, _model, _ordered_samples_id, _qtd_samples_to_train, _GPU_flag = _args
     
@@ -89,17 +89,23 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
     f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 
-
     for db_paths in _list_data_sets_path:
-
+                
         _string_log_input = [1, '[IMAGE DATABASE] = ' + db_paths[0]]    
         f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-    
-        _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
-        for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders:            
-            
-            _list_files = [_files for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name) if not _files.startswith('.')]
 
+
+        _string_log_input = [1, '[INFO] Deleting All Files...']
+        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)        
+        _sub_folders_to_check = f_get_subfolders(db_paths[0])
+        for _sub_folder in _sub_folders_to_check:    
+            f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)        
+    
+        
+        _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
+        for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders:                                    
+
+            _list_files = [_files for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name) if not _files.startswith('.')]
             _string_log_input = [2, 'Architecture ' + _deep_learning_arq_sub_folder_name]    
             f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
             _string_log_input = [3, 'List of Files = ' + str(_list_files)]    
@@ -184,7 +190,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
                 
 
                         # _list_simulation_sample_name, _list_simulation_ordered_samples_id = sim.f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)
-                        _df_simulation_ordered = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_ordered_' + _list_train_val[i_train_val]  + '.pkl')
+                        _df_simulation_ordered = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_samples_ordered_' + _list_train_val[i_train_val]  + '.pkl')
                         _list_simulation_sample_name = list(_df_simulation_ordered.columns)                    
                         _list_simulation_ordered_samples_id = _df_simulation_ordered.T.values.tolist()                                       
                         _df_simulation_ordered = None
@@ -300,14 +306,14 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
                         #[TO-DO] Create a cuDF and transform to pickle
                         df_simulation = pd.concat(_temp_df_list)
-                        df_simulation.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_' + _list_train_val[i_train_val] + '.pkl')
+                        df_simulation.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_' + _list_train_val[i_train_val] + '.pkl')
                         
                         
                         _string_log_input = [5, '[INFO] Chart Creation']    
                         f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)                
                         #[TO-DO] Create a function to generate the chart
                         f_create_accuracy_chart(df_simulation, 
-                                        _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'accuracy_chart' + _list_train_val[i_train_val] + '.png')
+                                        _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_accuracy_chart' + _list_train_val[i_train_val] + '.png')
 
                         
                         f_create_visualization_chart_animation(

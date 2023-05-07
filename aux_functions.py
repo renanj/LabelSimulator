@@ -8,8 +8,52 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from sklearn.datasets import make_blobs
 
+import os
+import glob
+import config
+config = config.config
 
 
+def f_get_subfolders(path):
+
+    sub_folders = []
+    for entry in os.scandir(path):
+        if entry.is_dir() and not entry.name.startswith('.'):
+            sub_folders.append(entry.path)
+            sub_folders += get_subfolders(entry.path)
+    return sub_folders
+
+
+def f_get_files_to_delete(script_name):
+
+    _scripts_order = config._scripts_order
+    _files_generated = config._files_generated
+
+    _temp_scripts_to_check = []
+    _files_to_delete = []
+    for i in range(position, len(_scripts_order)):  
+      _temp_scripts_to_check.append(_scripts_order[i])  
+    for _k in _files_generated.keys():
+      if _k in _temp_scripts_to_check:
+        _files_to_delete = _files_to_delete + _files_generated[_k]      
+
+
+def f_delete_files (list_files_to_delete, db_paths):
+    
+    for db_path in db_paths:
+        if 'raw' in db_sub:
+                    None
+        else:               
+            # get a list of all files in the folder
+            file_list = glob.glob(os.path.join(db_path, "*"))
+            # delete each file in the list
+            for file in file_list:
+                if file in list_files_to_delete:
+                    try:
+                        os.remove(file)     
+                        print("Delelted File = ", file)
+                else:
+                    None
 
 
 
