@@ -14,7 +14,7 @@ class config:
 
     # set the batch size and validation data split
     BATCH_SIZE = 0
-    VAL_SPLIT = 0.9
+    VAL_SPLIT = 0.992
 
     _logs_path = [ "logs"]
 
@@ -46,24 +46,24 @@ class config:
     _list_data_sets_path = [   
 
 
-        [
-            "data/toy_example",                         
-            "data/toy_example/raw",
-            "data/toy_example/splited/train",
-            "data/toy_example/splited/val",
-            "data/toy_example/db_feature_extractor",
-            "data/toy_example/results_consolidated"
-        ]
-
-
         # [
-        #     "data/mnist",             
-        #     "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
-        #     "data/mnist/splited/train",
-        #     "data/mnist/splited/val",
-        #     "data/mnist/db_feature_extractor",
-        #     "data/mnist/results_consolidated"
+        #     "data/toy_example",                         
+        #     "data/toy_example/raw",
+        #     "data/toy_example/splited/train",
+        #     "data/toy_example/splited/val",
+        #     "data/toy_example/db_feature_extractor",
+        #     "data/toy_example/results_consolidated"
         # ]
+
+
+        [
+            "data/mnist",             
+            "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
+            "data/mnist/splited/train",
+            "data/mnist/splited/val",
+            "data/mnist/db_feature_extractor",
+            "data/mnist/results_consolidated"
+        ]
 
 
 

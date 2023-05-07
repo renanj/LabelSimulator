@@ -22,7 +22,7 @@ from joblib import Parallel, delayed
 # import cudf
 # import cuml
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_accuracy_chart
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_accuracy_chart, f_create_visualization_chart_animation
 # f_generate_gif_chart_scatterplots
 import config as config
 config = config.config
@@ -305,13 +305,11 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
                                         _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'accuracy_chart' + _list_train_val[i_train_val] + '.png')
 
                         
-
-                        
-                        f_create_visualization_chart_animation(_df_2D, 
-                            _path=_path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name, 
-                            _file_name = 'animation_',
-                             _list_simulation_names,
-                              _list_selected_samples, 
-                              _n_fractions, 
-                              _fps=3)                        
+                        f_create_visualization_chart_animation(
+                            _df_2D = df, 
+                            _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name, 
+                            _file_name = 'vis_2D_selection_',
+                            _list_simulation_names=_list_simulation_sample_name,
+                            _list_selected_samples= _list_simulation_ordered_samples_id,
+                            _n_fractions=5, _fps=3)                        
 

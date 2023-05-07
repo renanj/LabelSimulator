@@ -1,5 +1,6 @@
 import time 
 import datetime
+import math
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -252,7 +253,7 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
         print("This Arcthrecute has more than 2 dimensions... Path = ", _path)
         return None
 
-
+    _df_2D = _df_2D[['sample_id', 'X1', 'X2']]
 
 
     num_simulations = len(_list_selected_samples)
