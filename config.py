@@ -25,38 +25,38 @@ class config:
 
 
     _GPU_Flag_dict = {
-        '01_build_dataset.py': True,
-        '02_feature_extractor.py': True,
-        '03_dim_reduction.py': True,
-        '04_generator_faiss.py': True,
-        '05_simulations.py': True,
-        '05_01_building_blocks.py': True,
-        '05_02_active_learning.py': True,
-        '06_framework.py': False,
-        '07_results_consolidation.py': False        
+        '_01_build_dataset.py': True,
+        '_02_feature_extractor.py': True,
+        '_03_dim_reduction.py': True,
+        '_04_generator_faiss.py': True,
+        '_05_simulations.py': True,
+        '_05_01_building_blocks.py': True,
+        '_05_02_active_learning.py': True,
+        '_06_framework.py': False,
+        '_07_results_consolidation.py': False        
     }    
 
-    _scripts_order = ['01_build_dataset.py','02_feature_extractor.py','03_dim_reduction.py','04_generator_faiss.py','05_simulations.py','05_01_building_blocks.py','05_02_active_learning.py','06_framework.py','07_results_consolidation.py']
+    _scripts_order = ['_01_build_dataset.py','_02_feature_extractor.py','_03_dim_reduction.py','_04_generator_faiss.py','_05_simulations.py','_05_01_building_blocks.py','_05_02_active_learning.py','_06_framework.py','_07_results_consolidation.py']
 
     _files_generated = {
-        '01_build_dataset.py': [
+        '_01_build_dataset.py': [
             'df_index_paths_train.pkl', 'df_index_paths_val.pkl'],
-        '02_feature_extractor.py': [
+        '_02_feature_extractor.py': [
             'df_train.pkl', 'df_train.pkl'],
-        '03_dim_reduction.py': [
+        '_03_dim_reduction.py': [
             'df_train.pkl','df_train.pkl'],
-        '04_generator_faiss.py': [
+        '_04_generator_faiss.py': [
             'df_faiss_indices_train.pkl', 'df_faiss_indices_val.pkl', 'df_faiss_distances_train.pkl', 'df_faiss_distances_val.pkl'],
-        '05_simulations.py': [
+        '_05_simulations.py': [
             'df_simulation_samples_ordered_train.pkl', 'df_simulation_samples_ordered_val.pkl', 'df_simulation_ordered_train.pkl', 'df_simulation_ordered_val.pkl'],
-        '05_01_building_blocks.py': [
+        '_05_01_building_blocks.py': [
                                         ],
-        '05_02_active_learning.py': [
+        '_05_02_active_learning.py': [
                                         ],
-        '06_framework.py': [
+        '_06_framework.py': [
                             'df_framework_train.pkl', 'df_framework_val.pkl', 'df_simulation_train.pkl', 'df_simulation_val.pkl'
                             ],
-        '07_results_consolidation.py': [
+        '_07_results_consolidation.py': [
                                             ]
     }        
 
