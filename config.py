@@ -14,7 +14,7 @@ class config:
 
     # set the batch size and validation data split
     BATCH_SIZE = 0
-    VAL_SPLIT = 0.992
+    VAL_SPLIT = 0.90
 
     _logs_path = [ "logs"]
 
@@ -54,11 +54,13 @@ class config:
         '_05_02_active_learning.py': [
                                         ],
         '_06_framework.py': [
-                            'df_framework_train.pkl', 'df_framework_val.pkl', 'df_simulation_train.pkl', 'df_simulation_val.pkl'
+                            'df_framework_train.pkl', 'df_framework_val.pkl', 'df_simulation_train.pkl', 'df_simulation_val.pkl', 'vis_accuracy_chart_train.png', 'vis_accuracy_chart_val.png', 'vis_2D_selection_train.png', 'vis_2D_selection_val.png',  'vis_2D_selection_train.gif', 'vis_2D_selection_val.gif'
                             ],
         '_07_results_consolidation.py': [
                                             ]
     }        
+
+
 
 
     _list_simulation_sample_name = ['Random', 'NSS', 'SPB','DEN', 'OUT']
@@ -89,14 +91,14 @@ class config:
 
 
 
-        # ,[
-        #     "data/plancton",
-        #     "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
-        #     "data/plancton/splited/train",
-        #     "data/plancton/splited/val",
-        #     "data/plancton/db_feature_extractor",
-        #     "data/plancton/results_consolidated"
-        # ]                                   
+        ,[
+            "data/plancton",
+            "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
+            "data/plancton/splited/train",
+            "data/plancton/splited/val",
+            "data/plancton/db_feature_extractor",
+            "data/plancton/results_consolidated"
+        ]                                   
 
 
     ]

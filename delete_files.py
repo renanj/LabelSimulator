@@ -34,7 +34,6 @@ with open('logs/' + f_time_now(_type='datetime_') + "_delete_files_py_" + ".txt"
 	        _sub_folders_to_check = f_get_subfolders(db_paths[0])	        
 	        for _sub_folder in _sub_folders_to_check:	        		        		        	
 	        	f_delete_files(_list_files_to_delete, _sub_folder)
-	else:
-		None
+	else:		
 		_string_log_input = [0, '[INFO] There is no file with this name ' + _script_name]    
 	    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
