@@ -14,7 +14,7 @@ class config:
 
     # set the batch size and validation data split
     BATCH_SIZE = 0
-    VAL_SPLIT = 0.90
+    VAL_SPLIT = 0.98
 
     _logs_path = [ "logs"]
 
@@ -91,14 +91,14 @@ class config:
 
 
 
-        ,[
-            "data/plancton",
-            "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
-            "data/plancton/splited/train",
-            "data/plancton/splited/val",
-            "data/plancton/db_feature_extractor",
-            "data/plancton/results_consolidated"
-        ]                                   
+        # ,[
+        #     "data/plancton",
+        #     "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
+        #     "data/plancton/splited/train",
+        #     "data/plancton/splited/val",
+        #     "data/plancton/db_feature_extractor",
+        #     "data/plancton/results_consolidated"
+        # ]                                   
 
 
     ]

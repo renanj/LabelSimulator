@@ -4,10 +4,12 @@ import subprocess
 def label_simulator_run():
 
     scripts_dict = {        
-        1: 'build_dataset.py',
-        2: 'feature_extractor.py',
-        3: 'dim_reduction.py'        
-        4: 'simulation_framework.py',        
+        1: '_01_build_dataset.py',
+        2: '_02_feature_extractor.py',
+        3: '_03_dim_reduction.py',
+        4: '_04_generator_faiss.py',
+        5: '_05_simulations.py',
+        6: '_06_framework.py'
     }
     
     print("Hi - this is LabelSimulator Executor\n")

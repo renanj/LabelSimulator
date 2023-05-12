@@ -4,7 +4,7 @@ from cuml.manifold import TSNE
 import multiprocessing
 import os
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_chart, f_model_accuracy, f_get_files_to_delete, f_delete_files, f_get_subfolders
+from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
 import config as config
 config = config.config
 
@@ -34,7 +34,6 @@ def f_dim_reduction(df, dim_r, n_dimensions=2):
     
   else:
     print ("We don't have a dim_reduction algo with this name")
-    
   
 
 with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".txt", "a") as _f:
@@ -52,11 +51,11 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
         f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 
-        _string_log_input = [1, '[INFO] Deleting All Files...']
-        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)        
-        _sub_folders_to_check = f_get_subfolders(db_paths[0])
-        for _sub_folder in _sub_folders_to_check:    
-            f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)        
+        # _string_log_input = [1, '[INFO] Deleting All Files...']
+        # f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)        
+        # _sub_folders_to_check = f_get_subfolders(db_paths[0])
+        # for _sub_folder in _sub_folders_to_check:    
+        #     f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)        
                     
 
         _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
