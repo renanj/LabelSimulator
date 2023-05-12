@@ -19,21 +19,22 @@ _script_name = sys.argv[1]
 _list_files_to_delete = f_get_files_to_delete(_script_name)
 with open('logs/' + f_time_now(_type='datetime_') + "_delete_files_py_" + ".txt", "a") as _f:
 
-    _string_log_input = [0, '[INFO] Deleting Files Script']
-    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+	_string_log_input = [0, '[INFO] Deleting Files Script']
+	f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 
 	if _script_name in _scripts_order:
 
-	    for db_paths in _list_data_sets_path:	    	
-	        _string_log_input = [1, '[IMAGE DATABASE] = ' + db_paths[0]]    
-	        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+		for db_paths in _list_data_sets_path:			
+			_string_log_input = [1, '[IMAGE DATABASE] = ' + db_paths[0]]	
+			f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
-	        _string_log_input = [1, '[INFO] Deleting All Files...']
-	        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-	        _sub_folders_to_check = f_get_subfolders(db_paths[0])	        
-	        for _sub_folder in _sub_folders_to_check:	        		        		        	
-	        	f_delete_files(_list_files_to_delete, _sub_folder)
+			_string_log_input = [1, '[INFO] Deleting All Files...']
+			f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+			_sub_folders_to_check = f_get_subfolders(db_paths[0])			
+			for _sub_folder in _sub_folders_to_check:												
+				f_delete_files(_list_files_to_delete, _sub_folder)
 	else:		
-		_string_log_input = [0, '[INFO] There is no file with this name ' + _script_name]    
-	    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+		_string_log_input = [0, '[INFO] There is no file with this name ' + _script_name]	
+		f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+		
