@@ -20,6 +20,7 @@ import cupy as cp
 
 from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
 import _05_01_building_blocks as bblocks
+import _05_02_active_learning as active_learning_query
 import config as config
 config = config.config
 
@@ -40,6 +41,31 @@ _GPU_flag = config._GPU_Flag_dict[_script_name]
 
 _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
+
+
+
+def f_run_active_learning(df_embbedings, query_strategy_list = None):
+
+	if query_strategy_list is None:		
+		query_strategy_list = ['BatchBALD']
+	else:
+		None		
+
+	_list_active_learning_sample_id = []
+	_list_active_learning_proceeded = []
+
+
+	#SIMULATION RUN based on "simulation_list":
+	for _query in query_strategy_list:		
+		
+		if _query == 'BatchBALD':
+			_list_active_learning_sample_id.append(active_learning_query.f_batchBald(_df=df_embbedings))
+			_list_active_learning_proceeded.append(_query)
+		else:
+			print("we dont have a function ready for {} this active learning query strategy", _query)
+
+	return _list_active_learning_proceeded, _list_active_learning_sample_id
+
 
 
 def join_lists_equal_distance(_list_a, _list_b):
@@ -211,7 +237,9 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
 		
 		else:
 			print("We don't have a function ready for {} simulation!", _sim)
-	return _list_simulations_proceeded, _list_simulations_sample_id			
+	return _list_simulations_proceeded, _list_simulations_sample_id
+
+
 
 
 
@@ -279,11 +307,20 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_simulations_py_" + ".tx
 						f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)						
 
 						
-						_list_simulation_sample_name, _list_simulation_ordered_samples_id = f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)						
+						_list_simulation_sample_name, _list_simulation_ordered_samples_id = f_run_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)
+						_list_active_learning_query_name, _list_active_learning_query_ordered_samples_id = f_run_active_learning(df_embbedings = df,  query_strategy_list = None)
+
+
+						_list_strategy_name = _list_simulation_sample_name.copy()
+						_list_strategy_name.extend(_list_active_learning_query_name)
+
+						_list_strategy_ordered_samples_id = _list_simulation_ordered_samples_id.copy()
+						_list_strategy_ordered_samples_id.extend(_list_active_learning_query_ordered_samples_id)						
+
 
 						_string_log_input = [6, 'Exporting .pkl']	
 						f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)						
 
-						_simulation_order_df = pd.DataFrame(_list_simulation_ordered_samples_id).T
-						_simulation_order_df.columns = _list_simulation_sample_name				
+						_simulation_order_df = pd.DataFrame(_list_strategy_ordered_samples_id).T
+						_simulation_order_df.columns = _list_strategy_name				
 						_simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_samples_ordered_' + _list_train_val[i_train_val]  + '.pkl')

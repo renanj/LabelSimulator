@@ -90,13 +90,18 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 		# generate training and validation paths
 		valPathsLen = int(len(imagePaths) * config.VAL_SPLIT)
 		trainPathsLen = len(imagePaths) - valPathsLen
+
 		
+		#delete
+		valPaths = imagePaths[50:100]
+		trainPaths = imagePaths[:50]				
+		#delete ------- 
+		
+		# valPaths = imagePaths[trainPathsLen:]
+		# trainPaths = imagePaths[:trainPathsLen]		
 
-		valPaths = imagePaths[trainPathsLen:]
-		trainPaths = imagePaths[:trainPathsLen]		
-
-		if valPathsLen > 2000:			
-			valPaths = imagePaths[trainPathsLen:(trainPathsLen*4)]			
+		# if valPathsLen > 2000:			
+		# 	valPaths = imagePaths[trainPathsLen:(trainPathsLen*4)]			
 
 
 		#Create pkl.index... with train and val

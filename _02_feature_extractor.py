@@ -36,8 +36,8 @@ _models = [
 ]
 
 _models_name = [
-  'vgg_16',
-  'vgg_19'
+  'vgg_16'
+  # 'vgg_19'
   #'resnet50'  
 ]
 
