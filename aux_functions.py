@@ -362,12 +362,12 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
             axs2[i][j].set_ylabel('X2')
         axs2[i][0].set_ylabel(f"{math.ceil((i+1)/_n_fractions*100)}% of samples selected")    
         
-    fig.subplots_adjust(top=0.85)    
-    plt.savefig(f'{_path}/{_file_name}.png')    
+    fig2.subplots_adjust(top=0.85)        
+    fig2.savefig(f'{_path}/{_file_name}.png')    
 
 
 
-def f_create_accuracy_chart(_df, _path, _col_x ='# Samples Evaluated/Interaction Number', _col_y='Accuracy', _hue='Simulation Type'):
+def f_create_accuracy_chart(_df, _path, _col_x, _col_y, _hue='Simulation Type'):
 
     _list_cols = [_col_x, _col_y, _hue]
     
@@ -389,4 +389,3 @@ def f_create_accuracy_chart(_df, _path, _col_x ='# Samples Evaluated/Interaction
 
     figure = _chart.get_figure()
     figure.savefig(_path)
-

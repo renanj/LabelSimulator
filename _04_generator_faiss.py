@@ -94,6 +94,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 			print(_list_files)
 			#split in train & validation (currently we use only validation)		
 			for i_train_val in range(len(config._list_train_val)):
+				if config._list_train_val[i_train_val] == 'validation':
+					continue					
 				#print('... /...', config._list_train_val[i])
 				for _files in _list_files:
 					print(_files)

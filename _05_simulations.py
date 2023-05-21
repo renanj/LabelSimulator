@@ -102,6 +102,7 @@ def f_run_simulations(df_embbedings, df_faiss_indices, df_faiss_distances, simul
 	print("------------------------------------------------\n\n")
 
 
+
 	
 	_list_simulations_sample_id = []
 	_list_simulations_proceeded = []
@@ -253,7 +254,9 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_simulations_py_" + ".tx
 			f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 			
-			for i_train_val in range(len(_list_train_val)):							
+			for i_train_val in range(len(_list_train_val)):				
+				if config._list_train_val[i_train_val] == 'validation':
+					continue										
 
 				_string_log_input = [4, '[RUN] ' + _list_train_val[i_train_val]]	
 				f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
@@ -264,9 +267,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_simulations_py_" + ".tx
 						None
 					else:
 						_string_log_input = [4, 'Running File = ' + _file_name]	
-						f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-
-						
+						f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)						
 
 						###Start Simulations:
 
