@@ -40,21 +40,21 @@ class config:
 
     _files_generated = {
         '_01_build_dataset.py': [
-            'df_index_paths_train.pkl', 'df_index_paths_val.pkl'],
+            'df_index_paths_train.pkl', 'df_index_paths_validation.pkl'],
         '_02_feature_extractor.py': [
             'df_train.pkl', 'df_train.pkl'],
         '_03_dim_reduction.py': [
             'df_train.pkl','df_train.pkl'],
         '_04_generator_faiss.py': [
-            'df_faiss_indices_train.pkl', 'df_faiss_indices_val.pkl', 'df_faiss_distances_train.pkl', 'df_faiss_distances_val.pkl'],
+            'df_faiss_indices_train.pkl', 'df_faiss_indices_validation.pkl', 'df_faiss_distances_train.pkl', 'df_faiss_distances_validation.pkl'],
         '_05_simulations.py': [
-            'df_simulation_samples_ordered_train.pkl', 'df_simulation_samples_ordered_val.pkl', 'df_simulation_ordered_train.pkl', 'df_simulation_ordered_val.pkl'],
+            'df_simulation_samples_ordered_train.pkl', 'df_simulation_samples_ordered_validation.pkl', 'df_simulation_ordered_train.pkl', 'df_simulation_ordered_validation.pkl'],
         '_05_01_building_blocks.py': [
                                         ],
         '_05_02_active_learning.py': [
                                         ],
         '_06_framework.py': [
-                            'df_framework_train.pkl', 'df_framework_val.pkl', 'df_simulation_train.pkl', 'df_simulation_val.pkl', 'vis_accuracy_chart_train.png', 'vis_accuracy_chart_val.png', 'vis_2D_selection_train.png', 'vis_2D_selection_val.png',  'vis_2D_selection_train.gif', 'vis_2D_selection_val.gif'
+                            'df_framework_train.pkl', 'df_framework_validation.pkl', 'df_simulation_train.pkl', 'df_simulation_validation.pkl', 'vis_accuracy_chart_train.png', 'vis_accuracy_chart_validation.png', 'vis_2D_selection_train.png', 'vis_2D_selection_val.png',  'vis_2D_selection_train.gif', 'vis_2D_selection_val.gif'
                             ],
         '_07_results_consolidation.py': [
                                             ]
@@ -75,7 +75,7 @@ class config:
         #     "data/toy_example",                         
         #     "data/toy_example/raw",
         #     "data/toy_example/splited/train",
-        #     "data/toy_example/splited/val",
+        #     "data/toy_example/splited/validation",
         #     "data/toy_example/db_feature_extractor",
         #     "data/toy_example/results_consolidated"
         # ]
@@ -85,7 +85,7 @@ class config:
             "data/mnist",             
             "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
             "data/mnist/splited/train",
-            "data/mnist/splited/val",
+            "data/mnist/splited/validation",
             "data/mnist/db_feature_extractor",
             "data/mnist/results_consolidated"
         ]
@@ -96,7 +96,7 @@ class config:
         #     "data/plancton",
         #     "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
         #     "data/plancton/splited/train",
-        #     "data/plancton/splited/val",
+        #     "data/plancton/splited/validation",
         #     "data/plancton/db_feature_extractor",
         #     "data/plancton/results_consolidated"
         # ]                                   

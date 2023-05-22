@@ -110,7 +110,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
 
 		df = pd.DataFrame(valPaths, columns=['image_path'])
-		df.to_pickle(db_paths[3]  + '/' + 'df_index_paths_val.pkl')			 
+		df.to_pickle(db_paths[3]  + '/' + 'df_index_paths_validation.pkl')			 
 
 
 		if input_images == True: 

@@ -34,41 +34,56 @@ from skactiveml.pool import BatchBALD
 
 
 def f_batchBald(_df, _GPU_flag=True):
-	
+
 	if _GPU_flag is True:
 		_temp_X_columns = [x for x, mask in zip(_df.columns.values, _df.columns.str.startswith("X")) if mask]
 		X_train = _df.loc[:,_temp_X_columns].astype('float32')
 		y_train = _df.loc[:,'labels'].astype('float32')		
-		y_train_query = np.full(shape=y_train.shape, fill_value=MISSING_LABEL)
+		y_train_manual_label = np.full(shape=y_train.shape, fill_value=MISSING_LABEL)
 
 	else:		
 		#TO-DO
 		None
 
-	 random_state = np.random.RandomState(0)
+	random_state = np.random.RandomState(0)
 
 	 # Initialise the classifier.
-	 clf = SklearnClassifier(BaggingClassifier(SklearnClassifier(GaussianProcessClassifier(), random_state=random_state),
-	     random_state=random_state),
-	     classes=np.unique(y_train),
-	     random_state=random_state
-	 )
-	 # Initialise the query strategy.
-	 qs = BatchBALD(random_state=random_state)
-	 ordered_selected_samples_id = []
+	clf = SklearnClassifier(BaggingClassifier(SklearnClassifier(GaussianProcessClassifier(), random_state=random_state),
+		 random_state=random_state),
+		 classes=np.unique(y_train),
+		 random_state=random_state
+	)
+	# Initialise the query strategy.
+	qs = BatchBALD(random_state=random_state)
+	ordered_selected_samples_id = []
 
-	
+	_count_i = 1
+
+
 	while len(ordered_selected_samples_id) < len(X_train):
 
-		clf.fit(X_train, y_train_query)
-		# Get labeled instances.
-		X_labeled = X_train[labeled_indices(y_train_query)]
+		print("Interaction = ", _count_i)
+
+		clf.fit(X_train, y_train_manual_label)
+		# # Get labeled instances.
+		# X_labeled = X_train[labeled_indices(y_train_manual_label)]
 		# Query the next instance/s.
-		query_idx, utilities = qs.query(X=X_train, y=y_train_query, ensemble=clf, batch_size=20, return_utilities=True)
+
+		query_idx, utilities = qs.query(X=X_train, y=y_train_manual_label, ensemble=clf, batch_size=20, return_utilities=True)
+		print(query_idx)
+		query_sample_ids = _df[_df.index.isin(list(query_idx))]['sample_id'].reindex(list(query_idx)).tolist()
+		
+
+		
+
 		# Label the queried instances.
-		y_train_query[query_idx] = y_train[query_idx]		
-		ordered_selected_samples_id.append(query_idx)
+		y_train_manual_label[query_idx] = y_train[query_idx]		
+
+		ordered_selected_samples_id.extend(query_sample_ids)
+		print("ordered_selected_samples_id == /n", ordered_selected_samples_id)
+		_count_i = _count_i + 1
+		print("---------------/n")
 
 
-	
+
 	return ordered_selected_samples_id	

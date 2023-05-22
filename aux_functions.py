@@ -158,7 +158,7 @@ def closest_value(row):
 #     for i in range(num_simulations):
 #         sample_ids = _list_selected_samples[i]
 #         df_subset = _df.copy()
-#         df_subset['color'] = 'gray'
+#         df_subset['color'] = 'whitesmoke'
 #         df_subset['fraction'] = ''
 #         scatter_plot = axs[i].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
 #         scatter_plots.append(scatter_plot)
@@ -169,7 +169,7 @@ def closest_value(row):
 #         for j in range(num_simulations):
 #             sample_ids = _list_selected_samples[j]
 #             df_subset = _df.copy()
-#             df_subset['color'] = 'gray'
+#             df_subset['color'] = 'whitesmoke'
 #             index = i % len(sample_ids)
 #             df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index+1]), 'color'] = 'blue'
 #             df_subset.loc[df_subset.index <= math.ceil((index+1)/len(sample_ids)*fractions)*len(df_subset)/fractions,'fraction'] = f"{math.ceil((index+1)/len(sample_ids)*100)}%"
@@ -183,16 +183,16 @@ def closest_value(row):
 #     anim.save(_file_name_gif + '.gif', writer='imagemagick', fps=_fps)
 
 #     df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index+1]), 'color'] = 'blue'
-#     _df['color'] = 'gray'
+#     _df['color'] = 'whitesmoke'
     
-#     scatter_plot = axs[0].scatter(df_subset['X1'], df_subset['X2'], c='gray')
+#     scatter_plot = axs[0].scatter(df_subset['X1'], df_subset['X2'], c='whitesmoke')
 #     fig2, axs2 = plt.subplots(nrows=fractions, ncols=num_simulations, figsize=(4*num_simulations, 4*fractions), tight_layout=True)
 #     i = 0
 #     for i in range(fractions):
 #         for j in range(num_simulations):
 #             sample_ids = _list_selected_samples[j]
 #             df_subset = _df.copy()
-#             df_subset['color'] = 'gray'
+#             df_subset['color'] = 'whitesmoke'
 #             df_subset['fraction'] = ''
 #             index = math.ceil((i+1)/fractions*len(sample_ids))
 #             df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index]), 'color'] = 'red'
@@ -226,7 +226,7 @@ def closest_value(row):
 #     fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=fig_size)
 
 #     _color_start = 'darkblue'
-#     _color_end = 'lightgray'
+#     _color_end = 'lightwhitesmoke'
 
 #     # create a scatter plot for each chart
 #     for i, ax in enumerate(axes.flat):
@@ -255,7 +255,7 @@ def closest_value(row):
 
 #     # create a scatter plot with all data points
 #     fig, ax = plt.subplots()
-#     sc = ax.scatter(_df['X1'], _df['X2'], c='gray')
+#     sc = ax.scatter(_df['X1'], _df['X2'], c='whitesmoke')
 
 #     # define the update function for the animation
 #     def update(frame):
@@ -319,7 +319,7 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
     for i in range(num_simulations):
         sample_ids = _list_selected_samples[i]
         df_subset = _df_2D.copy()
-        df_subset['color'] = 'gray'
+        df_subset['color'] = 'whitesmoke'
         df_subset['fraction'] = ''
         scatter_plot = axs[i].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
         scatter_plots.append(scatter_plot)
@@ -330,9 +330,9 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
         for j in range(num_simulations):
             sample_ids = _list_selected_samples[j]
             df_subset = _df_2D.copy()
-            df_subset['color'] = 'gray'
+            df_subset['color'] = 'whitesmoke'
             index = i % len(sample_ids)
-            df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index+1]), 'color'] = 'blue'
+            df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index+1]), 'color'] = 'slategray'
             df_subset.loc[df_subset.index <= math.ceil((index+1)/len(sample_ids)*_n_fractions)*len(df_subset)/_n_fractions,'fraction'] = f"{math.ceil((index+1)/len(sample_ids)*100)}%"
             scatter_plots[j].set_color(df_subset['color'])
             axs[j].set_xlabel('fraction')
@@ -343,19 +343,19 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
     ani = animation.FuncAnimation(fig, animate, frames=len(_list_selected_samples[0]), interval=100, repeat=True)
     ani.save(f'{_path}/{_file_name}.gif', writer='imagemagick', fps=_fps)    
     
-    _df_2D['color'] = 'gray'
+    _df_2D['color'] = 'whitesmoke'
     
-    scatter_plot = axs[0].scatter(df_subset['X1'], df_subset['X2'], c='gray')
+    scatter_plot = axs[0].scatter(df_subset['X1'], df_subset['X2'], c='whitesmoke')
     fig2, axs2 = plt.subplots(nrows=_n_fractions, ncols=num_simulations, figsize=(4*num_simulations, 4*_n_fractions), tight_layout=True)
     i = 0
     for i in range(_n_fractions):
         for j in range(num_simulations):
             sample_ids = _list_selected_samples[j]
             df_subset = _df_2D.copy()
-            df_subset['color'] = 'gray'
+            df_subset['color'] = 'whitesmoke'
             df_subset['fraction'] = ''
             index = math.ceil((i+1)/_n_fractions*len(sample_ids))
-            df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index]), 'color'] = 'blue'
+            df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index]), 'color'] = 'slategray'
             axs2[i][j].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
             axs2[i][j].set_title(_list_simulation_names[j])
             axs2[i][j].set_xlabel('X1')
@@ -377,14 +377,33 @@ def f_create_accuracy_chart(_df, _path, _col_x, _col_y, _hue='Simulation Type'):
     
     #[TO-DO] change this to be dynamic... 
     # palette = sns.color_palette("mako", len(_list_models))                        
-    palette = ['#F22B00', '#40498e', '#357ba3', '#38aaac', '#79d6ae']    
+    figure = plt.figure()
+    ax = figure.add_subplot(1, 1, 1)
+
+    # palette = ['#F22B00', '#40498e', '#357ba3', '#38aaac', '#79d6ae']    
+
+
+    palette_hue_colors = {
+        'Random': '#000000',
+        'Equal_Spread': '#edd1c2',  
+        'Dense_Areas_First': '#f7a889', 
+        'Centroids_First': '#e26952', 
+        'Outliers_First': '#de3414', 
+        'BatchBALD': '#6788ee'
+                    # '#9abbff', 
+                    # '#c9d7f0'        
+    }
+
+
+
 
     sns.set(rc={'figure.figsize':(15.7,8.27)})    
+    sns.set_style('white')
     _chart = sns.lineplot(data=_temp_df_chart, 
                 x=_col_x, 
                 y=_col_y, 
                 hue=_hue,
-                palette=palette
+                palette=palette_hue_colors
                 )
 
     figure = _chart.get_figure()

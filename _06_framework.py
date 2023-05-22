@@ -53,8 +53,8 @@ def f_model_accuracy(_args):
 		y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels'].astype('float32')	   
 		X_test = _df.loc[:,_temp_X_columns].astype('float32')
 		y_test = _df.loc[:,'labels'].astype('float32')
-        X_validation = _df_validation.loc[:,_temp_X_columns].astype('float32')
-        y_validation = _df_validation.loc[:,'labels'].astype('float32')                
+		X_validation = _df_validation.loc[:,_temp_X_columns].astype('float32')
+		y_validation = _df_validation.loc[:,'labels'].astype('float32')				
 
 	else:		
 		# print("TPU")															
@@ -63,8 +63,8 @@ def f_model_accuracy(_args):
 		y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels']					  
 		X_test = _df.loc[:,_temp_X_columns]
 		y_test = _df.loc[:,'labels']
-        X_validation = _df_validation.loc[:,_temp_X_columns]
-        y_validation = _df_validation.loc[:,'labels']        
+		X_validation = _df_validation.loc[:,_temp_X_columns]
+		y_validation = _df_validation.loc[:,'labels']		
 		# print("X_train .shape = ", X_train.shape)
 		# print("X_test .shape = ", X_test.shape)
 
@@ -72,15 +72,15 @@ def f_model_accuracy(_args):
 	try:					
 		_model.fit(X_train, y_train)									
 		_score = _model.score(X_test, y_test)
-        _score_validation = _model.score(X_validation, y_validation)
+		_score_validation = _model.score(X_validation, y_validation)
 		# print("worked for..", _qtd_samples_to_train)
 		# print("_score = ", _score)
 		# print("\n\n")
-		return _score, 
+		return _score, _score_validation
 	
 	except:											
 		_score = 0
-        _score_validation = 0
+		_score_validation = 0
 		print("entered i expection...", i)
 		print("\n\n")
 		return _score, _score_validation
@@ -128,8 +128,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
 			for i_train_val in range(len(_list_train_val)):	
 
-                if config._list_train_val[i_train_val] == 'validation':
-                    continue            						
+				if config._list_train_val[i_train_val] == 'validation':
+					continue									
 
 				_string_log_input = [4, '[RUN] ' + _list_train_val[i_train_val]]	
 				f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
@@ -156,7 +156,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 							[], # 6 - Model Parameters						
 							[], # 7 - List w/ Total of Labels Evaluated:						
 							[], # 8 - List w/ Accuracy for each sum of Labels in Test Dataset:
-                            [], # 9 - List w/ Accuracy for each sum of Labels in Validation Dataset:                            
+							[], # 9 - List w/ Accuracy for each sum of Labels in Validation Dataset:							
 						]
 
 						
@@ -165,8 +165,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 							df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + _file_name)						
 							df = cudf.DataFrame.from_pandas(df)
 
-                            df_validation = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_validation.pkl')
-                            df_validation = cudf.DataFrame.from_pandas(df_validation)                            
+							df_validation = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_validation.pkl')
+							df_validation = cudf.DataFrame.from_pandas(df_validation)							
 
 
 							_string_log_input = [5, '[HILIGHT] as GPU_Flag = True, using cuDF Library for optmization' + _file_name]	
@@ -174,7 +174,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
 						else:
 							df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + _file_name)
-                            df_validation = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_validation.pkl')                      
+							df_validation = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_validation.pkl')					  
 
 						
 						if _GPU_flag is True:
@@ -235,7 +235,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
 							
 								_list_accuracy_on_labels_evaluated = []
-                                _list_accuracy_on_labels_evaluated_validation_dataset = []
+								_list_accuracy_on_labels_evaluated_validation_dataset = []
 								_list_labels_evaluated = np.arange(1, df.shape[0] + 1, 1).tolist()
 
 								
@@ -262,15 +262,18 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 									list3 = [_ordered_samples_id for _ in range(chunk_size)]
 									list4 = list(range(i, (i+chunk_size)))
 									list5 = [_GPU_flag for _ in range(chunk_size)]
-                                    list6 = [df_validation.copy(deep=True) for _ in range(chunk_size)]                                    
+									list6 = [df_validation.copy(deep=True) for _ in range(chunk_size)]									
 
 									#list_of_lists_f_model_accuracy = [list1, list2, list3, list4, list5]
 									tuple_f_model_accuracy = [(a, b, c, d, e, f) for a, b, c, d, e, f in zip(list1, list2, list3, list4, list5, list6)]
 																				
 									#[TO-DO] Create a function and parallelize with Multithread --> "Done, check if is ok"
 									results = Parallel(n_jobs=multiprocessing.cpu_count())(delayed(f_model_accuracy)(args) for args in tuple_f_model_accuracy)
-									_list_accuracy_on_labels_evaluated.append(results[0])												
-                                    _list_accuracy_on_labels_evaluated_validation_dataset.append(results[1])                                    
+									print("/n/n/n/n/n/n/n/nLEN ===== ", len(results))
+									print(results[:10])
+									print("/n/n/n/n/n/n/n/n")
+									_list_accuracy_on_labels_evaluated.append(results[0][0])												
+									_list_accuracy_on_labels_evaluated_validation_dataset.append(results[0][1])
 								
 
 								end_time_simulation = time.time()							
@@ -281,7 +284,12 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 								f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)				
 
 
-				
+								# print("\n\n\n\n\n AQUI!!!", len(_list_accuracy_on_labels_evaluated))
+								# print(_list_accuracy_on_labels_evaluated[:10])
+								# print("\n\n\n\n\n ")
+
+
+						
 								_name_temp = db_paths[0].split('/')[1] + " | " + _deep_learning_arq_sub_folder_name  + '| ' + _list_simulation_sample_name[i_simulation] + " | " + _list_models_name[i_model]							
 								_results_output[0].append('Outcome_' + str(i_Outcome_))
 								_results_output[1].append(_name_temp)
@@ -291,8 +299,10 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 								_results_output[5].append(_list_models_name[i_model])
 								_results_output[6].append(_model.get_params())			
 								_results_output[7].append(_list_labels_evaluated)
-								_results_output[8].append([num for sublist in _list_accuracy_on_labels_evaluated for num in sublist])									
-                                _results_output[9].append([num for sublist in _list_accuracy_on_labels_evaluated_validation_dataset for num in sublist])                                
+								# _results_output[8].append([num for sublist in _list_accuracy_on_labels_evaluated for num in sublist])									
+								# _results_output[9].append([num for sublist in _list_accuracy_on_labels_evaluated_validation_dataset for num in sublist])								
+								_results_output[8].append(_list_accuracy_on_labels_evaluated)								
+								_results_output[9].append(_list_accuracy_on_labels_evaluated_validation_dataset)								
 								i_Outcome_ = i_Outcome_ + 1
 
 							end_time_model = time.time()							
@@ -320,8 +330,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 							#_pd_list_6 = _results_output[6][_i_outcome] * _number_of_samples
 							_pd_list_7 = _results_output[7][_i_outcome] 
 							_pd_list_8 = _results_output[8][_i_outcome] 
-                            _pd_list_9 = _results_output[9][_i_outcome] 
-                            
+							_pd_list_9 = _results_output[9][_i_outcome] 
+							
 
 							
 							#[TO-DO] Create a cuDF
@@ -343,13 +353,13 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 						#[TO-DO] Create a function to generate the chart
 						f_create_accuracy_chart(df_simulation, 
 										_path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_accuracy_chart_' + _list_train_val[i_train_val] + '.png',
-                                        _col_x = '# Samples Evaluated/Interaction Number',
-                                        _col_y = "Accuracy_test")
+										_col_x = '# Samples Evaluated/Interaction Number',
+										_col_y = "Accuracy_test")
 
-                        f_create_accuracy_chart(df_simulation, 
-                                        _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_accuracy_chart_' + 'validation' + '.png',
-                                        _col_x = '# Samples Evaluated/Interaction Number',
-                                        _col_y = "Accuracy_validation")                        
+						f_create_accuracy_chart(df_simulation, 
+										_path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_accuracy_chart_' + 'validation' + '.png',
+										_col_x = '# Samples Evaluated/Interaction Number',
+										_col_y = "Accuracy_validation")						
 
 						
 						f_create_visualization_chart_animation(

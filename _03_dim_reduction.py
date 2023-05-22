@@ -31,8 +31,8 @@ def f_dim_reduction(df, dim_r, n_dimensions=2):
 		df = pd.concat([df[['sample_id',	'name',	'labels',	'manual_label']], X_2dimensions], axis=1)	
 		return df
 
-    else:
-        print ("We don't have a dim_reduction algo with this name")
+	else:
+		print ("We don't have a dim_reduction algo with this name")
   
 
 with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".txt", "a") as _f:
@@ -57,7 +57,14 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 		#	 f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)		
 					
 
-		_deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
+		_deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]	
+
+		for item_sub_folder in _deep_learning_arq_sub_folders:
+			for item_dim_r in dim_reduction_list:
+				if item_dim_r in item_sub_folder:
+					_deep_learning_arq_sub_folders.remove(item_sub_folder)
+
+
 		for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders:			
 
 			_list_files = [_files for _files in os.listdir(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name) if not _files.startswith('.')]
