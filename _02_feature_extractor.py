@@ -36,8 +36,8 @@ _models = [
 ]
 
 _models_name = [
-  'vgg_16'
-  # 'vgg_19'
+  'vgg_16',
+  'vgg_19'
   #'resnet50'  
 ]
 
@@ -109,7 +109,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 				list_image_manual_label = [] 
 				list_image_id = [] 
 
-				
+
 				# TRAIN ou VAL:
 				imagePaths = list(paths.list_images(db_paths[i+2])) # 2 and 3 #Aqui esta pegando direto da pasta.... 
 				#vamos fazer diferente! vamos usar o INDEX para pegar as imagens da pasta RAW
@@ -117,8 +117,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
 				df = pd.read_pickle(db_paths[i+2] + '/' + 'df_index_paths_' + config._list_train_val[i] + '.pkl')
 				imagePaths = list(df['image_path'].to_list())
-				
-			#	 imagePaths = imagePaths[0:5]
+
+				#imagePaths = imagePaths[0:5]
 				_id_count = 1
 				for path in tqdm((imagePaths), colour="green"):
 					try:
@@ -160,7 +160,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
 				df = pd.concat([df_names,df_X], axis=1)
 
-				
+
 				# checar se diretorio "db_feature"extractor" existe; caso contrario, criar
 				if not os.path.exists(db_paths[4]):
 					os.makedirs(db_paths[4])
@@ -168,7 +168,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
 				# checar se sub-folder do modelo existe; caso contrario, criar
 				_folder_model_name_path = db_paths[4] + '/' + _models_name[model_name_i]
-				
+
 				if not os.path.exists(_folder_model_name_path):
 					os.makedirs(_folder_model_name_path)
 

@@ -48,9 +48,7 @@ def f_delete_files (list_files_to_delete, _path):
     if 'raw' in _path:                
         None        
     else:                       
-        file_list = os.listdir(_path)                
-        for file in file_list:
-            if file in list_files_to_delete:
+        file_list = b m
                 try:
                     os.remove(_path + '/' + file)     
                     print("Delelted File = ", file)
@@ -319,7 +317,7 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
     for i in range(num_simulations):
         sample_ids = _list_selected_samples[i]
         df_subset = _df_2D.copy()
-        df_subset['color'] = 'whitesmoke'
+        df_subset['color'] = 'bisque'
         df_subset['fraction'] = ''
         scatter_plot = axs[i].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
         scatter_plots.append(scatter_plot)
@@ -330,7 +328,7 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
         for j in range(num_simulations):
             sample_ids = _list_selected_samples[j]
             df_subset = _df_2D.copy()
-            df_subset['color'] = 'whitesmoke'
+            df_subset['color'] = 'bisque'
             index = i % len(sample_ids)
             df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index+1]), 'color'] = 'slategray'
             df_subset.loc[df_subset.index <= math.ceil((index+1)/len(sample_ids)*_n_fractions)*len(df_subset)/_n_fractions,'fraction'] = f"{math.ceil((index+1)/len(sample_ids)*100)}%"
@@ -343,16 +341,16 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
     ani = animation.FuncAnimation(fig, animate, frames=len(_list_selected_samples[0]), interval=100, repeat=True)
     ani.save(f'{_path}/{_file_name}.gif', writer='imagemagick', fps=_fps)    
     
-    _df_2D['color'] = 'whitesmoke'
+    _df_2D['color'] = 'bisque'
     
-    scatter_plot = axs[0].scatter(df_subset['X1'], df_subset['X2'], c='whitesmoke')
+    scatter_plot = axs[0].scatter(df_subset['X1'], df_subset['X2'], c='bisque')
     fig2, axs2 = plt.subplots(nrows=_n_fractions, ncols=num_simulations, figsize=(4*num_simulations, 4*_n_fractions), tight_layout=True)
     i = 0
     for i in range(_n_fractions):
         for j in range(num_simulations):
             sample_ids = _list_selected_samples[j]
             df_subset = _df_2D.copy()
-            df_subset['color'] = 'whitesmoke'
+            df_subset['color'] = 'bisque'
             df_subset['fraction'] = ''
             index = math.ceil((i+1)/_n_fractions*len(sample_ids))
             df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index]), 'color'] = 'slategray'
@@ -385,14 +383,18 @@ def f_create_accuracy_chart(_df, _path, _col_x, _col_y, _hue='Simulation Type'):
 
     palette_hue_colors = {
         'Random': '#000000',
-        'Equal_Spread': '#edd1c2',  
-        'Dense_Areas_First': '#f7a889', 
-        'Centroids_First': '#e26952', 
-        'Outliers_First': '#de3414', 
-        'BatchBALD': '#6788ee'
+        'Equal_Spread': '#db5f57', 
+        'Dense_Areas_First': '#d3db57', 
+        'Centroids_First': '#57db5f', 
+        'Outliers_First': '#57d3db', 
+        'BatchBALD': '#5f57db'
                     # '#9abbff', 
                     # '#c9d7f0'        
     }
+
+
+
+
 
 
 
@@ -408,3 +410,55 @@ def f_create_accuracy_chart(_df, _path, _col_x, _col_y, _hue='Simulation Type'):
 
     figure = _chart.get_figure()
     figure.savefig(_path)
+
+
+
+
+
+
+
+
+def f_model_accuracy(_args):
+
+    _df, _model, _ordered_samples_id, _qtd_samples_to_train, _GPU_flag, _df_validation = _args
+    
+    _ordered_samples_id_temp = _ordered_samples_id[0:_qtd_samples_to_train+1]
+    # print("LEN == ", len(_ordered_samples_id_temp))
+    
+    if _GPU_flag is True:
+        _temp_X_columns = [x for x, mask in zip(_df.columns.values, _df.columns.str.startswith("X")) if mask]
+        X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns].astype('float32')
+        y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels'].astype('float32')       
+        X_test = _df.loc[:,_temp_X_columns].astype('float32')
+        y_test = _df.loc[:,'labels'].astype('float32')
+        X_validation = _df_validation.loc[:,_temp_X_columns].astype('float32')
+        y_validation = _df_validation.loc[:,'labels'].astype('float32')             
+
+    else:       
+        # print("TPU")                                                          
+        _temp_X_columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)                                                              
+        X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns]
+        y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels']                    
+        X_test = _df.loc[:,_temp_X_columns]
+        y_test = _df.loc[:,'labels']
+        X_validation = _df_validation.loc[:,_temp_X_columns]
+        y_validation = _df_validation.loc[:,'labels']       
+        # print("X_train .shape = ", X_train.shape)
+        # print("X_test .shape = ", X_test.shape)
+
+
+    try:                    
+        _model.fit(X_train, y_train)                                    
+        _score = _model.score(X_test, y_test)
+        _score_validation = _model.score(X_validation, y_validation)
+        # print("worked for..", _qtd_samples_to_train)
+        # print("_score = ", _score)
+        # print("\n\n")
+        return _score, _score_validation
+    
+    except:                                         
+        _score = 0
+        _score_validation = 0
+        print("entered i expection...", i)
+        print("\n\n")
+        return _score, _score_validation

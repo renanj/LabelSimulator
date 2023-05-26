@@ -22,7 +22,7 @@ from joblib import Parallel, delayed
 # import cudf
 # import cuml
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_accuracy_chart, f_create_visualization_chart_animation, f_get_files_to_delete, f_delete_files, f_get_subfolders
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_accuracy_chart, f_create_visualization_chart_animation, f_get_files_to_delete, f_delete_files, f_get_subfolders, f_model_accuracy
 # f_generate_gif_chart_scatterplots
 import config as config
 config = config.config
@@ -37,53 +37,6 @@ _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
 
 
-
-
-
-def f_model_accuracy(_args):
-
-	_df, _model, _ordered_samples_id, _qtd_samples_to_train, _GPU_flag, _df_validation = _args
-	
-	_ordered_samples_id_temp = _ordered_samples_id[0:_qtd_samples_to_train+1]
-	# print("LEN == ", len(_ordered_samples_id_temp))
-	
-	if _GPU_flag is True:
-		_temp_X_columns = [x for x, mask in zip(_df.columns.values, _df.columns.str.startswith("X")) if mask]
-		X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns].astype('float32')
-		y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels'].astype('float32')	   
-		X_test = _df.loc[:,_temp_X_columns].astype('float32')
-		y_test = _df.loc[:,'labels'].astype('float32')
-		X_validation = _df_validation.loc[:,_temp_X_columns].astype('float32')
-		y_validation = _df_validation.loc[:,'labels'].astype('float32')				
-
-	else:		
-		# print("TPU")															
-		_temp_X_columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)																
-		X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns]
-		y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels']					  
-		X_test = _df.loc[:,_temp_X_columns]
-		y_test = _df.loc[:,'labels']
-		X_validation = _df_validation.loc[:,_temp_X_columns]
-		y_validation = _df_validation.loc[:,'labels']		
-		# print("X_train .shape = ", X_train.shape)
-		# print("X_test .shape = ", X_test.shape)
-
-
-	try:					
-		_model.fit(X_train, y_train)									
-		_score = _model.score(X_test, y_test)
-		_score_validation = _model.score(X_validation, y_validation)
-		# print("worked for..", _qtd_samples_to_train)
-		# print("_score = ", _score)
-		# print("\n\n")
-		return _score, _score_validation
-	
-	except:											
-		_score = 0
-		_score_validation = 0
-		print("entered i expection...", i)
-		print("\n\n")
-		return _score, _score_validation
 
 
 

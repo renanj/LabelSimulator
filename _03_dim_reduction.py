@@ -61,7 +61,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 
 		for item_sub_folder in _deep_learning_arq_sub_folders:
 			for item_dim_r in dim_reduction_list:
-				if item_dim_r in item_sub_folder:
+				if item_dim_r in item_sub_folder:					
 					_deep_learning_arq_sub_folders.remove(item_sub_folder)
 
 
