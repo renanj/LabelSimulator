@@ -383,20 +383,19 @@ def f_create_accuracy_chart(_df, _path, _col_x, _col_y, _hue='Simulation Type'):
 
     palette_hue_colors = {
         'Random': '#000000',
-        'Equal_Spread': '#db5f57', 
-        'Dense_Areas_First': '#d3db57', 
-        'Centroids_First': '#57db5f', 
-        'Outliers_First': '#57d3db', 
-        'BatchBALD': '#5f57db'
-                    # '#9abbff', 
-                    # '#c9d7f0'        
+        'Equal_Spread': '#1f78b4',
+        'Dense_Areas_First': '#b2df8a',
+        'Centroids_First': '#33a02c',
+        'Outliers_First': '#fb9a99',
+        'Uncertainty': '#e31a1c',
+        'Entropy': '#fdbf6f',
+        'Margin': '#ff7f00',
+        'Bald': '#cab2d6',
+        'BatchBald': '#6a3d9a'
+        # '#ffff99',
+        # '#b15928'      
+        # '#a6cee3'  
     }
-
-
-
-
-
-
 
 
     sns.set(rc={'figure.figsize':(15.7,8.27)})    
@@ -410,7 +409,6 @@ def f_create_accuracy_chart(_df, _path, _col_x, _col_y, _hue='Simulation Type'):
 
     figure = _chart.get_figure()
     figure.savefig(_path)
-
 
 
 

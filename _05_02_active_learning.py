@@ -24,7 +24,7 @@ def f_active_learning(df_embbedings, _df_validation, _query_size=1, _al_query_li
 
 
 	if _al_query_list is None:
-		_al_query_list = ['uncertainty', 'entropy', 'margin', 'Bald'] #, 'BatchBald'
+		_al_query_list = ['Uncertainty', 'Entropy', 'Margin', 'Bald', 'BatchBald'] 
 
 
 	if _cold_start_samples_id is None: 
@@ -56,13 +56,13 @@ def f_active_learning(df_embbedings, _df_validation, _query_size=1, _al_query_li
 	_model_2.fit(X_train, y_train)
 	_model_3.fit(X_train, y_train)
 	_model_4.fit(X_train, y_train)
-	# _model_5.fit(X_train, y_train)  
+	_model_5.fit(X_train, y_train)  
 
 	_array_score_validation_1 = cp.array(_model_1.score(X_validation, y_validation))
 	_array_score_validation_2 = cp.array(_model_2.score(X_validation, y_validation))
 	_array_score_validation_3 = cp.array(_model_3.score(X_validation, y_validation))
 	_array_score_validation_4 = cp.array(_model_4.score(X_validation, y_validation))
-	# _array_score_validation_5 = cp.array(_model_5.score(X_validation, y_validation))
+	_array_score_validation_5 = cp.array(_model_5.score(X_validation, y_validation))
 
 
 
@@ -78,12 +78,12 @@ def f_active_learning(df_embbedings, _df_validation, _query_size=1, _al_query_li
 	_array_labels_sample_ids_4 = cp.array(_cold_start_samples_id)
 	_array_unlabels_sample_ids_4 = cp.array(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])
 
-	# _array_labels_sample_ids_5 = cp.array(_cold_start_samples_id)
-	# _array_unlabels_sample_ids_5 = cp.array(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])
+	_array_labels_sample_ids_5 = cp.array(_cold_start_samples_id)
+	_array_unlabels_sample_ids_5 = cp.array(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])
 
 
 	
-	while len(_array_unlabels_sample_ids_4) > 0:  
+	while len(_array_unlabels_sample_ids_5) > 0:  
 
 
 		#Model 1:
@@ -178,6 +178,31 @@ def f_active_learning(df_embbedings, _df_validation, _query_size=1, _al_query_li
 		_array_score_validation_4 = cp.append(_array_score_validation_4, _score_validation) #AQUI		
 
 
+
+
+
+		#Model 5:
+		_temp_test_x = df_embbedings['sample_id'][df_embbedings['sample_id'].isin(_array_unlabels_sample_ids_5)] #AQUI
+		x = _model_5.predict_proba(_temp_test_x)
+		x = x.reshape(x.shape[0], x.shape[1], 1)		
+
+		_baal_scores = BatchBALD().compute_score(x) #AQUI
+		_baal_rank = BatchBALD()(x) #AQUI
+
+		selected_sample_id = _array_unlabels_sample_ids_5[_baal_rank[:_query_size]] #AQUI
+		_array_unlabels_sample_ids_5 = _array_unlabels_sample_ids_5[_array_unlabels_sample_ids_5 != selected_sample_id] #AQUI
+		_array_labels_sample_ids_5= cp.append(_array_labels_sample_ids_5, selected_sample_id) #AQUI		 
+
+
+		#re-train: 		
+		X_train = df_embbedings[df_embbedings['sample_id'].isin(_array_labels_sample_ids_5)].loc[:,_temp_X_columns].astype('float32') #AQUI
+		y_train = df_embbedings[df_embbedings['sample_id'].isin(_array_labels_sample_ids_5)].loc[:,'labels'].astype('float32') #AQUI	   
+		_model_5.fit(X_train, y_train) #AQUI	
+
+		_score_validation = cp.array(_model_5.score(X_validation, y_validation)) #AQUI
+		_array_score_validation_5 = cp.append(_array_score_validation_5, _score_validation) #AQUI			
+
+
 	_list_simulations_sample_id = []
 	_list_simulations_proceeded = []
 
@@ -186,11 +211,13 @@ def f_active_learning(df_embbedings, _df_validation, _query_size=1, _al_query_li
 	_list_simulations_sample_id.append(_array_labels_sample_ids_2.tolist())
 	_list_simulations_sample_id.append(_array_labels_sample_ids_3.tolist())
 	_list_simulations_sample_id.append(_array_labels_sample_ids_4.tolist())
+	_list_simulations_sample_id.append(_array_labels_sample_ids_5.tolist())
 
 	_list_simulations_proceeded.append(_al_query_list[0])
 	_list_simulations_proceeded.append(_al_query_list[1])
 	_list_simulations_proceeded.append(_al_query_list[2])
 	_list_simulations_proceeded.append(_al_query_list[3])
+	_list_simulations_proceeded.append(_al_query_list[4])
 
 
 	return _list_simulations_proceeded, _list_simulations_sample_id
