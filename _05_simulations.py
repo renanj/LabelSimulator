@@ -107,7 +107,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_simulations_py_" + ".tx
 						f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)						
 
 						
-						_list_simulation_sample_name, _list_simulation_ordered_samples_id = bblocks.f_run_human_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, simulation_list = None)
+						_list_simulation_sample_name, _list_simulation_ordered_samples_id = bblocks.f_run_human_simulations(df_embbedings = df, df_faiss_indices=df_faiss_indices, df_faiss_distances=df_faiss_distances, _human_simulation_list = None)
 						_list_active_learning_query_name, _list_active_learning_query_ordered_samples_id = active_learning_query.f_run_active_learning(df_embbedings = df,  _df_validation= df_validation)
 
 

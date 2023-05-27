@@ -44,11 +44,15 @@ def f_get_files_to_delete(script_name, _scripts_order=_scripts_order, _files_gen
 
 
 
+
+
 def f_delete_files (list_files_to_delete, _path):        
     if 'raw' in _path:                
         None        
     else:                       
-        file_list = b m
+        file_list = os.listdir(_path)                
+        for file in file_list:
+            if file in list_files_to_delete:
                 try:
                     os.remove(_path + '/' + file)     
                     print("Delelted File = ", file)
@@ -56,6 +60,7 @@ def f_delete_files (list_files_to_delete, _path):
                     None
             else:
                 None
+
 
 
 

@@ -42,7 +42,7 @@ class config:
         '_01_build_dataset.py': [
             'df_index_paths_train.pkl', 'df_index_paths_validation.pkl'],
         '_02_feature_extractor.py': [
-            'df_train.pkl', 'df_train.pkl'],
+            'df_train.pkl', 'df_validation.pkl'],
         '_03_dim_reduction.py': [
             'df_train.pkl','df_train.pkl'],
         '_04_generator_faiss.py': [

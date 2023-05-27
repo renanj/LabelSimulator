@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import random
+import itertools
+from collections import OrderedDict
 import math
 import warnings
 warnings.filterwarnings('ignore')
@@ -201,7 +203,7 @@ def join_lists_equal_distance(_list_a, _list_b):
 
 
 
-def f_run_human_simulations(df_embbedings, _query_size=1, _query_strategy=None, _cold_start_samples_id=None, _human_simulation_list):
+def f_run_human_simulations(df_embbedings, df_faiss_distances, df_faiss_indices, _query_size=1, _query_strategy=None, _cold_start_samples_id=None, _human_simulation_list=None):
 
 
 	if _human_simulation_list is None:
@@ -221,15 +223,15 @@ def f_run_human_simulations(df_embbedings, _query_size=1, _query_strategy=None, 
 	#BUILDING BLOCKS:
 	print("[INFO] -- Creating Building Blocks...")
 	print("Random:")
-	_samples_id_list_random, _samples_id_list_random_cold_start = bblocks.f_cold_start(df_embbedings)	
+	_samples_id_list_random, _samples_id_list_random_cold_start = f_cold_start(df_embbedings)	
 	print("SPB:")
-	_samples_id_list_ordered_SPB = bblocks.f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start)
+	_samples_id_list_ordered_SPB = f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start)
 	print("DEN:")
-	_samples_id_list_ordered_DEN = bblocks.f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start, k=5)
+	_samples_id_list_ordered_DEN = f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start, k=5)
 	print("OUT:")
-	_samples_id_list_ordered_OUT = bblocks.f_out(_samples_id_list_ordered_DEN)
+	_samples_id_list_ordered_OUT = f_out(_samples_id_list_ordered_DEN)
 	print("CLU:")
-	_centroids_samples_id_list_ordered_CLU, _clusters_samples_id_list_of_lists_ordered_CLU = bblocks.f_clu(df_embbedings, num_clusters=None, num_iterations=10, gpu_index=True)
+	_centroids_samples_id_list_ordered_CLU, _clusters_samples_id_list_of_lists_ordered_CLU = f_clu(df_embbedings, num_clusters=None, num_iterations=10, gpu_index=True)
 	print("------------------------------------------------\n\n")
 
 
