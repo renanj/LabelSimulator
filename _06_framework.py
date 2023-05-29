@@ -39,12 +39,6 @@ _list_train_val = config._list_train_val
 
 
 
-
-
-
-
-
-
 with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt", "a") as _f:
 
 	_string_log_input = [0, '[INFO] Starting Simulation Framework']	
@@ -209,8 +203,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
 								for i in range(0, len(_ordered_samples_id), chunk_size):	
 
-									print("\n\n\n\n HERE")							
-									print("ENTERED LOOPING --> i = ", i)							
+									# print("\n\n\n\n HERE")							
+									# print("ENTERED LOOPING --> i = ", i)							
 									# chunk = _ordered_samples_id[i:i+chunk_size]								
 
 									list1 = [df.copy(deep=True) for _ in range(chunk_size)]
@@ -229,9 +223,9 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 									_list_accuracy_on_labels_evaluated.append(results[0][0])												
 									_list_accuracy_on_labels_evaluated_validation_dataset.append(results[0][1])
 
-									print("\n\nLEN (_list_accuracy_on_labels_evaluated) ===== ", len(_list_accuracy_on_labels_evaluated))
-									print("\n\nLEN (_list_accuracy_on_labels_evaluated_validation_dataset) ===== ", len(_list_accuracy_on_labels_evaluated_validation_dataset))									
-									print("------------------------\n\n\n")									
+									# print("\n\nLEN (_list_accuracy_on_labels_evaluated) ===== ", len(_list_accuracy_on_labels_evaluated))
+									# print("\n\nLEN (_list_accuracy_on_labels_evaluated_validation_dataset) ===== ", len(_list_accuracy_on_labels_evaluated_validation_dataset))									
+									# print("------------------------\n\n\n")									
 								
 
 								end_time_simulation = time.time()							
