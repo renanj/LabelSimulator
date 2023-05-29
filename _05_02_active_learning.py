@@ -92,12 +92,12 @@ def f_run_active_learning(df_embbedings, _df_validation, _model=None, _query_siz
 	while len(_array_unlabels_sample_ids_4) > 0:  
 
 
-		print("Missing = ", len(_array_unlabels_sample_ids_4))
+		# print("Missing = ", len(_array_unlabels_sample_ids_4))
 		
 
 
 		#Model 1:
-		print("Model 1 = Uncertainty")
+		# print("Model 1 = Uncertainty")
 		start_time = time.time()
 		_temp_test_x = df_embbedings[_temp_X_columns][df_embbedings['sample_id'].isin(_array_unlabels_sample_ids_1.get())] #AQUI
 		x = _model_1.predict_proba(_temp_test_x)
@@ -121,11 +121,11 @@ def f_run_active_learning(df_embbedings, _df_validation, _model=None, _query_siz
 
 		end_time = time.time()
 		execution_time = end_time - start_time
-		print(f"Execution time: {execution_time} seconds")		
+		# print(f"Execution time: {execution_time} seconds")		
 
 
 		#Model 2:
-		print("Model 2 = Entropy")
+		# print("Model 2 = Entropy")
 		start_time = time.time()
 		_temp_test_x = df_embbedings[_temp_X_columns][df_embbedings['sample_id'].isin(_array_unlabels_sample_ids_2.get())] #AQUI
 		x = _model_2.predict_proba(_temp_test_x)
@@ -149,12 +149,12 @@ def f_run_active_learning(df_embbedings, _df_validation, _model=None, _query_siz
 
 		end_time = time.time()
 		execution_time = end_time - start_time
-		print(f"Execution time: {execution_time} seconds")		
+		# print(f"Execution time: {execution_time} seconds")		
 
 
 
 		#Model 3:
-		print("Model 3 = Margin")
+		# print("Model 3 = Margin")
 		start_time = time.time()
 		_temp_test_x = df_embbedings[_temp_X_columns][df_embbedings['sample_id'].isin(_array_unlabels_sample_ids_3.get())] #AQUI
 		x = _model_3.predict_proba(_temp_test_x)
@@ -178,12 +178,12 @@ def f_run_active_learning(df_embbedings, _df_validation, _model=None, _query_siz
 
 		end_time = time.time()
 		execution_time = end_time - start_time
-		print(f"Execution time: {execution_time} seconds")		
+		# print(f"Execution time: {execution_time} seconds")		
 
 
 
 		#Model 4:
-		print("Model 4 = BALD")
+		# print("Model 4 = BALD")
 		start_time = time.time()
 		_temp_test_x = df_embbedings[_temp_X_columns][df_embbedings['sample_id'].isin(_array_unlabels_sample_ids_4.get())] #AQUI
 		x = _model_4.predict_proba(_temp_test_x)
@@ -207,8 +207,8 @@ def f_run_active_learning(df_embbedings, _df_validation, _model=None, _query_siz
 
 		end_time = time.time()
 		execution_time = end_time - start_time
-		print(f"Execution time: {execution_time} seconds")		
-		print("---------------\n\n\n\n")
+		# print(f"Execution time: {execution_time} seconds")		
+		# print("---------------\n\n\n\n")
 
 
 
@@ -236,7 +236,7 @@ def f_run_active_learning(df_embbedings, _df_validation, _model=None, _query_siz
 
 	end_time_while = time.time()
 	execution_time = end_time_while - start_time_while
-	print(f"Execution time: {execution_time} seconds")
+	# print(f"Execution time: {execution_time} seconds")
 
 	_list_simulations_sample_id = []
 	_list_simulations_proceeded = []

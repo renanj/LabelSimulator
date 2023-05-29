@@ -36,8 +36,8 @@ _models = [
 ]
 
 _models_name = [
-  'vgg_16'
-  # 'vgg_19'
+  'vgg_16',
+  'vgg_19'
   #'resnet50'  
 ]
 
@@ -164,6 +164,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 				# checar se diretorio "db_feature"extractor" existe; caso contrario, criar
 				if not os.path.exists(db_paths[4]):
 					os.makedirs(db_paths[4])
+
+				print('\n\n\n\n\n\n\n', model_name_i , ' === ', db_paths[4], '/', _models_name[model_name_i], '\n\n\n\n\n\n\n\n')
 
 
 				# checar se sub-folder do modelo existe; caso contrario, criar
