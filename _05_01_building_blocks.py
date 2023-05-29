@@ -53,7 +53,7 @@ def f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_sampl
 
 	while len(array_unlabels_sample_ids) > 0:   
 
-		array_mask_false_true = cp.isin(array_faiss_indices, array_labels_sample_ids)
+		array_mask_false_true = cp.isin(array_faiss_indices, array_labels_sample_ids) #true == sample that are labeled
 		array_faiss_indices_filtered = cp.where(~array_mask_false_true, array_faiss_indices, cp.nan)	  
 		indices_to_be_filtered = cp.argpartition(cp.isnan(array_faiss_indices_filtered), 1, axis=1)[:, 0]
 		result_indices = array_faiss_indices[cp.arange(len(array_faiss_indices)), indices_to_be_filtered]

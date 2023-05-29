@@ -207,7 +207,10 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 								# with tqdm(total=len(_ordered_samples_id)) as pbar:
 								# pbar.update(chunk_size)						   
 
-								for i in range(0, len(_ordered_samples_id), chunk_size):								
+								for i in range(0, len(_ordered_samples_id), chunk_size):	
+
+									print("\n\n\n\n HERE")							
+									print("ENTERED LOOPING --> i = ", i)							
 									# chunk = _ordered_samples_id[i:i+chunk_size]								
 
 									list1 = [df.copy(deep=True) for _ in range(chunk_size)]
@@ -221,12 +224,14 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 									tuple_f_model_accuracy = [(a, b, c, d, e, f) for a, b, c, d, e, f in zip(list1, list2, list3, list4, list5, list6)]
 																				
 									#[TO-DO] Create a function and parallelize with Multithread --> "Done, check if is ok"
-									results = Parallel(n_jobs=multiprocessing.cpu_count())(delayed(f_model_accuracy)(args) for args in tuple_f_model_accuracy)
-									print("/n/n/n/n/n/n/n/nLEN ===== ", len(results))
-									print(results[:10])
-									print("/n/n/n/n/n/n/n/n")
+									results = Parallel(n_jobs=multiprocessing.cpu_count(), backend="threading")(delayed(f_model_accuracy)(args) for args in tuple_f_model_accuracy)
+
 									_list_accuracy_on_labels_evaluated.append(results[0][0])												
 									_list_accuracy_on_labels_evaluated_validation_dataset.append(results[0][1])
+
+									print("\n\nLEN (_list_accuracy_on_labels_evaluated) ===== ", len(_list_accuracy_on_labels_evaluated))
+									print("\n\nLEN (_list_accuracy_on_labels_evaluated_validation_dataset) ===== ", len(_list_accuracy_on_labels_evaluated_validation_dataset))									
+									print("------------------------\n\n\n")									
 								
 
 								end_time_simulation = time.time()							

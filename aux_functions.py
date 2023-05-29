@@ -35,10 +35,10 @@ def f_get_files_to_delete(script_name, _scripts_order=_scripts_order, _files_gen
 	_temp_scripts_to_check = []
 	_files_to_delete = []
 	for i in range(position, len(_scripts_order)):  
-	  _temp_scripts_to_check.append(_scripts_order[i])  
+		_temp_scripts_to_check.append(_scripts_order[i])  
 	for _k in _files_generated.keys():
-	  if _k in _temp_scripts_to_check:
-		_files_to_delete = _files_to_delete + _files_generated[_k]   
+		if _k in _temp_scripts_to_check:
+			_files_to_delete = _files_to_delete + _files_generated[_k]   
 	return _files_to_delete
 
 
