@@ -1,4 +1,4 @@
- import pandas as pd 
+import pandas as pd 
 import numpy as np 
 from cuml.manifold import TSNE
 import multiprocessing
@@ -106,7 +106,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 							f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 							df_dim = f_dim_reduction(df, dim_r)
-							df_dim.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D' + _list_train_val[i_train_val] + '.pkl')
+							df_dim.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_' + _list_train_val[i_train_val] + '.pkl')
 
 							# if '2D' in _file_name:
 							# 	df_dim.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_' + _list_train_val[i_train_val] + '.pkl')

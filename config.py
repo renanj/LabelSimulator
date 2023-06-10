@@ -38,7 +38,7 @@ class config:
 		# '_07_results_consolidation.py': False		
 	}	
 
-	_scripts_order = ['_01_build_dataset.py','_02_feature_extractor.py','_03_dim_reduction.py','_04_generator_faiss.py','_05_simulations.py','_05_01_building_blocks.py','_05_02_active_learning.py','_06_framework.py','_07_results_consolidation.py']
+	_scripts_order = ['_01_build_dataset.py','_02_feature_extractor.py','_03_dim_reduction.py','_04_generator_faiss.py','_05_framework.py','_05_01_building_blocks.py','_05_02_active_learning.py']
 
 	_files_generated = {
 		'_01_build_dataset.py': [
