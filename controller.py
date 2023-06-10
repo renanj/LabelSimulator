@@ -8,8 +8,10 @@ def label_simulator_run():
         2: '_02_feature_extractor.py',
         3: '_03_dim_reduction.py',
         4: '_04_generator_faiss.py',
-        5: '_05_simulations.py',
-        6: '_06_framework.py'
+        # 5: '_05_simulations.py',
+        # 6: '_06_framework.py'
+        5: '_05_framework.py'
+        # 6: '_06_results_consolidation.py'        
     }
     
     print("Hi - this is LabelSimulator Executor\n")

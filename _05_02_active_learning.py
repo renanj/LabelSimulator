@@ -92,7 +92,8 @@ def f_run_active_learning(df_embbedings, _df_validation, _model=None, _query_siz
 	while len(_array_unlabels_sample_ids_4) > 0:  
 
 
-		# print("Missing = ", len(_array_unlabels_sample_ids_4))
+		if len(_array_unlabels_sample_ids_4) % 200 = 0:
+			print("Missing = ", len(_array_unlabels_sample_ids_4))
 		
 
 

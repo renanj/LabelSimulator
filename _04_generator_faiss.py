@@ -62,12 +62,10 @@ def f_faiss(df_embbedings, _GPU_flag=True):
 
 
 #Plancton, mnist, etc...
-with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".txt", "a") as _f:
+with open('logs/' + f_time_now(_type='datetime_') + "_04_generator_faiss_py_" + ".txt", "a") as _f:
 	
 	print('[INFO] Starting Faiss')
 	for db_paths in config._list_data_sets_path:
-
-
 
 
 		print("\n\nPATH -------")
@@ -76,9 +74,9 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 		print('=====================')
 		print('=====================\n')	
 
-
 		_string_log_input = [1, '[INFO] Deleting All Files...']
 		f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)		
+
 		_sub_folders_to_check = f_get_subfolders(db_paths[0])
 		for _sub_folder in _sub_folders_to_check:	
 			f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)		
@@ -99,12 +97,18 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 				#print('... /...', config._list_train_val[i])
 				for _files in _list_files:
 					print(_files)
-					if _files !='df_'+ config._list_train_val[i_train_val] + '.pkl':
+					# if _files !='df_'+ config._list_train_val[i_train_val] + '.pkl':
+					if _files not in ['df_'+ _list_train_val[i_train_val] + '.pkl', 'df_2D)'+ _list_train_val[i_train_val] + '.pkl']: 					
 						None
 					else:					
 						print ("run Faiss for...	 ", _files)																							
 						df = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder + '/' + _files)					
 						df_faiss_indices, df_faiss_distances = f_faiss(df, _GPU_flag=True)
+						
+						if '2D' in _files:
+							df_faiss_indices.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_2D_faiss_indices_' + config._list_train_val[i_train_val]  + '.pkl')
+							df_faiss_distances.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_2D_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')				
+						else:
+							df_faiss_indices.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_faiss_indices_' + config._list_train_val[i_train_val]  + '.pkl')
+							df_faiss_distances.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')				
 
-						df_faiss_indices.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_faiss_indices_' + config._list_train_val[i_train_val]  + '.pkl')
-						df_faiss_distances.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder + '/' + 'df_faiss_distances_' + config._list_train_val[i_train_val]  + '.pkl')				
