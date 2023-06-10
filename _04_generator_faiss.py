@@ -98,7 +98,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_04_generator_faiss_py_" + 
 				for _files in _list_files:
 					print(_files)
 					# if _files !='df_'+ config._list_train_val[i_train_val] + '.pkl':
-					if _files not in ['df_'+ _list_train_val[i_train_val] + '.pkl', 'df_2D)'+ _list_train_val[i_train_val] + '.pkl']: 					
+					if _files not in ['df_'+ _list_train_val[i_train_val] + '.pkl', 'df_2D_'+ _list_train_val[i_train_val] + '.pkl']: 					
 						None
 					else:					
 						print ("run Faiss for...	 ", _files)																							

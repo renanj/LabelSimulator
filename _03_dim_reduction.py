@@ -24,7 +24,7 @@ def f_dim_reduction(df, dim_r, n_dimensions=2):
 	if dim_r == 't-SNE':
 		#colunas X....
 		_temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
-		tsne = TSNE(n_components = n_dimensions, perplexity=100, learning_rate=500)
+		tsne = TSNE(n_components = n_dimensions, perplexity=40, learning_rate=400)
 		X_2dimensions = tsne.fit_transform(df.loc[:,_temp_X_columns])		
 		X_2dimensions = X_2dimensions.rename(columns={0: 'X1', 1: 'X2'})
 		# X_2dimensions[:,0], X_2dimensions[:,1]		

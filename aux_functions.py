@@ -142,155 +142,6 @@ def closest_value(row):
 		
 
 
-
-
-# def f_generate_gif_chart_multiple_simulation(_df,_file_name_png, _file_name_gif,  _list_selected_samples, _list_chart_titles, fractions, _fps=3):
-#	 num_simulations = len(_list_selected_samples)
-#	 nrows = 1
-#	 ncols = num_simulations
-#	 figsize = (4 * num_simulations, 4)
-
-#	 fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=figsize, tight_layout=True)
-
-#	 if num_simulations == 1:
-#		 axs = [axs]
-
-
-
-#	 scatter_plots = []
-#	 for i in range(num_simulations):
-#		 sample_ids = _list_selected_samples[i]
-#		 df_subset = _df.copy()
-#		 df_subset['color'] = 'whitesmoke'
-#		 df_subset['fraction'] = ''
-#		 scatter_plot = axs[i].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
-#		 scatter_plots.append(scatter_plot)
-#		 axs[i].set_title(_list_chart_titles[i])
-
-
-#	 def animate(i):
-#		 for j in range(num_simulations):
-#			 sample_ids = _list_selected_samples[j]
-#			 df_subset = _df.copy()
-#			 df_subset['color'] = 'whitesmoke'
-#			 index = i % len(sample_ids)
-#			 df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index+1]), 'color'] = 'blue'
-#			 df_subset.loc[df_subset.index <= math.ceil((index+1)/len(sample_ids)*fractions)*len(df_subset)/fractions,'fraction'] = f"{math.ceil((index+1)/len(sample_ids)*100)}%"
-#			 scatter_plots[j].set_color(df_subset['color'])
-#			 axs[j].set_xlabel('fraction')
-
-#		 # axs[0].table(cellText=[df_subset['fraction'].unique()], loc='bottom', cellLoc='center')
-#		 # axs[0].axis('off')
-
-#	 anim = animation.FuncAnimation(fig, animate, frames=len(_list_selected_samples[0]), interval=100, repeat=True)
-#	 anim.save(_file_name_gif + '.gif', writer='imagemagick', fps=_fps)
-
-#	 df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index+1]), 'color'] = 'blue'
-#	 _df['color'] = 'whitesmoke'
-	
-#	 scatter_plot = axs[0].scatter(df_subset['X1'], df_subset['X2'], c='whitesmoke')
-#	 fig2, axs2 = plt.subplots(nrows=fractions, ncols=num_simulations, figsize=(4*num_simulations, 4*fractions), tight_layout=True)
-#	 i = 0
-#	 for i in range(fractions):
-#		 for j in range(num_simulations):
-#			 sample_ids = _list_selected_samples[j]
-#			 df_subset = _df.copy()
-#			 df_subset['color'] = 'whitesmoke'
-#			 df_subset['fraction'] = ''
-#			 index = math.ceil((i+1)/fractions*len(sample_ids))
-#			 df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index]), 'color'] = 'red'
-#			 axs2[i][j].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
-#			 axs2[i][j].set_title(_list_chart_titles[j])
-#			 axs2[i][j].set_xlabel('X1')
-#			 axs2[i][j].set_ylabel('X2')
-#		 axs2[i][0].set_ylabel(f"{math.ceil((i+1)/fractions*100)}% of samples selected")	
-		
-#	 plt.savefig(_file_name_png + '.png')
-
-
-
-# def f_generate_gif_chart_one_simulation(_df, _path, _selected_samples, _n_charts, _chart_title, _fps=5):
-#	 # define the figure size and layout
-
-#	 _temp_X_columns = [x for x, mask in zip(_df.columns.values, _df.columns.str.startswith("X")) if mask]
-#	 if len(_temp_X_columns) > 2:
-#		 print("Aborting... The dataframe is not valid. It has more than two [X1, X2] dimensions")
-#		 return None
-
-
-#	 nrows = int(_n_charts ** 0.5)
-#	 ncols = int(_n_charts / nrows)
-#	 if _n_charts > nrows * ncols:
-#		 ncols += 1
-
-#	 fig_size = (ncols * 6, nrows * 5)		
-		
-		  
-#	 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=fig_size)
-
-#	 _color_start = 'darkblue'
-#	 _color_end = 'lightwhitesmoke'
-
-#	 # create a scatter plot for each chart
-#	 for i, ax in enumerate(axes.flat):
-#		 # calculate the number of selected samples for the current chart
-#		 n_samples = int(len(_selected_samples) * ((i + 1) / _n_charts))
-#		 samples = _selected_samples[:n_samples]
-
-#		 # create the scatter plot
-#		 colors = [_color_start if s in samples else _color_end for s in _df['sample_id']]
-#		 ax.scatter(_df['X1'], _df['X2'], c=colors)
-#		 ax.set_title(f'{int(((i + 1) / _n_charts) * 100)}% of selected samples')
-
-#	 # add the chart title to the top center of the figure
-#	 fig.suptitle(_chart_title, fontsize=16, y=1.05, x=0.5)
-
-#	 # adjust the spacing between subplots
-#	 fig.tight_layout()
-
-
-#	 # save the figure as a .png file
-#	 if _path != None:
-#		 fig.savefig(f'{_path}/{_chart_title}.png', dpi=300)		
-#	 else:
-#		 fig.savefig(f'{_chart_title}.png', dpi=300)
-		
-
-#	 # create a scatter plot with all data points
-#	 fig, ax = plt.subplots()
-#	 sc = ax.scatter(_df['X1'], _df['X2'], c='whitesmoke')
-
-#	 # define the update function for the animation
-#	 def update(frame):
-#		 colors = [_color_start if s in _selected_samples[:frame+1] else _color_end for s in _df['sample_id']]
-#		 sc.set_color(colors)
-
-#		 # add the chart title to the top center of the figure
-#		 ax.set_title(_chart_title, fontsize=16, y=1.05, x=0.5)
-
-#		 return sc,
-
-#	 # create the animation object
-#	 ani = animation.FuncAnimation(fig, update, frames=len(_selected_samples), interval=1000, blit=True)
-
-#	 # save the animation as a .gif file	
-	
-
-
-#	 # save the figure as a .png file
-#	 if _path != None:
-#		 ani.save(f'{_path}/{_chart_title}.gif', writer='imagemagick', fps=_fps)			
-#	 else:
-#		 ani.save(f'{_chart_title}.gif', writer='imagemagick', fps=_fps)	
-		
-		
-
-
-#	 # show the figure
-#	 # plt.show()
-#	 return print("Exported Chart .png and .gif")
-
-
 def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simulation_names, _list_selected_samples, _n_fractions, _fps=3):
 	
 	# _df_2D  = X1, X2
@@ -370,7 +221,7 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
 
 
 
-def f_create_accuracy_chart(_df, _path, _col_x, _col_y, _hue='Simulation Type'):
+def f_create_consolidate_accuracy_chart(_df, _path, _col_x, _col_y, _hue):
 
 	_list_cols = [_col_x, _col_y, _hue]
 	
@@ -396,11 +247,14 @@ def f_create_accuracy_chart(_df, _path, _col_x, _col_y, _hue='Simulation Type'):
 		'Entropy': '#fdbf6f',
 		'Margin': '#ff7f00',
 		'Bald': '#cab2d6',
-		'BatchBald': '#6a3d9a'
-		# '#ffff99',
-		# '#b15928'	  
-		# '#a6cee3'  
+		# 'BatchBald': 		
+		'Equal_Spread_2D' : '#6a3d9a', 
+		'Dense_Areas_First_2D' : '#ffff99',
+		'Centroids_First_2D' : '#b15928', 
+		'Outliers_First_2D' : '#a6cee3'
 	}
+
+
 
 
 	sns.set(rc={'figure.figsize':(15.7,8.27)})	
@@ -416,59 +270,120 @@ def f_create_accuracy_chart(_df, _path, _col_x, _col_y, _hue='Simulation Type'):
 	figure.savefig(_path)
 
 
+def f_create_random_vs_query_accuracy_chart(_df, _path, _col_x, _col_y, _hue):
+
+	# Filter out the "Random" query strategy from the dataframe
+    filtered_df = _df[_df['Query_Strategy'] != 'Random']
+
+    # Get the unique query strategies
+    query_strategies = filtered_df['Query_Strategy'].unique()
+
+    # Define the color palette based on the provided dictionary
+    palette_hue_colors = {
+		'Random': '#000000',
+		'Equal_Spread': '#1f78b4',
+		'Dense_Areas_First': '#b2df8a',
+		'Centroids_First': '#33a02c',
+		'Outliers_First': '#fb9a99',
+		'Uncertainty': '#e31a1c',
+		'Entropy': '#fdbf6f',
+		'Margin': '#ff7f00',
+		'Bald': '#cab2d6',
+		# 'BatchBald': 		
+		'Equal_Spread_2D' : '#6a3d9a', 
+		'Dense_Areas_First_2D' : '#ffff99',
+		'Centroids_First_2D' : '#b15928', 
+		'Outliers_First_2D' : '#a6cee3'
+	}
+
+
+    # Calculate the number of rows and columns for the subplots
+    num_query_strategies = len(query_strategies)
+    num_cols = math.ceil(math.sqrt(num_query_strategies))
+    num_rows = math.ceil(num_query_strategies / num_cols)
+
+    # Create the figure and subplots
+    fig, axs = plt.subplots(num_rows, num_cols, figsize=(12, 10))
+
+    # Flatten the axs array to make it easier to iterate
+    axs = axs.ravel()
+
+    # Iterate over each query strategy and plot the line chart in each subplot
+    for i, query_strategy in enumerate(query_strategies):
+        ax = axs[i] if num_query_strategies > 1 else axs  # Select the current subplot
+
+        # Retrieve the data for the current query strategy and "Random"
+        query_strategy_data = filtered_df[filtered_df['Query_Strategy'] == query_strategy]
+        random_data = _df[_df['Query_Strategy'] == 'Random']
+
+        # Plot the lines
+        _chart = sns.lineplot(x=_col_x, y=_col_y, hue=_hue, palette=palette_hue_colors,
+                     data=pd.concat([query_strategy_data, random_data]), ax=ax)
+
+        # ax.set_ylabel('Samples Accuracy Validation')
+        # ax.set_xlabel('Interaction')					
+        ax.set_title(f'Comparison: Random vs. {query_strategy}')
+        ax.legend()
+
+    # Remove any unused subplots
+    for j in range(num_query_strategies, num_rows * num_cols):
+        fig.delaxes(axs[j])
+
+    # Adjust the spacing between subplots
+    fig.tight_layout()    	
+    fig.savefig(_path)	
 
 
 
 
+# def f_model_accuracy(_args):
 
-def f_model_accuracy(_args):
-
-	_df, _model, _ordered_samples_id, _qtd_samples_to_train, _GPU_flag, _df_validation = _args
+# 	_df, _model, _ordered_samples_id, _qtd_samples_to_train, _GPU_flag, _df_validation = _args
 	
-	_ordered_samples_id_temp = _ordered_samples_id[0:_qtd_samples_to_train+1]
-	# print("LEN == ", len(_ordered_samples_id_temp))
+# 	_ordered_samples_id_temp = _ordered_samples_id[0:_qtd_samples_to_train+1]
+# 	# print("LEN == ", len(_ordered_samples_id_temp))
 	
-	if _GPU_flag is True:
-		_temp_X_columns = [x for x, mask in zip(_df.columns.values, _df.columns.str.startswith("X")) if mask]
-		X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns].astype('float32')
-		y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels'].astype('float32')	   
-		X_test = _df.loc[:,_temp_X_columns].astype('float32')
-		y_test = _df.loc[:,'labels'].astype('float32')
-		X_validation = _df_validation.loc[:,_temp_X_columns].astype('float32')
-		y_validation = _df_validation.loc[:,'labels'].astype('float32')			 
+# 	if _GPU_flag is True:
+# 		_temp_X_columns = [x for x, mask in zip(_df.columns.values, _df.columns.str.startswith("X")) if mask]
+# 		X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns].astype('float32')
+# 		y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels'].astype('float32')	   
+# 		X_test = _df.loc[:,_temp_X_columns].astype('float32')
+# 		y_test = _df.loc[:,'labels'].astype('float32')
+# 		X_validation = _df_validation.loc[:,_temp_X_columns].astype('float32')
+# 		y_validation = _df_validation.loc[:,'labels'].astype('float32')			 
 
-	else:	   
-		# print("TPU")														  
-		_temp_X_columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)															  
-		X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns]
-		y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels']					
-		X_test = _df.loc[:,_temp_X_columns]
-		y_test = _df.loc[:,'labels']
-		X_validation = _df_validation.loc[:,_temp_X_columns]
-		y_validation = _df_validation.loc[:,'labels']	   
-		# print("X_train .shape = ", X_train.shape)
-		# print("X_test .shape = ", X_test.shape)
+# 	else:	   
+# 		# print("TPU")														  
+# 		_temp_X_columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)															  
+# 		X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns]
+# 		y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels']					
+# 		X_test = _df.loc[:,_temp_X_columns]
+# 		y_test = _df.loc[:,'labels']
+# 		X_validation = _df_validation.loc[:,_temp_X_columns]
+# 		y_validation = _df_validation.loc[:,'labels']	   
+# 		# print("X_train .shape = ", X_train.shape)
+# 		# print("X_test .shape = ", X_test.shape)
 
-	if len(list(y_train.unique())) > 1:
+# 	if len(list(y_train.unique())) > 1:
 
-		try:					
-			_model.fit(X_train, y_train)									
-			_score = _model.score(X_test, y_test)
-			_score_validation = _model.score(X_validation, y_validation)
-			# print("worked for..", _qtd_samples_to_train)
-			# print("_score = ", _score)
-			# print("\n\n")
-			return _score, _score_validation
+# 		try:					
+# 			_model.fit(X_train, y_train)									
+# 			_score = _model.score(X_test, y_test)
+# 			_score_validation = _model.score(X_validation, y_validation)
+# 			# print("worked for..", _qtd_samples_to_train)
+# 			# print("_score = ", _score)
+# 			# print("\n\n")
+# 			return _score, _score_validation
 		
-		except:										 
-			_score = 0
-			_score_validation = 0
-			print("entered i expection...")
-			print("\n\n")
-			return _score, _score_validation
-	else:
-		_score = 0
-		_score_validation = 0		
-		print("entered i expection... labels size more than 1")
-		print("\n\n")
-		return _score, _score_validation		
+# 		except:										 
+# 			_score = 0
+# 			_score_validation = 0
+# 			print("entered i expection...")
+# 			print("\n\n")
+# 			return _score, _score_validation
+# 	else:
+# 		_score = 0
+# 		_score_validation = 0		
+# 		print("entered i expection... labels size more than 1")
+# 		print("\n\n")
+# 		return _score, _score_validation		
