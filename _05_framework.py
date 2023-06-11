@@ -14,7 +14,7 @@ import cupy as cp
 import cudf
 
 import _05_01_building_blocks as bblocks
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_accuracy_chart, f_create_visualization_chart_animation, f_get_files_to_delete, f_delete_files, f_get_subfolders
+from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
 
 
 
@@ -51,6 +51,7 @@ from joblib import Parallel, delayed
 
 
 
+
 def f_framework_df(
     _df_train, 
 	_df_validation, 
@@ -62,9 +63,15 @@ def f_framework_df(
 	_df_faiss_indices=None,
 	_df_faiss_distances=None,
 	_list_ordered_samples_id=None,
-    _input_framework_id=None
+    _input_framework_id=None,
+    _label_encoder=None
     ):
-	
+
+
+
+    _df_train['labels'] = _label_encoder.transform(_df_train['labels'])
+    _df_validation['labels'] = _label_encoder.transform(_df_validation['labels'])
+
 
     #Variables:
     _model = LogisticRegression(random_state=0)
@@ -148,10 +155,7 @@ def f_framework_df(
             selected_sample_id = _array_ordered_samples_id[_temp_batch_size:(_temp_batch_size+_query_batch_size)]
             _temp_batch_size = _temp_batch_size+_query_batch_size
 
-            
-            
 
-        
         # Else-if is Model-Based:
         else:
             #1) Predict in Ulabeled Train Dataset & Get the most uncertainty
@@ -289,6 +293,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
             _df_2D_faiss_distances = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_faiss_distances_train.pkl')
             _df_2D_validation = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_validation.pkl')
 
+            _label_encoder = pickle.load(open(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'label_encoder.pkl', 'rb')) 
+
 
             _random_samples_id, _cold_start_samples_id = bblocks.f_cold_start(_df_train)
 
@@ -312,6 +318,9 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                                                     df_faiss_distances=_df_2D_faiss_distances)
             _simulation_order_df_2D = pd.DataFrame(_list_strategy_ordered_samples_id_2D).T
             _simulation_order_df_2D.columns = _list_strategy_name_2D	        
+
+
+            
 
 
             _list_of_lists_ordered_samples = [
@@ -340,7 +349,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                     # _df_faiss_indices=_df_faiss_indices,
                     # _df_faiss_distances=_df_faiss_distances,
                     _list_ordered_samples_id=_list_of_lists_ordered_samples[i],
-                    _input_framework_id = i+1
+                    _input_framework_id = i+1,
+                    _label_encoder=_label_encoder
                     )
 
                 _list_dfs.append(_df_temp)
@@ -348,3 +358,10 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
             df_final = pd.concat(_list_dfs)
             df_final = df_final.reset_index(drop=True)
             df_final.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework.pkl')
+
+
+
+
+
+
+			

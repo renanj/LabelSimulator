@@ -23,7 +23,6 @@ class config:
 	# 2: SPLITED-TEST		
 	# 3: DB
 
-
 	_GPU_Flag_dict = {
 		'_01_build_dataset.py': True,
 		'_02_feature_extractor.py': True,
@@ -34,17 +33,17 @@ class config:
 		# '_05_02_active_learning.py': True,
 		# '_06_framework.py': False,
 		'_05_framework.py': True,		
-		'_06_results_consolidation.py': True,		
-		# '_07_results_consolidation.py': False		
+		'_06_generate_visualization.py': True,		
+		'_07_results_consolidation.py': True		
 	}	
 
-	_scripts_order = ['_01_build_dataset.py','_02_feature_extractor.py','_03_dim_reduction.py','_04_generator_faiss.py','_05_framework.py','_05_01_building_blocks.py','_05_02_active_learning.py']
+	_scripts_order = ['_01_build_dataset.py','_02_feature_extractor.py','_03_dim_reduction.py','_04_generator_faiss.py','_05_framework.py','_05_01_building_blocks.py','_05_02_active_learning.py','_06_generate_visualization.py', '07_results_consolidation.py']
 
 	_files_generated = {
 		'_01_build_dataset.py': [
 			'df_index_paths_train.pkl', 'df_index_paths_validation.pkl'],
 		'_02_feature_extractor.py': [
-			'df_train.pkl', 'df_validation.pkl'],
+			'df_train.pkl', 'df_validation.pkl', 'label_encoder.pkl'],
 		'_03_dim_reduction.py': [
 			'df_2D_train.pkl','df_2D_validation.pkl'],
 		'_04_generator_faiss.py': [
@@ -57,7 +56,13 @@ class config:
 			],
 
 		'_06_results_consolidation.py': [
+			'vis_01_consolidate_accuracy_chart_train.png', 'vis_01_consolidate_accuracy_chart_validation.png', 
+			'vis_02_accuracy_vs_random_chart_train.png', 'vis_02_accuracy_vs_random_chart_validation.png'
 			],
+
+		'07_results_consolidation.py': [
+
+		]
 
 		# '_05_simulations.py': [
 		# 	'df_simulation_samples_ordered_train.pkl', 'df_simulation_samples_ordered_validation.pkl', 'df_simulation_ordered_train.pkl', 'df_simulation_ordered_validation.pkl'],
@@ -104,14 +109,14 @@ class config:
 
 
 
-		# ,[
-		# 	 "data/plancton",
-		# 	 "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
-		# 	 "data/plancton/splited/train",
-		# 	 "data/plancton/splited/validation",
-		# 	 "data/plancton/db_feature_extractor",
-		# 	 "data/plancton/results_consolidated"
-		# ]								   
+		,[
+			 "data/plancton",
+			 "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
+			 "data/plancton/splited/train",
+			 "data/plancton/splited/validation",
+			 "data/plancton/db_feature_extractor",
+			 "data/plancton/results_consolidated"
+		]								   
 
 
 	]

@@ -28,17 +28,6 @@ import config as config
 config = config.config
 
 
-
-
-#Inputs:
-_script_name = os.path.basename(__file__)
-_GPU_flag = config._GPU_Flag_dict[_script_name]
-_list_data_sets_path = config._list_data_sets_path
-_list_train_val = config._list_train_val
-
-
-
-
 #Inputs:
 _script_name = os.path.basename(__file__)
 _GPU_flag = config._GPU_Flag_dict[_script_name]
@@ -102,17 +91,21 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_generate_visualization_
                             _col_x = 'Percetage Samples Evaluated',
                             _col_y = 'Samples Accuracy Train',
                             _hue='Query_Strategy')
+            
+            f_create_random_vs_query_accuracy_chart(_df_framework, 
+                            _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_02_accuracy_vs_random_chart_' + 'validation' + '.png',
+                            _col_x = 'Percetage Samples Evaluated',
+                            _col_y = 'Samples Accuracy Validation',
+                            _hue='Query_Strategy')            
 
 
             #Chart 3 -- Accuracy Delta vs. Random
 
             #Chart 4 -- 2D Selection Evolution Chart & 2D & Accuracy Evolution Gif
 
-
             
             unique_query_strategies = _df_framework['Query_Strategy'].unique().tolist()                        
             query_strategies_samples_id = [_df_framework[_df_framework['Query_Strategy'] == query_strategy].groupby('Query_Strategy')['Samples IDs'].sum().tolist() for query_strategy in unique_query_strategies]
-
 
 
             f_create_visualization_chart_animation(

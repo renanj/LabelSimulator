@@ -91,18 +91,18 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 		valPathsLen = int(len(imagePaths) * config.VAL_SPLIT)
 		trainPathsLen = len(imagePaths) - valPathsLen
 
-		
-		#delete
-		valPaths = imagePaths[50:100]
-		trainPaths = imagePaths[:50]				
+		valPaths = imagePaths[trainPathsLen:]
+		trainPaths = imagePaths[:trainPathsLen]		
+
+		if valPathsLen > 2000:			
+			valPaths = imagePaths[trainPathsLen:(trainPathsLen*4)]			
+
+
+		#delete -- in case you want to force a small number
+		# valPaths = imagePaths[50:100]
+		# trainPaths = imagePaths[:50]				
 		#delete ------- 
 		
-		# valPaths = imagePaths[trainPathsLen:]
-		# trainPaths = imagePaths[:trainPathsLen]		
-
-		# if valPathsLen > 2000:			
-		# 	valPaths = imagePaths[trainPathsLen:(trainPathsLen*4)]			
-
 
 		#Create pkl.index... with train and val
 		df = pd.DataFrame(trainPaths, columns=['image_path'])
@@ -110,7 +110,21 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
 
 		df = pd.DataFrame(valPaths, columns=['image_path'])
-		df.to_pickle(db_paths[3]  + '/' + 'df_index_paths_validation.pkl')			 
+		df.to_pickle(db_paths[3]  + '/' + 'df_index_paths_validation.pkl')	
+
+
+		#Encode (labels) y-variables:
+		label_encoder = LabelEncoder()
+		all_labels = pd.concat(_df_train['labels'].values, _df_validation['labels'].values,)
+		label_encoder.fit(all_labels)    
+		# le.fit([])
+		# le.classes_
+		# le.transform([])
+		# le.inverse_transform([])    
+		_df_train['labels'] = label_encoder.transform(_df_train['labels'])
+		_df_validation['labels'] = label_encoder.transform(_df_validation['labels'])    
+		# Export the LabelEncoder to a file
+		# joblib.dump(label_encoder, 'label_encoder.pkl')    				 
 
 
 		if input_images == True: 

@@ -7,7 +7,7 @@ import os
 # from cv2 import cv2
 import cv2
 import numpy as np
-import pickle as pkl
+import pickle 
 
 import config as config
 config = config.config
@@ -19,6 +19,9 @@ import pandas as pd
 from tqdm import tqdm_notebook as tqdm
 
 from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
+
+from sklearn.preprocessing import LabelEncoder
+
 
 #Inputs:
 _script_name = os.path.basename(__file__)
@@ -179,4 +182,30 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 				_pkl_folder_model_name_path = _folder_model_name_path + '/' + _pkl_name
 				df.to_pickle(_pkl_folder_model_name_path) 
 			model_name_i = model_name_i + 1
+
+
+
+
+		##### Export Encoder.pkl  --- (for all possible labels / y-variables):
+
+		model_name_i = 0
+		_list_df_all_labels = []
+		for model in _models:   
+			print('Model = ', model)			 
+			for i in range(len(config._list_train_val)):				
+
+				_df_temp = pd.read_pickle(db_paths[4] + '/' + _models_name[model_name_i] + '/' + 'df_'+ config._list_train_val[i] + '.pkl')				
+				_list_df_all_labels.append(_df_temp)
+			
+			df_all_labels = pd.concat(_list_df_all_labels, axis=0)
+			df_all_labels = df_all_labels.reset_index(drop=True)
+			all_labels = df_all_labels['labels'].values
+			label_encoder = LabelEncoder()
+			label_encoder.fit(all_labels)
+
+			pickle.dump(label_encoder, open(db_paths[4] + '/' + _models_name[model_name_i] + '/' + 'label_encoder.pkl', 'wb'))
+			# pickle.load(open('/content/drive/MyDrive/Mestrado/Git/LabelSimulator/data/plancton/db_feature_extractor/vgg_16/label_encoder.pkl', 'rb')) 
+			model_name_i = model_name_i + 1
+
 			print('---------------/n/n')
+
