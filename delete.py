@@ -128,3 +128,8 @@ for i in range(len(_list_dfs)):
 		_n_fractions=5, _fps=3)					 
 
 
+
+
+[TO-DO]
+
+1. Deletar pastas de DL Arc (vgg_16, vgg_19) quando rodar o delete_files

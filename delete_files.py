@@ -4,7 +4,7 @@ import sys
 import time
 import datetime
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_accuracy_chart, f_create_visualization_chart_animation, f_get_files_to_delete, f_delete_files, f_get_subfolders
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_visualization_chart_animation, f_get_files_to_delete, f_delete_files, f_get_subfolders
 import config
 config = config.config
 

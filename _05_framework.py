@@ -22,7 +22,7 @@ from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_del
 from baal.active.heuristics import BALD, Certainty, Margin, Entropy, Variance, Random, BatchBALD
 from sklearn.linear_model import LogisticRegression
 
-from aux_functions import f_model_accuracy
+import pickle
 
 
 import config as config
@@ -63,14 +63,12 @@ def f_framework_df(
 	_df_faiss_indices=None,
 	_df_faiss_distances=None,
 	_list_ordered_samples_id=None,
-    _input_framework_id=None,
-    _label_encoder=None
+    _input_framework_id=None
+    # _label_encoder=None
     ):
 
 
-
-    _df_train['labels'] = _label_encoder.transform(_df_train['labels'])
-    _df_validation['labels'] = _label_encoder.transform(_df_validation['labels'])
+    
 
 
     #Variables:
@@ -293,7 +291,16 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
             _df_2D_faiss_distances = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_faiss_distances_train.pkl')
             _df_2D_validation = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_validation.pkl')
 
-            _label_encoder = pickle.load(open(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'label_encoder.pkl', 'rb')) 
+            print("\n\n\n\n\n\n")
+            print("OPEN PATH === ", db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'label_encoder.pkl')
+                       
+            _label_encoder = pickle.load(open(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'label_encoder.pkl', 'rb'))             
+            _df_train['labels'] = _label_encoder.transform(_df_train['labels'])
+            _df_validation['labels'] = _label_encoder.transform(_df_validation['labels'])            
+
+            print("classes = ", _label_encoder.classes_)
+            print("\n\n\n\n\n\n") 
+
 
 
             _random_samples_id, _cold_start_samples_id = bblocks.f_cold_start(_df_train)
@@ -349,8 +356,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                     # _df_faiss_indices=_df_faiss_indices,
                     # _df_faiss_distances=_df_faiss_distances,
                     _list_ordered_samples_id=_list_of_lists_ordered_samples[i],
-                    _input_framework_id = i+1,
-                    _label_encoder=_label_encoder
+                    _input_framework_id = i+1
+                    # _label_encoder=_label_encoder
                     )
 
                 _list_dfs.append(_df_temp)

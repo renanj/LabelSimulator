@@ -35,6 +35,31 @@ _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
 
 
+def generate_output_list(df):
+
+    order_dict = {}
+
+
+    for index, row in df.iterrows():
+        query_strategy = row['Query_Strategy']
+        if query_strategy not in order_dict:
+            order_dict[query_strategy] = len(order_dict)
+
+
+    sorted_query_strategy = sorted(order_dict, key=order_dict.get)
+
+
+    output_df = df.groupby('Query_Strategy')['Samples IDs'].agg(sum).reset_index()
+
+
+    output_list_of_list = [
+        sorted_query_strategy,
+        [output_df.loc[output_df['Query_Strategy'] == query_strategy, 'Samples IDs'].tolist()[0] for query_strategy in sorted_query_strategy]
+    ]
+
+    return output_list_of_list
+
+
 with open('logs/' + f_time_now(_type='datetime_') + "_06_generate_visualization_py_" + ".txt", "a") as _f:
 
     _string_log_input = [0, '[INFO] Starting Framework']	
@@ -73,12 +98,14 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_generate_visualization_
             #Chart 1 -- Consolidate Accuracy Chart
             f_create_consolidate_accuracy_chart(_df_framework, 
                             _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_01_consolidate_accuracy_chart_' + 'train' + '.png',
+                            _file_name = 'vis_01_consolidate_accuracy_chart_' + 'train'
                             _col_x = 'Percetage Samples Evaluated',
                             _col_y = 'Samples Accuracy Train',
                             _hue='Query_Strategy')
 
             f_create_consolidate_accuracy_chart(_df_framework, 
                             _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_01_consolidate_accuracy_chart_' + 'validation' + '.png',
+                            _file_name = 'vis_01_consolidate_accuracy_chart_' + 'validation',
                             _col_x = 'Percetage Samples Evaluated',
                             _col_y = 'Samples Accuracy Validation',
                             _hue='Query_Strategy')
@@ -87,13 +114,15 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_generate_visualization_
 
             #Chart 2 -- Accuracy Chart Strategy vs. Random
             f_create_random_vs_query_accuracy_chart(_df_framework, 
-                            _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_02_accuracy_vs_random_chart_' + 'train' + '.png',
+                            _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name,
+                            _file_name = 'vis_02_accuracy_vs_random_chart_' + 'train',
                             _col_x = 'Percetage Samples Evaluated',
                             _col_y = 'Samples Accuracy Train',
                             _hue='Query_Strategy')
             
             f_create_random_vs_query_accuracy_chart(_df_framework, 
                             _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_02_accuracy_vs_random_chart_' + 'validation' + '.png',
+                            _file_name = 'vis_02_accuracy_vs_random_chart_' + 'validation',
                             _col_x = 'Percetage Samples Evaluated',
                             _col_y = 'Samples Accuracy Validation',
                             _hue='Query_Strategy')            

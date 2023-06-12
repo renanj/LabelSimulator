@@ -20,7 +20,7 @@ _list_train_val = config._list_train_val
 
 import pandas as pd
 
-from aux_functions import f_time_now, f_saved_strings, f_log, f_create_accuracy_chart, f_create_visualization_chart_animation, f_get_files_to_delete, f_delete_files, f_get_subfolders
+from aux_functions import f_time_now, f_saved_strings, f_log, f_create_visualization_chart_animation, f_get_files_to_delete, f_delete_files, f_get_subfolders
 
 
 
@@ -57,7 +57,7 @@ input_index=True
 input_images=False
 
 with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt", "a") as _f:
-
+	i_VAL_SPLIT = 0
 	for db_paths in _list_paths:	
 
 		_string_log_input = [1, '[INFO] Deleting All Files...']
@@ -88,7 +88,9 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 
 		## In case we want to generate split & validation
 		# generate training and validation paths
-		valPathsLen = int(len(imagePaths) * config.VAL_SPLIT)
+		# valPathsLen = int(len(imagePaths) * config.VAL_SPLIT) --BACKUP
+		valPathsLen = int(len(imagePaths) * config.VAL_SPLIT[i_VAL_SPLIT])
+		i_VAL_SPLIT = i_VAL_SPLIT + 1
 		trainPathsLen = len(imagePaths) - valPathsLen
 
 		valPaths = imagePaths[trainPathsLen:]
@@ -107,24 +109,14 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 		#Create pkl.index... with train and val
 		df = pd.DataFrame(trainPaths, columns=['image_path'])
 		df.to_pickle(db_paths[2]  + '/' + 'df_index_paths_train.pkl')			 
+		print("len ====== ")
+		print("train = ", df.shape)
 
 
 		df = pd.DataFrame(valPaths, columns=['image_path'])
 		df.to_pickle(db_paths[3]  + '/' + 'df_index_paths_validation.pkl')	
-
-
-		#Encode (labels) y-variables:
-		label_encoder = LabelEncoder()
-		all_labels = pd.concat(_df_train['labels'].values, _df_validation['labels'].values,)
-		label_encoder.fit(all_labels)    
-		# le.fit([])
-		# le.classes_
-		# le.transform([])
-		# le.inverse_transform([])    
-		_df_train['labels'] = label_encoder.transform(_df_train['labels'])
-		_df_validation['labels'] = label_encoder.transform(_df_validation['labels'])    
-		# Export the LabelEncoder to a file
-		# joblib.dump(label_encoder, 'label_encoder.pkl')    				 
+		print("validation = ", df.shape)
+		print("\n\n\n\n\n")
 
 
 		if input_images == True: 
@@ -144,10 +136,3 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt"
 			print("[INFO] images will NOT be copied to train and validation paths")
 			None
 
-
-
-# run_paths(
-#	 _list_paths = config._list_data_sets_path,
-#	 input_index=True,  
-#	 input_images=False
-# )

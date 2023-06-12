@@ -14,7 +14,7 @@ class config:
 
 	# set the batch size and validation data split
 	BATCH_SIZE = 0
-	VAL_SPLIT = 0.997
+	VAL_SPLIT = [0.99, 0.95]
 
 	_logs_path = [ "logs"]
 

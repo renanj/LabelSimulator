@@ -88,29 +88,33 @@ def f_saved_strings(_string):
 
 def f_log(_string, _level, _file):
 
+
 	_levels_allowed = [0,1,2,3,4,5,6,7,8,9,10,11,12]
 	_string = f_saved_strings(_string)
 
-	if _level not in _levels_allowed:
-		_file.write('')
-		_file.flush				
-		return None 
-	else:					
-		#write
-		_write_string = ('\t' * _level) + _string + '\n'
-		_file.write(_write_string)
-		_file.flush()
+	try:
+		if _level not in _levels_allowed:
+			_file.write('')
+			_file.flush				
+			return None 
+		else:					
+			#write
+			_write_string = ('\t' * _level) + _string + '\n'
+			_file.write(_write_string)
+			_file.flush()
 
-		#print
-		_print_string = ('  ' * _level) + _string
-		return print(_print_string)
+			#print
+			_print_string = ('  ' * _level) + _string
+			return print(_print_string)
+	except:
+		return None
 
 
 
-	_string_log_input = ['[INFO] Starting Dimension Reduction', 0]	
+	# _string_log_input = ['[INFO] Starting Dimension Reduction', 0]	
 
-	f_print(_string=_string, _level=__level)
-	f_write(f_print(_string=_string, _level=_level, _write_option=True), )
+	# f_print(_string=_string, _level=__level)
+	# f_write(f_print(_string=_string, _level=_level, _write_option=True), )
 
 
 
@@ -221,7 +225,7 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
 
 
 
-def f_create_consolidate_accuracy_chart(_df, _path, _col_x, _col_y, _hue):
+def f_create_consolidate_accuracy_chart(_df, _path, _file_name, _col_x, _col_y, _hue):
 
 	_list_cols = [_col_x, _col_y, _hue]
 	
@@ -254,9 +258,6 @@ def f_create_consolidate_accuracy_chart(_df, _path, _col_x, _col_y, _hue):
 		'Outliers_First_2D' : '#a6cee3'
 	}
 
-
-
-
 	sns.set(rc={'figure.figsize':(15.7,8.27)})	
 	sns.set_style('white')
 	_chart = sns.lineplot(data=_temp_df_chart, 
@@ -267,10 +268,11 @@ def f_create_consolidate_accuracy_chart(_df, _path, _col_x, _col_y, _hue):
 				)
 
 	figure = _chart.get_figure()
-	figure.savefig(_path)
+	figure.savefig(_path + '/' + _file_name)
+	figure.savefig(f'{_path}/{_file_name}.png')
 
 
-def f_create_random_vs_query_accuracy_chart(_df, _path, _col_x, _col_y, _hue):
+def f_create_random_vs_query_accuracy_chart(_df, _path, _file_name,  _col_x, _col_y, _hue):
 
 	# Filter out the "Random" query strategy from the dataframe
     filtered_df = _df[_df['Query_Strategy'] != 'Random']
@@ -331,59 +333,6 @@ def f_create_random_vs_query_accuracy_chart(_df, _path, _col_x, _col_y, _hue):
 
     # Adjust the spacing between subplots
     fig.tight_layout()    	
-    fig.savefig(_path)	
-
-
-
-
-# def f_model_accuracy(_args):
-
-# 	_df, _model, _ordered_samples_id, _qtd_samples_to_train, _GPU_flag, _df_validation = _args
-	
-# 	_ordered_samples_id_temp = _ordered_samples_id[0:_qtd_samples_to_train+1]
-# 	# print("LEN == ", len(_ordered_samples_id_temp))
-	
-# 	if _GPU_flag is True:
-# 		_temp_X_columns = [x for x, mask in zip(_df.columns.values, _df.columns.str.startswith("X")) if mask]
-# 		X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns].astype('float32')
-# 		y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels'].astype('float32')	   
-# 		X_test = _df.loc[:,_temp_X_columns].astype('float32')
-# 		y_test = _df.loc[:,'labels'].astype('float32')
-# 		X_validation = _df_validation.loc[:,_temp_X_columns].astype('float32')
-# 		y_validation = _df_validation.loc[:,'labels'].astype('float32')			 
-
-# 	else:	   
-# 		# print("TPU")														  
-# 		_temp_X_columns = list(_df.loc[:,_df.columns.str.startswith("X")].columns)															  
-# 		X_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,_temp_X_columns]
-# 		y_train = _df[_df['sample_id'].isin(_ordered_samples_id_temp)].loc[:,'labels']					
-# 		X_test = _df.loc[:,_temp_X_columns]
-# 		y_test = _df.loc[:,'labels']
-# 		X_validation = _df_validation.loc[:,_temp_X_columns]
-# 		y_validation = _df_validation.loc[:,'labels']	   
-# 		# print("X_train .shape = ", X_train.shape)
-# 		# print("X_test .shape = ", X_test.shape)
-
-# 	if len(list(y_train.unique())) > 1:
-
-# 		try:					
-# 			_model.fit(X_train, y_train)									
-# 			_score = _model.score(X_test, y_test)
-# 			_score_validation = _model.score(X_validation, y_validation)
-# 			# print("worked for..", _qtd_samples_to_train)
-# 			# print("_score = ", _score)
-# 			# print("\n\n")
-# 			return _score, _score_validation
-		
-# 		except:										 
-# 			_score = 0
-# 			_score_validation = 0
-# 			print("entered i expection...")
-# 			print("\n\n")
-# 			return _score, _score_validation
-# 	else:
-# 		_score = 0
-# 		_score_validation = 0		
-# 		print("entered i expection... labels size more than 1")
-# 		print("\n\n")
-# 		return _score, _score_validation		
+    # fig.savefig(_path)
+	fig.savefig(f'{_path}/{_file_name}.png')
+    
