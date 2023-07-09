@@ -17,8 +17,6 @@ import _05_01_building_blocks as bblocks
 from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
 
 
-
-
 from baal.active.heuristics import BALD, Certainty, Margin, Entropy, Variance, Random, BatchBALD
 from sklearn.linear_model import LogisticRegression
 
@@ -50,8 +48,6 @@ from joblib import Parallel, delayed
 
 
 
-
-
 def f_framework_df(
     _df_train, 
 	_df_validation, 
@@ -65,11 +61,7 @@ def f_framework_df(
 	_list_ordered_samples_id=None,
     _input_framework_id=None
     # _label_encoder=None
-    ):
-
-
-    
-
+        ):
 
     #Variables:
     _model = LogisticRegression(random_state=0)
@@ -89,8 +81,6 @@ def f_framework_df(
 
     elif _query_strategy_name == "BatchBALD":
         _al_function = BatchBALD(num_samples=_query_batch_size)
-
-
 
 
     _temp_X_columns = [x for x, mask in zip(_df_train.columns.values, _df_train.columns.str.startswith("X")) if mask]
@@ -140,13 +130,13 @@ def f_framework_df(
 
         # print("Missing = ", len(_array_unlabels_sample_ids))
 
-        if len(_array_unlabels_sample_ids) % 200 == 0:
+        if len(_array_unlabels_sample_ids) % 50 == 0:
             print("Missing = ", len(_array_unlabels_sample_ids))
         
 
         start_time = time.time()
 
-        # If is Cluster-Based:
+        # If is Data-Density-Based:
         if _list_ordered_samples_id is not None:		
             #1) Get the most uncertainty -- this step was done before
             #2) Select Sample_ID based on the most uncertainty & query batch size
@@ -154,7 +144,7 @@ def f_framework_df(
             _temp_batch_size = _temp_batch_size+_query_batch_size
 
 
-        # Else-if is Model-Based:
+        # If is Model-Based:
         else:
             #1) Predict in Ulabeled Train Dataset & Get the most uncertainty
             _temp_test_x = _df_train[_temp_X_columns][_df_train['sample_id'].isin(_array_unlabels_sample_ids.get())] 
@@ -242,6 +232,10 @@ def f_framework_df(
 
 
 
+
+
+
+
 #Inputs:
 _script_name = os.path.basename(__file__)
 _GPU_flag = config._GPU_Flag_dict[_script_name]
@@ -301,17 +295,6 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
             print("classes = ", _label_encoder.classes_)
             print("\n\n\n\n\n\n") 
 
-
-
-            _random_samples_id, _cold_start_samples_id = bblocks.f_cold_start(_df_train)
-
-            _list_dfs = []
-            _list_query_stragegy = ['Random', 
-                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 
-                                    'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
-                                    'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']
-
-
             #Dataframe with Ordered Samples
             _list_strategy_name, _list_strategy_ordered_samples_id = bblocks.f_run_human_simulations(df_embbedings = _df_train, 
                                                     df_faiss_indices=_df_faiss_indices, 
@@ -327,16 +310,24 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
             _simulation_order_df_2D.columns = _list_strategy_name_2D	        
 
 
-            
+            _random_samples_id, _cold_start_samples_id = bblocks.f_cold_start(_df_train)
+
+            _list_dfs = []
+            _list_query_stragegy = ['Random', 
+                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'
+                                    'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
+                                    'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']
 
 
             _list_of_lists_ordered_samples = [
                 _random_samples_id, 
-                None, None, None, None, 
+                None, None, None, None, None,
                 list(_simulation_order_df['Equal_Spread'].values), list(_simulation_order_df['Dense_Areas_First'].values), list(_simulation_order_df['Centroids_First'].values), list(_simulation_order_df['Outliers_First'].values),
                 list(_simulation_order_df_2D['Equal_Spread'].values), list(_simulation_order_df_2D['Dense_Areas_First'].values), list(_simulation_order_df_2D['Centroids_First'].values), list(_simulation_order_df_2D['Outliers_First'].values)
             ]
             
+
+
             for i in range(len(_list_query_stragegy)):
 
                 _string_log_input = [4, 'Running Query Strategy = ' +  _list_query_stragegy[i],]	
@@ -350,7 +341,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                     _df_validation = _df_validation, 
                     _cold_start_samples_id = _cold_start_samples_id, 
                     _query_strategy_name = _list_query_stragegy[i],
-                    _query_batch_size = 1,   
+                    _query_batch_size = round(_df_train.shape[0]/25,0),
                     _database_name = db_paths[0].split('/')[1],
                     _dl_architecture_name = _deep_learning_arq_sub_folder_name,	
                     # _df_faiss_indices=_df_faiss_indices,
@@ -366,9 +357,3 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
             df_final = df_final.reset_index(drop=True)
             df_final.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework.pkl')
 
-
-
-
-
-
-			

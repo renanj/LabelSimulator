@@ -334,5 +334,5 @@ def f_create_random_vs_query_accuracy_chart(_df, _path, _file_name,  _col_x, _co
     # Adjust the spacing between subplots
     fig.tight_layout()    	
     # fig.savefig(_path)
-	fig.savefig(f'{_path}/{_file_name}.png')
+    fig.savefig(f'{_path}/{_file_name}.png')
     

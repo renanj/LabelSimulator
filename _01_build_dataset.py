@@ -56,7 +56,7 @@ _list_paths = config._list_data_sets_path
 input_index=True  
 input_images=False
 
-with open('logs/' + f_time_now(_type='datetime_') + "_06_framework_py_" + ".txt", "a") as _f:
+with open('logs/' + f_time_now(_type='datetime_') + "_01_build_dataset_py_" + ".txt", "a") as _f:
 	i_VAL_SPLIT = 0
 	for db_paths in _list_paths:	
 
