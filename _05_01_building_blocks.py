@@ -38,37 +38,55 @@ def f_cold_start(df_embbedings, _random_state=42):
 	return _random_samples_id, _cold_start_samples_id
 
 
+def f_SPB(df_embbedings,  df_faiss_distances, df_faiss_indices, _cold_start_samples_id=None):
 
-def f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=None):
+  if _cold_start_samples_id is None: 
+    _cold_start_samples_id = f_cold_start(df_embbedings)
+
+  array_labels_sample_ids = cp.array(_cold_start_samples_id)
+  array_unlabels_sample_ids = cp.array(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])		  
+
+  array_faiss_indices = cp.array(df_faiss_indices)
+  array_faiss_distances = cp.array(df_faiss_distances)
+
+  index_temp = _df_faiss_distances.reset_index().copy()
+
+  while len(array_unlabels_sample_ids) > 0:   
+
+    _list_to_filter_out = list(index_temp[index_temp['index'].isin(array_labels_sample_ids.tolist())].index.values)
+    _array_to_filter_out = cp.array(_list_to_filter_out)
+
+    array_mask_false_true = cp.isin(array_faiss_indices, array_labels_sample_ids) #true == sample that are labeled
+    array_mask_false_true[:,0] = False
+    array_faiss_indices_filtered = cp.where(array_mask_false_true, array_faiss_indices, cp.nan)	  
+
+    array_faiss_distances_filtered = cp.where(array_mask_false_true, array_faiss_distances, cp.nan)	  
+    first_elements = cp.array([sublist[~cp.isnan(sublist)][0] for sublist in array_faiss_distances_filtered])
 
 
-	if _cold_start_samples_id is None: 
-		_cold_start_samples_id = f_cold_start(df_embbedings)
+    arr_excluded = cp.compress(~cp.isin(cp.arange(first_elements.size), _array_to_filter_out), first_elements)
+    max_value = cp.max(arr_excluded)
+    max_index = cp.argmax(arr_excluded)
 
-	array_labels_sample_ids = cp.array(_cold_start_samples_id)
-	array_unlabels_sample_ids = cp.array(df_embbedings['sample_id'][~df_embbedings['sample_id'].isin(_cold_start_samples_id)])		  
+    max_value = max_value.item()
+    max_index = max_index.item()
 
-	array_faiss_indices = cp.array(df_faiss_indices)
-	array_faiss_distances = cp.array(df_faiss_distances)
+    new_index_temp = index_temp[~index_temp.loc[:,'index'].isin(array_labels_sample_ids.tolist())].reset_index()
+    selected_sample_id = new_index_temp.loc[max_index:max_index, 'index'].values[0]
 
-	while len(array_unlabels_sample_ids) > 0:   
+    array_unlabels_sample_ids = array_unlabels_sample_ids[array_unlabels_sample_ids != selected_sample_id]
+    array_labels_sample_ids= cp.append(array_labels_sample_ids, selected_sample_id)		
 
-		array_mask_false_true = cp.isin(array_faiss_indices, array_labels_sample_ids) #true == sample that are labeled
-		array_faiss_indices_filtered = cp.where(~array_mask_false_true, array_faiss_indices, cp.nan)	  
-		indices_to_be_filtered = cp.argpartition(cp.isnan(array_faiss_indices_filtered), 1, axis=1)[:, 0]
-		result_indices = array_faiss_indices[cp.arange(len(array_faiss_indices)), indices_to_be_filtered]
-		result_distance = array_faiss_distances[cp.arange(len(array_faiss_distances)), indices_to_be_filtered]
-		selected_sample_id = result_indices[cp.argmax(result_distance)] 
+    print("missing = ", array_unlabels_sample_ids)
 
-		array_unlabels_sample_ids = array_unlabels_sample_ids[array_unlabels_sample_ids != selected_sample_id]
-		array_labels_sample_ids= cp.append(array_labels_sample_ids, selected_sample_id)
-		# selected_sample_mask = (array_unlabels_sample_ids == selected_sample_id)  
-		# array_unlabels_sample_ids = array_unlabels_sample_ids[~selected_sample_mask]
-		# array_labels_sample_ids = cp.append(array_labels_sample_ids, array_unlabels_sample_ids[selected_sample_mask])	   
+    print("selected_sample_id = ", selected_sample_id)
+    print("==============================\n\n")
 
-	ordered_selected_samples_id = array_labels_sample_ids.tolist()	
 
-	return ordered_selected_samples_id
+  ordered_selected_samples_id = array_labels_sample_ids.tolist()	
+
+  return ordered_selected_samples_id
+
 
 	
 

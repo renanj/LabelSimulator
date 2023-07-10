@@ -22,6 +22,30 @@ def is_list_of_lists(obj):
     return isinstance(obj, list) and all(isinstance(sublist, list) for sublist in obj)
 
 
+def is_list_of_lists_of_lists(variable):
+    if not isinstance(variable, list):
+        return False
+
+    for item in variable:
+        if not isinstance(item, list):
+            return False
+        for subitem in item:
+            if not isinstance(subitem, list):
+                return False
+
+    return True
+
+
+def transform_to_list_of_lists(variable):
+    if not isinstance(variable, list):
+        return variable
+
+    if all(isinstance(item, list) for item in variable):
+        return [transform_to_list_of_lists(item[0]) for item in variable]
+
+    return variable
+
+
 
 def to_list_of_lists(obj):
     if not isinstance(obj, list):
@@ -158,17 +182,19 @@ def closest_value(row):
 		
 
 
-def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simulation_names, _list_selected_samples, _n_fractions, _fps=3):
-	
+def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simulation_names, _list_selected_samples, _n_fractions, _fps=3, _only_2D_chart=False):
+
 
 	plt.figure() 
 
 	if is_list_of_lists(_list_selected_samples) == False:
 		_list_selected_samples = to_list_of_lists(_list_selected_samples)
 
+	if is_list_of_lists_of_lists(_list_selected_samples) == True:
+		_list_selected_samples = transform_to_list_of_lists(_list_selected_samples)
 
 
-	# _df_2D  = X1, X2
+
 
 	_temp_X_columns = list(_df_2D.loc[:,_df_2D.columns.str.startswith("X")].columns)
 	if _temp_X_columns == None:
@@ -212,36 +238,50 @@ def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simu
 			index = i % len(sample_ids)
 			df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index+1]), 'color'] = 'slategray'
 			df_subset.loc[df_subset.index <= math.ceil((index+1)/len(sample_ids)*_n_fractions)*len(df_subset)/_n_fractions,'fraction'] = f"{math.ceil((index+1)/len(sample_ids)*100)}%"
-			scatter_plots[j].set_color(df_subset['color'])
+			scatter_plots[j].set_color(df_subset['color'])			
 			axs[j].set_xlabel('fraction')
+
 
 		# axs[0].table(cellText=[df_subset['fraction'].unique()], loc='bottom', cellLoc='center')
 		# axs[0].axis('off')
 
-	ani = animation.FuncAnimation(fig, animate, frames=len(_list_selected_samples[0]), interval=100, repeat=True)
-	ani.save(f'{_path}/{_file_name}.gif', writer='imagemagick', fps=_fps)	
-	
+	if _only_2D_chart == False:
+		ani = animation.FuncAnimation(fig, animate, frames=len(_list_selected_samples[0]), interval=100, repeat=True)
+		ani.save(f'{_path}/{_file_name}.gif', writer='imagemagick', fps=_fps)	
+		
 	_df_2D['color'] = 'bisque'
 	
 	scatter_plot = axs[0].scatter(df_subset['X1'], df_subset['X2'], c='bisque')
-	fig2, axs2 = plt.subplots(nrows=_n_fractions, ncols=num_simulations, figsize=(4*num_simulations, 4*_n_fractions), tight_layout=True)
+	fig2, axs2 = plt.subplots(nrows=_n_fractions, ncols=num_simulations, figsize=(4*num_simulations, 4*_n_fractions), tight_layout=True)	
+
 	i = 0
 	for i in range(_n_fractions):
-		for j in range(num_simulations):
-			sample_ids = _list_selected_samples[j]
-			df_subset = _df_2D.copy()
-			df_subset['color'] = 'bisque'
-			df_subset['fraction'] = ''
-			index = math.ceil((i+1)/_n_fractions*len(sample_ids))
-			df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index]), 'color'] = 'slategray'
-			axs2[i][j].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
-			axs2[i][j].set_title(_list_simulation_names[j])
-			axs2[i][j].set_xlabel('X1')
-			axs2[i][j].set_ylabel('X2')
-		axs2[i][0].set_ylabel(f"{math.ceil((i+1)/_n_fractions*100)}% of samples selected")	
+	  for j in range(num_simulations):
+	    sample_ids = _list_selected_samples[j]
+	    df_subset = _df_2D.copy()
+	    df_subset['color'] = 'bisque'
+	    df_subset['fraction'] = ''
+	    index = math.ceil((i+1)/_n_fractions*len(sample_ids))
+	    df_subset.loc[df_subset['sample_id'].isin(sample_ids[:index]), 'color'] = 'slategray'
+	    if num_simulations > 1:
+	      axs2[i][j].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
+	      axs2[i][j].set_title(_list_simulation_names[j])
+	      axs2[i][j].set_xlabel('X1')
+	      axs2[i][j].set_ylabel('X2')
+	    else:
+	      axs2[i].scatter(df_subset['X1'], df_subset['X2'], c=df_subset['color'])
+	      axs2[i].set_title(_list_simulation_names[j])
+	      axs2[i].set_xlabel('X1')
+	      axs2[i].set_ylabel('X2')
+
+	  if num_simulations > 1:      
+	    axs2[i][0].set_ylabel(f"{math.ceil((i+1)/_n_fractions*100)}% of samples selected")	
+	  else:
+	    axs2[i].set_ylabel(f"{math.ceil((i+1)/_n_fractions*100)}% of samples selected")			
 		
 	fig2.subplots_adjust(top=0.85)		
 	fig2.savefig(f'{_path}/{_file_name}.png')	
+
 
 
 
