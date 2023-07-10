@@ -49,7 +49,7 @@ def f_SPB(df_embbedings,  df_faiss_distances, df_faiss_indices, _cold_start_samp
   array_faiss_indices = cp.array(df_faiss_indices)
   array_faiss_distances = cp.array(df_faiss_distances)
 
-  index_temp = _df_faiss_distances.reset_index().copy()
+  index_temp = df_faiss_distances.reset_index().copy()
 
   while len(array_unlabels_sample_ids) > 0:   
 
@@ -77,12 +77,7 @@ def f_SPB(df_embbedings,  df_faiss_distances, df_faiss_indices, _cold_start_samp
     array_unlabels_sample_ids = array_unlabels_sample_ids[array_unlabels_sample_ids != selected_sample_id]
     array_labels_sample_ids= cp.append(array_labels_sample_ids, selected_sample_id)		
 
-    print("missing = ", array_unlabels_sample_ids)
-
-    print("selected_sample_id = ", selected_sample_id)
-    print("==============================\n\n")
-
-
+   
   ordered_selected_samples_id = array_labels_sample_ids.tolist()	
 
   return ordered_selected_samples_id

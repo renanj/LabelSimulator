@@ -97,14 +97,14 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_generate_visualization_
 
             #Chart 1 -- Consolidate Accuracy Chart
             f_create_consolidate_accuracy_chart(_df_framework, 
-                            _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_01_consolidate_accuracy_chart_' + 'train' + '.png',
-                            _file_name = 'vis_01_consolidate_accuracy_chart_' + 'train'
+                            _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name,
+                            _file_name = 'vis_01_consolidate_accuracy_chart_' + 'train',
                             _col_x = 'Percetage Samples Evaluated',
                             _col_y = 'Samples Accuracy Train',
                             _hue='Query_Strategy')
 
             f_create_consolidate_accuracy_chart(_df_framework, 
-                            _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_01_consolidate_accuracy_chart_' + 'validation' + '.png',
+                            _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name,
                             _file_name = 'vis_01_consolidate_accuracy_chart_' + 'validation',
                             _col_x = 'Percetage Samples Evaluated',
                             _col_y = 'Samples Accuracy Validation',
@@ -121,7 +121,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_generate_visualization_
                             _hue='Query_Strategy')
             
             f_create_random_vs_query_accuracy_chart(_df_framework, 
-                            _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'vis_02_accuracy_vs_random_chart_' + 'validation' + '.png',
+                            _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name,
                             _file_name = 'vis_02_accuracy_vs_random_chart_' + 'validation',
                             _col_x = 'Percetage Samples Evaluated',
                             _col_y = 'Samples Accuracy Validation',
@@ -140,8 +140,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_generate_visualization_
             f_create_visualization_chart_animation(
                 _df_2D = _df_2D_train, 
                 _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name, 
-                _file_name = 'vis_04_selection_2D' + _list_train_val[i_train_val],
+                _file_name = 'vis_04_selection_2D' + 'train',
                 _list_simulation_names= unique_query_strategies,
-                _list_selected_samples= query_strategies_samples_id
-                _n_fractions=5, _fps=3)            
-            
+                _list_selected_samples= query_strategies_samples_id,
+                _n_fractions=5, _fps=15,
+                _only_2D_chart=True)                        

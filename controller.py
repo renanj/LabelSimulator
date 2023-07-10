@@ -11,7 +11,7 @@ def label_simulator_run():
         # 5: '_05_simulations.py',
         # 6: '_06_framework.py'
         5: '_05_framework.py'
-        # 6: '_06_results_consolidation.py'        
+        6: '_06_generate_visualization.py'        
     }
     
     print("Hi - this is LabelSimulator Executor\n")
