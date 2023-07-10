@@ -141,7 +141,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_06_generate_visualization_
                 _df_2D = _df_2D_train, 
                 _path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name, 
                 _file_name = 'vis_04_selection_2D' + _list_train_val[i_train_val],
-                _list_simulation_names= _unique_query_strategies,
+                _list_simulation_names= unique_query_strategies,
                 _list_selected_samples= query_strategies_samples_id
                 _n_fractions=5, _fps=3)            
             

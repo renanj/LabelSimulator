@@ -18,6 +18,18 @@ _scripts_order = config._scripts_order
 _files_generated = config._files_generated
 
 
+def is_list_of_lists(obj):
+    return isinstance(obj, list) and all(isinstance(sublist, list) for sublist in obj)
+
+
+
+def to_list_of_lists(obj):
+    if not isinstance(obj, list):
+        obj = [obj]
+
+    return [obj] 
+
+
 def f_get_subfolders(path):
 
 	sub_folders = []
@@ -148,6 +160,14 @@ def closest_value(row):
 
 def f_create_visualization_chart_animation(_df_2D, _path, _file_name, _list_simulation_names, _list_selected_samples, _n_fractions, _fps=3):
 	
+
+	plt.figure() 
+
+	if is_list_of_lists(_list_selected_samples) == False:
+		_list_selected_samples = to_list_of_lists(_list_selected_samples)
+
+
+
 	# _df_2D  = X1, X2
 
 	_temp_X_columns = list(_df_2D.loc[:,_df_2D.columns.str.startswith("X")].columns)
