@@ -324,8 +324,7 @@ def f_create_consolidate_accuracy_chart(_df, _path, _file_name, _col_x, _col_y, 
 				x=_col_x, 
 				y=_col_y, 
 				hue=_hue,
-				palette=palette_hue_colors
-				)
+w				)
 
 	figure = _chart.get_figure()
 	figure.savefig(_path + '/' + _file_name)
@@ -396,3 +395,34 @@ def f_create_random_vs_query_accuracy_chart(_df, _path, _file_name,  _col_x, _co
     # fig.savefig(_path)
     fig.savefig(f'{_path}/{_file_name}.png')
     
+
+
+# ================================================================================ 
+
+
+import os
+import tensorflow as tf
+from PIL import Image
+
+def extract_mnist(output_folder):
+
+	def download_mnist():
+	    # Download the MNIST dataset from TensorFlow
+	    (x_train, y_train), (_, _) = tf.keras.datasets.mnist.load_data()
+	    return x_train, y_train
+
+	def create_png_images(mnist_data, mnist_labels, output_folder):
+	    os.makedirs(output_folder, exist_ok=True)
+
+	    for i, (image, label) in enumerate(zip(mnist_data, mnist_labels)):
+	        label_folder = os.path.join(output_folder, str(label))
+	        os.makedirs(label_folder, exist_ok=True)
+
+	        image_path = os.path.join(label_folder, f"{i}.png")
+	        image = Image.fromarray(image)  # Convert NumPy array to PIL image
+	        image.save(image_path)
+	        print(f"Saved image {i}.png in folder {label}")
+
+
+    mnist_data, mnist_labels = download_mnist()    
+    create_png_images(mnist_data, mnist_labels, output_folder)

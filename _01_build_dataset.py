@@ -88,7 +88,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_01_build_dataset_py_" + ".
 
 		## In case we want to generate split & validation
 		# generate training and validation paths
-		# valPathsLen = int(len(imagePaths) * config.VAL_SPLIT) --BACKUP
+		# valPathsLen = int(len(imagePaths) * config.VAL_SPLIT) --BACKUP		
 		valPathsLen = int(len(imagePaths) * config.VAL_SPLIT[i_VAL_SPLIT])
 		i_VAL_SPLIT = i_VAL_SPLIT + 1
 		trainPathsLen = len(imagePaths) - valPathsLen

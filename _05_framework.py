@@ -18,6 +18,8 @@ from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_del
 
 
 from baal.active.heuristics import BALD, Certainty, Margin, Entropy, Variance, Random, BatchBALD
+from baal.active.heuristics.stochastics import PowerSampling
+
 from sklearn.linear_model import LogisticRegression
 
 import pickle
@@ -81,6 +83,9 @@ def f_framework_df(
 
     elif _query_strategy_name == "BatchBALD":
         _al_function = BatchBALD(num_samples=_query_batch_size)
+
+    elif _query_strategy_name == "PowerBALD":
+        _al_function = PowerSampling(BALD(), query_size=_query_batch_size, temperature=1.0)
 
 
     _temp_X_columns = [x for x, mask in zip(_df_train.columns.values, _df_train.columns.str.startswith("X")) if mask]
@@ -232,10 +237,6 @@ def f_framework_df(
 
 
 
-
-
-
-
 #Inputs:
 _script_name = os.path.basename(__file__)
 _GPU_flag = config._GPU_Flag_dict[_script_name]
@@ -314,14 +315,14 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
 
             _list_dfs = []
             _list_query_stragegy = ['Random', 
-                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'
+                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', 'PowerBALD'
                                     'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
                                     'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']
 
-
+            # DONT forget to add below if you add above!
             _list_of_lists_ordered_samples = [
                 _random_samples_id, 
-                None, None, None, None, None,
+                None, None, None, None, None, None,
                 list(_simulation_order_df['Equal_Spread'].values), list(_simulation_order_df['Dense_Areas_First'].values), list(_simulation_order_df['Centroids_First'].values), list(_simulation_order_df['Outliers_First'].values),
                 list(_simulation_order_df_2D['Equal_Spread'].values), list(_simulation_order_df_2D['Dense_Areas_First'].values), list(_simulation_order_df_2D['Centroids_First'].values), list(_simulation_order_df_2D['Outliers_First'].values)
             ]
