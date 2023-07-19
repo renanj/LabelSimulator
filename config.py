@@ -16,6 +16,10 @@ class config:
 	BATCH_SIZE = 0
 	VAL_SPLIT = [0.99, 0.95]
 
+
+
+	dim_reduction_perplexity = [25, 75]
+
 	_logs_path = [ "logs"]
 
 	# 0: RAW
@@ -55,7 +59,7 @@ class config:
 			'df_framework.pkl'
 			],
 
-		'_06_results_consolidation.py': [
+		'_06_generate_visualization.py': [
 			'vis_01_consolidate_accuracy_chart_train.png', 'vis_01_consolidate_accuracy_chart_validation.png', 
 			'vis_02_accuracy_vs_random_chart_train.png', 'vis_02_accuracy_vs_random_chart_validation.png'
 			],

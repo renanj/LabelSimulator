@@ -15,16 +15,23 @@ _GPU_flag = config._GPU_Flag_dict[_script_name]
 _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
 
+_dim_reduction_perplexity = config.dim_reduction_perplexity
+
 
 
 dim_reduction_list = ['t-SNE']
 
 
-def f_dim_reduction(df, dim_r, n_dimensions=2):
+
+def f_dim_reduction(df, dim_r, n_dimensions=2, perplexity=40, n_neighbors=120, learning_rate=300):
+
+	n_neighbors = perplexity * 3
+
 	if dim_r == 't-SNE':
 		#colunas X....
-		_temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
-		tsne = TSNE(n_components = n_dimensions, perplexity=40, learning_rate=400)
+		_temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)		
+		tsne = TSNE(n_components = n_dimensions, perplexity=perplexity, n_neighbors=n_neighbors, learning_rate=learning_rate)
+  # learning_rate=learning_rate
 		X_2dimensions = tsne.fit_transform(df.loc[:,_temp_X_columns])		
 		X_2dimensions = X_2dimensions.rename(columns={0: 'X1', 1: 'X2'})
 		# X_2dimensions[:,0], X_2dimensions[:,1]		
@@ -32,7 +39,7 @@ def f_dim_reduction(df, dim_r, n_dimensions=2):
 		return df
 
 	else:
-		print ("We don't have a dim_reduction algo with this name")
+		print ("We don't have a dim_reduction algo with this name")    		
   
 
 with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".txt", "a") as _f:
@@ -44,6 +51,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 	f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)		
 
 
+	i_dim_per = 0
 	for db_paths in _list_data_sets_path:
 
 		_string_log_input = [1, '[IMAGE DATABASE] = ' + db_paths[0]]	
@@ -105,8 +113,9 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 							_string_log_input = [7, 'Exporting .pkl related to = ' + dim_r]	
 							f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
-							df_dim = f_dim_reduction(df, dim_r)
+							df_dim = f_dim_reduction(df, dim_r, perplexity=_dim_reduction_perplexity[i_dim_per])
 							df_dim.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_' + _list_train_val[i_train_val] + '.pkl')
+
 
 							# if '2D' in _file_name:
 							# 	df_dim.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_' + _list_train_val[i_train_val] + '.pkl')
@@ -118,3 +127,5 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 							# if not os.path.exists(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '__' +  dim_r):
 							#   os.makedirs(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '__' +  dim_r)
 							# df_dim.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '__' +  dim_r + '/' + 'df_' + _list_train_val[i_train_val] + '.pkl')
+
+		i_dim_per = i_dim_per + 1							

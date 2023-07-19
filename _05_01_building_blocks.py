@@ -119,7 +119,7 @@ def f_out(desentity_ordered_selected_samples_id):
 def f_clu(df_embbedings, num_clusters=None, num_iterations=None, gpu_index=True):
 
 	if num_clusters is None:
-		num_clusters = round(df_embbedings.shape[0] * 0.025)
+		num_clusters = round(df_embbedings.shape[0] * 0.20)
 
 	if num_iterations is None:
 		num_iterations = 10
