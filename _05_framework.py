@@ -54,6 +54,7 @@ def f_framework_df(
     _df_train, 
 	_df_validation, 
 	_cold_start_samples_id, 
+    _legend_name,
 	_query_strategy_name,
 	_query_batch_size,   
     _database_name,
@@ -218,11 +219,19 @@ def f_framework_df(
     _pd_list_9 = _array_score_train.tolist() 
     _pd_list_10 = _array_score_validation.tolist() 
 
-    _result_df = pd.DataFrame(list(zip(_pd_list_0, _pd_list_1, _pd_list_2, _pd_list_3, _pd_list_4, _pd_list_5 , _pd_list_6, _pd_list_7, _pd_list_8, _pd_list_9, _pd_list_10))
+    _pd_list_11 = [_query_batch_size] * len(_array_batch_looping)
+
+    _pd_list_12 = [_legend_name] * len(_array_batch_looping)
+
+
+
+    _result_df = pd.DataFrame(list(zip(_pd_list_0, _pd_list_12, _pd_list_1, _pd_list_2, _pd_list_3, _pd_list_11, _pd_list_4, _pd_list_5 , _pd_list_6, _pd_list_7, _pd_list_8, _pd_list_9, _pd_list_10))
         ,columns=["Framework_ID", 
+                  "Legend",   
                   "Database", 
                   "DL_Architecture", 
                   "Query_Strategy", 
+                  "Batch Size",
                   "Model", 
                   "Interaction",
                   "Samples Evaluated / Total Samples",
@@ -241,6 +250,11 @@ _script_name = os.path.basename(__file__)
 _GPU_flag = config._GPU_Flag_dict[_script_name]
 _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
+
+
+
+_batch_size_experiment = True
+
 
 
 with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt", "a") as _f:
@@ -318,6 +332,12 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                                     'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
                                     'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']
 
+            _list_legend_name = ['Random', 
+                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD',
+                                    'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
+                                    'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']                                    
+
+
             # DONT forget to add below if you add above!
             _list_of_lists_ordered_samples = [
                 _random_samples_id, 
@@ -330,28 +350,60 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
 
             for i in range(len(_list_query_stragegy)):
 
-                _string_log_input = [4, 'Running Query Strategy = ' +  _list_query_stragegy[i],]	
-                f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)	
 
-                # print(db_paths[0].split('/')[1],)
-                # print(_list_of_lists_ordered_samples[i])
+                if _list_query_stragegy[i] == 'Margin' or _list_query_stragegy[i] == 'Bald' or _list_query_stragegy[i] == 'BatchBALD':                     
 
-                _df_temp = f_framework_df(
-                    _df_train = _df_train, 
-                    _df_validation = _df_validation, 
-                    _cold_start_samples_id = _cold_start_samples_id, 
-                    _query_strategy_name = _list_query_stragegy[i],
-                    _query_batch_size = int(round(_df_train.shape[0]/25,0)),
-                    _database_name = db_paths[0].split('/')[1],
-                    _dl_architecture_name = _deep_learning_arq_sub_folder_name,	
-                    # _df_faiss_indices=_df_faiss_indices,
-                    # _df_faiss_distances=_df_faiss_distances,
-                    _list_ordered_samples_id=_list_of_lists_ordered_samples[i],
-                    _input_framework_id = i+1
-                    # _label_encoder=_label_encoder
-                    )
+                    _batch_size_options = [1, 5, 10, 50, 100, int(round(_df_train.shape[0]/25,0))]
+                    for _b_size in _batch_size_options:
 
-                _list_dfs.append(_df_temp)
+                        _string_log_input = [4, 'Running Query Strategy = ' +  _list_query_stragegy[i],]    
+                        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)    
+
+                        _df_temp = f_framework_df(
+                            _df_train = _df_train, 
+                            _df_validation = _df_validation, 
+                            _cold_start_samples_id = _cold_start_samples_id, 
+                            _legend_name = _list_legend_name + '_batch_' + str(_b_size),
+                            _query_strategy_name = _list_query_stragegy[i],
+                            _query_batch_size = _b_size,
+                            _database_name = db_paths[0].split('/')[1],
+                            _dl_architecture_name = _deep_learning_arq_sub_folder_name, 
+                            # _df_faiss_indices=_df_faiss_indices,
+                            # _df_faiss_distances=_df_faiss_distances,
+                            _list_ordered_samples_id=_list_of_lists_ordered_samples[i],
+                            _input_framework_id = i+1
+                            # _label_encoder=_label_encoder
+                            )
+
+                        _list_dfs.append(_df_temp)                       
+
+
+                else:
+
+                    _string_log_input = [4, 'Running Query Strategy = ' +  _list_query_stragegy[i],]    
+                    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)    
+
+                    # print(db_paths[0].split('/')[1],)
+                    # print(_list_of_lists_ordered_samples[i])
+
+                    _df_temp = f_framework_df(
+                        _df_train = _df_train, 
+                        _df_validation = _df_validation, 
+                        _cold_start_samples_id = _cold_start_samples_id, 
+                        _legend_name = _list_legend_name,
+                        _query_strategy_name = _list_query_stragegy[i],
+                        _query_batch_size = int(round(_df_train.shape[0]/25,0)),
+                        _database_name = db_paths[0].split('/')[1],
+                        _dl_architecture_name = _deep_learning_arq_sub_folder_name, 
+                        # _df_faiss_indices=_df_faiss_indices,
+                        # _df_faiss_distances=_df_faiss_distances,
+                        _list_ordered_samples_id=_list_of_lists_ordered_samples[i],
+                        _input_framework_id = i+1
+                        # _label_encoder=_label_encoder
+                        )
+
+                    _list_dfs.append(_df_temp)
+
 
             df_final = pd.concat(_list_dfs)
             df_final = df_final.reset_index(drop=True)

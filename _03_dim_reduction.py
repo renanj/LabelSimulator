@@ -32,6 +32,7 @@ def objective(trial, df):
     learning_rate = trial.suggest_loguniform('learning_rate', 10, 1000)
     n_iter = trial.suggest_int('n_iter', 1000, 5000)
     _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
+
     tsne = TSNE(n_components=n_dimensions, perplexity=perplexity, learning_rate=learning_rate, n_iter=n_iter)
     X_2dimensions = tsne.fit_transform(df.loc[:, _temp_X_columns])
     score = scoring_function(X_2dimensions)
@@ -46,9 +47,12 @@ def f_dim_reduction(df, n_trials=50):
     tsne = TSNE(n_components=2, perplexity=best_params['perplexity'], learning_rate=best_params['learning_rate'], n_iter=best_params['n_iter'])  # n_components is fixed to 2
 
     X_2dimensions = tsne.fit_transform(df.loc[:, _temp_X_columns])
-    X_2dimensions = pd.DataFrame(X_2dimensions, columns=['X1', 'X2'])
+    X_2dimensions = X_2dimensions.rename(columns={0: 'X1', 1: 'X2'})                        
+    #X_2dimensions = pd.DataFrame(X_2dimensions, columns=['X1', 'X2'])
     df = pd.concat([df[['sample_id', 'name', 'labels', 'manual_label']], X_2dimensions], axis=1)
-    return df				
+    return df
+
+			
   
 
 def dim_reduction_df(directory):
@@ -179,9 +183,9 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 						
 
 
-						_string_log_input = [6, 'Dimension = ' + dim_r]	
-						f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-						_string_log_input = [7, 'Exporting .pkl related to = ' + dim_r]	
+						# _string_log_input = [6, 'Dimension = ' + dim_r]	
+						# f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+						_string_log_input = [6, 'Exporting .pkl related to = ' + dim_r]	
 						f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 						df_dim = f_dim_reduction(df )
