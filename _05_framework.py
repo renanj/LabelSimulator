@@ -170,7 +170,6 @@ def f_framework_df(
         _array_labels_sample_ids= cp.append(_array_labels_sample_ids, selected_sample_id) 
 
         
-
         #4) Re-training the model
         X_train = _df_train[_df_train['sample_id'].isin(_array_labels_sample_ids.get())].loc[:,_temp_X_columns].astype('float32') 
         y_train = _df_train[_df_train['sample_id'].isin(_array_labels_sample_ids.get())].loc[:,'labels'].astype('float32')    
@@ -357,4 +356,3 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
             df_final = pd.concat(_list_dfs)
             df_final = df_final.reset_index(drop=True)
             df_final.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework.pkl')
-

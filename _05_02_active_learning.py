@@ -213,26 +213,27 @@ def f_run_active_learning(df_embbedings, _df_validation, _model=None, _query_siz
 
 
 
-		# #Model 5:
-		# _temp_test_x = df_embbedings[_temp_X_columns][df_embbedings['sample_id'].isin(_array_unlabels_sample_ids_5.get())] #AQUI
-		# x = _model_5.predict_proba(_temp_test_x)
-		# x = x.reshape(x.shape[0], x.shape[1], 1)		
+		#Model 5:
+		print("Model 4 = BatchBALD")
+		_temp_test_x = df_embbedings[_temp_X_columns][df_embbedings['sample_id'].isin(_array_unlabels_sample_ids_5.get())] #AQUI
+		x = _model_5.predict_proba(_temp_test_x)
+		x = x.reshape(x.shape[0], x.shape[1], 1)		
 
-		# _baal_scores = BatchBALD(num_samples=10).compute_score(x) #AQUI
-		# _baal_rank = BatchBALD(num_samples=10)(x) #AQUI
+		_baal_scores = BatchBALD(num_samples=10).compute_score(x) #AQUI
+		_baal_rank = BatchBALD(num_samples=10)(x) #AQUI
 
-		# selected_sample_id = _array_unlabels_sample_ids_5[_baal_rank[:_query_size]] #AQUI
-		# _array_unlabels_sample_ids_5 = _array_unlabels_sample_ids_5[_array_unlabels_sample_ids_5 != selected_sample_id] #AQUI
-		# _array_labels_sample_ids_5= cp.append(_array_labels_sample_ids_5, selected_sample_id) #AQUI		 
+		selected_sample_id = _array_unlabels_sample_ids_5[_baal_rank[:_query_size]] #AQUI
+		_array_unlabels_sample_ids_5 = _array_unlabels_sample_ids_5[_array_unlabels_sample_ids_5 != selected_sample_id] #AQUI
+		_array_labels_sample_ids_5= cp.append(_array_labels_sample_ids_5, selected_sample_id) #AQUI		 
 
 
-		# #re-train: 		
-		# X_train = df_embbedings[df_embbedings['sample_id'].isin(_array_labels_sample_ids_5.get())].loc[:,_temp_X_columns].astype('float32') #AQUI
-		# y_train = df_embbedings[df_embbedings['sample_id'].isin(_array_labels_sample_ids_5.get())].loc[:,'labels'].astype('float32') #AQUI	   
-		# _model_5.fit(X_train, y_train) #AQUI	
+		#re-train: 		
+		X_train = df_embbedings[df_embbedings['sample_id'].isin(_array_labels_sample_ids_5.get())].loc[:,_temp_X_columns].astype('float32') #AQUI
+		y_train = df_embbedings[df_embbedings['sample_id'].isin(_array_labels_sample_ids_5.get())].loc[:,'labels'].astype('float32') #AQUI	   
+		_model_5.fit(X_train, y_train) #AQUI	
 
-		# _score_validation = cp.array(_model_5.score(X_validation, y_validation)) #AQUI
-		# _array_score_validation_5 = cp.append(_array_score_validation_5, _score_validation) #AQUI			
+		_score_validation = cp.array(_model_5.score(X_validation, y_validation)) #AQUI
+		_array_score_validation_5 = cp.append(_array_score_validation_5, _score_validation) #AQUI			
 
 
 	end_time_while = time.time()

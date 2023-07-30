@@ -85,26 +85,17 @@ with open('logs/' + f_time_now(_type='datetime_') + "_01_build_dataset_py_" + ".
 		imagePaths = list(paths.list_images(db_paths[1]))
 		np.random.shuffle(imagePaths)
 
+		ImagePathsLen = len(imagePaths)
 
-		## In case we want to generate split & validation
-		# generate training and validation paths
-		# valPathsLen = int(len(imagePaths) * config.VAL_SPLIT) --BACKUP		
-		valPathsLen = int(len(imagePaths) * config.VAL_SPLIT[i_VAL_SPLIT])
-		i_VAL_SPLIT = i_VAL_SPLIT + 1
-		trainPathsLen = len(imagePaths) - valPathsLen
+		if ImagePathsLen > config.MAX_SIZE_SPLIT[i_VAL_SPLIT]:
+			ImagePathsLen = config.MAX_SIZE_SPLIT[i_VAL_SPLIT]
 
-		valPaths = imagePaths[trainPathsLen:]
-		trainPaths = imagePaths[:trainPathsLen]		
-
-		if valPathsLen > 2000:			
-			valPaths = imagePaths[trainPathsLen:(trainPathsLen*4)]			
-
-
-		#delete -- in case you want to force a small number
-		# valPaths = imagePaths[50:100]
-		# trainPaths = imagePaths[:50]				
-		#delete ------- 
 		
+		trainPathsLen = int(ImagePathsLen * (1 - config.VAL_SPLIT[i_VAL_SPLIT]))
+		valPathsLen = int(ImagePathsLen * config.VAL_SPLIT[i_VAL_SPLIT])
+				
+		trainPaths = imagePaths[:trainPathsLen]		
+		valPaths = imagePaths[trainPathsLen:]
 
 		#Create pkl.index... with train and val
 		df = pd.DataFrame(trainPaths, columns=['image_path'])

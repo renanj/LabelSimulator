@@ -18,6 +18,167 @@ _scripts_order = config._scripts_order
 _files_generated = config._files_generated
 
 
+
+
+def create_label_encoder_obj(root_dir):
+
+  classes = sorted(os.listdir(root_dir))
+  classes = [class_name for class_name in classes if os.path.isdir(os.path.join(root_dir, class_name)) and class_name != ".ipynb_checkpoints"]  
+
+  
+  #LabelEncoder() Object
+  lb = LabelEncoder()  
+  classes_adjusted = classes.copy() + ['-']  
+  lb.fit(classes_adjusted)  
+
+  return lb
+
+
+
+class CustomImageDataset():
+
+    def __init__(self, root_dir, images_path_to_use, label_encoder=None, max_size=None, transform=None, target_transform=None, validation_transform=None, validation_target_transform=None):
+    
+        # validacao max_size tem que ser no minimo o numero minumo de classes ( a validacao tem que ser pelo validation... pq tem menos dados.. ou pelo menos.. )
+        # criar get item pelo sample_id 
+
+        self.root_dir = root_dir        
+        self.max_size = max_size
+        self.transform = transform
+        self.target_transform = target_transform
+        self.label_encoder = label_encoder
+        self.image_sample_id, self.image_name, self.image_paths, self.label_true_original, self.label_true_encoded, self.label_manual_original, self.label_manual_encoded = self.get_image_info()
+    
+        self.shuffle_dataset()
+
+    
+
+    def shuffle_dataset(self):
+        # Shuffle the indices of the samples
+        indices = list(range(len(self.image_paths)))
+        random.shuffle(indices)
+
+        # Use the shuffled indices to re-order  the lists
+        self.image_sample_id = [self.image_sample_id[i] for i in indices]
+        self.image_name = [self.image_name[i] for i in indices]
+        self.image_paths = [self.image_paths[i] for i in indices]
+        self.label_true_original = [self.label_true_original[i] for i in indices]
+        self.label_true_encoded = [self.label_true_encoded[i] for i in indices]
+        self.label_manual_original = [self.label_manual_original[i] for i in indices]
+        self.label_manual_encoded = [self.label_manual_encoded[i] for i in indices]
+
+
+    def get_image_info(self):
+        
+        
+        image_sample_id, image_name, image_paths = [], [], []
+        label_true_original, label_true_encoded = [], []
+        label_manual_original, label_manual_encoded = [], []
+        
+        classes = sorted(os.listdir(self.root_dir))
+        classes = [class_name for class_name in classes if os.path.isdir(os.path.join(self.root_dir, class_name)) and class_name != ".ipynb_checkpoints"]
+
+        #MaxSize Buckets Per Class:
+        if self.max_size is not None:            
+            if self.max_size < len(classes):
+                self.max_size = len(classes)
+
+            max_size_buckets = self.max_size // len(classes)
+        else:
+          max_size_buckets = None  
+    
+
+        _sample_id_count = 1
+        for class_name in classes:
+
+            class_path = os.path.join(self.root_dir, class_name)          
+            if os.path.isdir(class_path):                
+                try:                   
+                    image_files = os.listdir(class_path)                      
+                    temp_list = [class_path + '/' + filename for filename in image_files]
+
+                    set_1 = set(images_path_to_use)
+                    set_2 = set(temp_list)
+                    image_files = set_1.intersection(set_2)
+                    image_files = list(image_files)
+                    image_files = [item.split('/')[-1] for item in image_files]
+
+                                
+                    #Limitar o numero de samples per class de acordo com o "max_size"
+                    if self.max_size is not None:                        
+                        image_files = image_files[:max_size_buckets]                        
+
+
+                    image_sample_id.extend([num for num in range(_sample_id_count, _sample_id_count+len(image_files))])                
+                    _sample_id_count = _sample_id_count + len(image_files)
+
+                    image_name.extend(image_files)
+                    image_paths.extend([os.path.join(class_path, file) for file in image_files])
+
+                    label_true_original.extend([class_name for file in image_files])
+                    label_manual_original.extend(['-' for file in image_files])
+
+                    if label_encoder:
+                      label_true_encoded.extend([lb.transform([class_name])[0] for file in image_files])
+                      label_manual_encoded.extend([lb.transform(['-'])[0] for file in image_files])
+                
+                except:
+                    None
+
+        # return image_paths, name, sample_id, labels, manual_label
+        return  image_sample_id, image_name, image_paths, label_true_original, label_true_encoded, label_manual_original, label_manual_encoded
+
+
+
+    def __len__(self):
+        return len(self.image_paths)
+
+
+    def __getitem__(self, idx, flag=False):
+
+        img_path = self.image_paths[idx]
+        image = Image.open(img_path).convert("RGB")
+
+        if self.transform:
+            image = self.transform(image)
+
+        class_label = self.label_true_encoded[idx]
+        if self.target_transform:
+            class_label = self.target_transform(class_label)
+
+        image_name = self.image_name[idx]
+        image_sample_id = self.image_sample_id[idx]
+        image_paths = self.image_paths[idx]
+        label_true_original = self.label_true_original[idx]
+
+
+        if flag == False:
+            return image, class_label
+        else:
+            return image, class_label, image_name, image_sample_id, image_paths, label_true_original
+
+
+
+    def get_item_by_sample_id(self, sample_id):
+        # Find the index of the given sample_id in the list of image_sample_id
+        try:
+            idx = self.image_sample_id.index(sample_id)
+        except ValueError:
+            raise ValueError(f"Sample ID {sample_id} not found in the dataset.")
+
+        # Return the associated values for the given sample_id
+        image_name = self.image_name[idx]
+        image_path = self.image_paths[idx]
+        class_label = self.label_true_encoded[idx]
+        label_true_original = self.label_true_original[idx]
+
+        return image_name, image_path, class_label, label_true_original
+
+
+
+
+
+
 def is_list_of_lists(obj):
     return isinstance(obj, list) and all(isinstance(sublist, list) for sublist in obj)
 
@@ -151,6 +312,8 @@ def f_log(_string, _level, _file):
 
 	# f_print(_string=_string, _level=__level)
 	# f_write(f_print(_string=_string, _level=_level, _write_option=True), )
+
+
 
 
 
@@ -311,7 +474,7 @@ def f_create_consolidate_accuracy_chart(_df, _path, _file_name, _col_x, _col_y, 
 		'Entropy': '#fdbf6f',
 		'Margin': '#ff7f00',
 		'Bald': '#cab2d6',
-		# 'BatchBald': 		
+		'BatchBALD': '#521570',		
 		'Equal_Spread_2D' : '#6a3d9a', 
 		'Dense_Areas_First_2D' : '#ffff99',
 		'Centroids_First_2D' : '#b15928', 
@@ -350,7 +513,7 @@ def f_create_random_vs_query_accuracy_chart(_df, _path, _file_name,  _col_x, _co
 		'Entropy': '#fdbf6f',
 		'Margin': '#ff7f00',
 		'Bald': '#cab2d6',
-		# 'BatchBald': 		
+		'BatchBALD': '#521570',		
 		'Equal_Spread_2D' : '#6a3d9a', 
 		'Dense_Areas_First_2D' : '#ffff99',
 		'Centroids_First_2D' : '#b15928', 
@@ -426,3 +589,7 @@ def extract_mnist(output_folder):
 
 	mnist_data, mnist_labels = download_mnist()    
 	create_png_images(mnist_data, mnist_labels, output_folder)
+
+
+
+

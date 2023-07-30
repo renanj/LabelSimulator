@@ -14,8 +14,8 @@ class config:
 
 	# set the batch size and validation data split
 	BATCH_SIZE = 0
-	VAL_SPLIT = [0.99, 0.95]
-
+	VAL_SPLIT = [0.20, 0.20]
+	MAX_SIZE_SPLIT = [500, 500]
 
 
 	dim_reduction_perplexity = [25, 75]
@@ -61,7 +61,8 @@ class config:
 
 		'_06_generate_visualization.py': [
 			'vis_01_consolidate_accuracy_chart_train.png', 'vis_01_consolidate_accuracy_chart_validation.png', 
-			'vis_02_accuracy_vs_random_chart_train.png', 'vis_02_accuracy_vs_random_chart_validation.png'
+			'vis_02_accuracy_vs_random_chart_train.png', 'vis_02_accuracy_vs_random_chart_validation.png',
+			'vis_04_selection_2Dtrain.png', 'vis_04_selection_2Dvalidation.png'
 			],
 
 		'07_results_consolidation.py': [
@@ -113,14 +114,14 @@ class config:
 
 
 
-		,[
-			 "data/plancton",
-			 "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
-			 "data/plancton/splited/train",
-			 "data/plancton/splited/validation",
-			 "data/plancton/db_feature_extractor",
-			 "data/plancton/results_consolidated"
-		]								   
+		# ,[
+		# 	 "data/plancton",
+		# 	 "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
+		# 	 "data/plancton/splited/train",
+		# 	 "data/plancton/splited/validation",
+		# 	 "data/plancton/db_feature_extractor",
+		# 	 "data/plancton/results_consolidated"
+		# ]								   
 
 
 	]
