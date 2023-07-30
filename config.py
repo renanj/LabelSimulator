@@ -15,7 +15,7 @@ class config:
 	# set the batch size and validation data split
 	BATCH_SIZE = 0
 	VAL_SPLIT = [0.20, 0.20]
-	MAX_SIZE_SPLIT = [500, 500]
+	MAX_SIZE_SPLIT = [2000, 2000]
 
 
 	dim_reduction_perplexity = [25, 75]

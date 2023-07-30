@@ -94,8 +94,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_01_build_dataset_py_" + ".
 		trainPathsLen = int(ImagePathsLen * (1 - config.VAL_SPLIT[i_VAL_SPLIT]))
 		valPathsLen = int(ImagePathsLen * config.VAL_SPLIT[i_VAL_SPLIT])
 				
-		trainPaths = imagePaths[:trainPathsLen]		
-		valPaths = imagePaths[trainPathsLen:]
+		trainPaths = imagePaths[0:trainPathsLen]		
+		valPaths = imagePaths[trainPathsLen:(trainPathsLen+valPathsLen)]
 
 		#Create pkl.index... with train and val
 		df = pd.DataFrame(trainPaths, columns=['image_path'])

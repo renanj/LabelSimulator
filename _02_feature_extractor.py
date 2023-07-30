@@ -56,31 +56,8 @@ _models_transform.append(transforms.Compose([transforms.Resize((299, 299)), tran
 
 
 
+
 ############################################################################################################################################
-
-class FeatureExtractor(nn.Module):
-	def __init__(self, model):
-		super(FeatureExtractor, self).__init__()
-			# Extract VGG-16 Feature Layers
-		self.features = list(model.features)
-		self.features = nn.Sequential(*self.features)
-			# Extract VGG-16 Average Pooling Layer
-		self.pooling = model.avgpool
-			# Convert the image into one-dimensional vector
-		self.flatten = nn.Flatten()
-			# Extract the first part of fully-connected layer from VGG16
-		self.fc = model.classifier[0]
-  
-	def forward(self, x):
-		# It will take the input 'x' until it returns the feature vector called 'out'
-		out = self.features(x)
-		out = self.pooling(out)
-		out = self.flatten(out)
-		out = self.fc(out) 
-		return out 
-
-
-
 def extract_features(image_path, model, layer_names=None, transform=None):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
@@ -90,10 +67,11 @@ def extract_features(image_path, model, layer_names=None, transform=None):
         transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
+            transforms.Lambda(lambda x: x.repeat(3, 1, 1) if x.shape[0] == 1 else x),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
 
-    image = Image.open(image_path)
+    image = Image.open(image_path).convert('RGB')
     image = transform(image).unsqueeze(0).to(device)
 
     features = {}
@@ -132,6 +110,7 @@ def extract_features(image_path, model, layer_names=None, transform=None):
 
 
 
+
 with open('logs/' + f_time_now(_type='datetime_') + "_02_feature_extractor_py_" + ".txt", "a") as _f:
 
 
@@ -160,30 +139,12 @@ with open('logs/' + f_time_now(_type='datetime_') + "_02_feature_extractor_py_" 
 			print('Model = ', model)			 
 			for i in range(len(config._list_train_val)):
 				print('Cohort = ', config._list_train_val[i])
-				# for train_validation in range(2) --> se fosse fazer para train e validation. Mas no nosso caso so estamos fazendo para train 
 
-
-
-
-
-
-
-
-				# Initialize the model
-				new_model = FeatureExtractor(model)
-
-				# Change the device to GPU
-				device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
-				new_model = new_model.to(device)
-
-
-				# Will contain the feature
 				features = []
 				list_image_names = [] 
 				list_image_true_label = [] 
 				list_image_manual_label = [] 
 				list_image_id = [] 
-
 
 
 				df = pd.read_pickle(db_paths[i+2] + '/' + 'df_index_paths_' + config._list_train_val[i] + '.pkl')
@@ -193,11 +154,11 @@ with open('logs/' + f_time_now(_type='datetime_') + "_02_feature_extractor_py_" 
 				for path in tqdm((imagePaths), colour="green"):
 					try:
 						feature = extract_features(
-																				image_path = path, model, 
-																				model = _models_layer_to_extract[model_name_i],
-																				layer_names = _models_layer_to_extract[model_name_i],
-																				_models_transform = _models_transform[model_name_i]
-																			)
+												image_path = path, 
+												model = _models[model_name_i],
+												layer_names = _models_layer_to_extract[model_name_i],
+												transform = _models_transform[model_name_i]
+									)
 						feature = feature[_models_layer_to_extract[model_name_i]]['flattened_feature_map'][0]						
 						features.append(feature)
 
