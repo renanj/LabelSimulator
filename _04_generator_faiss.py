@@ -7,11 +7,20 @@ import faiss
 from tqdm import tqdm
 import multiprocessing
 
-import config as config
-config = config.config
+# import config as config
+# config = config.config
 import sys
 import cudf
 from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
+
+
+import config
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('test_number')
+args = parser.parse_args()
+config = config.Config(args.test_number)
 
 
 #Inputs:

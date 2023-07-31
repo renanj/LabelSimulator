@@ -25,8 +25,17 @@ from sklearn.linear_model import LogisticRegression
 import pickle
 
 
-import config as config
-config = config.config
+# import config as config
+# config = config.config
+
+import config
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('test_number')
+args = parser.parse_args()
+config = config.Config(args.test_number)
+
 
 
 import itertools
@@ -324,6 +333,11 @@ _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
 
 
+
+_batch_size_options = config._batch_size_options
+_batch_size_experiment = config._batch_size_experiment
+
+
 _batch_size_experiment = True
 
 with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt", "a") as _f:
@@ -429,7 +443,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
 
             _list_of_lists_ordered_samples = [
                 _random_samples_id, 
-                None, None, None, None,
+                None, None, None, None,None
                 list(_simulation_order_df['Equal_Spread'].values), list(_simulation_order_df['Dense_Areas_First'].values), list(_simulation_order_df['Centroids_First'].values), list(_simulation_order_df['Outliers_First'].values),
                 list(_simulation_order_df_2D['Equal_Spread'].values), list(_simulation_order_df_2D['Dense_Areas_First'].values), list(_simulation_order_df_2D['Centroids_First'].values), list(_simulation_order_df_2D['Outliers_First'].values)
             ]            

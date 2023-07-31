@@ -7,8 +7,19 @@ from imutils import paths
 import numpy as np
 import shutil
 import os
+# import config
+# config = config.config
+
 import config
-config = config.config
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('test_number')
+args = parser.parse_args()
+config = config.Config(args.test_number)
+
+
+
 
 #Inputs:
 _script_name = os.path.basename(__file__)

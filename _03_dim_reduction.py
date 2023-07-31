@@ -6,8 +6,18 @@ import os
 import optuna
 
 from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
-import config as config
-config = config.config
+
+# import config as config
+# config = config.config
+
+import config
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('test_number')
+args = parser.parse_args()
+config = config.Config(args.test_number)
+
 
 #Inputs:
 _script_name = os.path.basename(__file__)
@@ -15,9 +25,6 @@ _GPU_flag = config._GPU_Flag_dict[_script_name]
 
 _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
-
-_dim_reduction_perplexity = config.dim_reduction_perplexity
-
 
 
 dim_reduction_list = ['t-SNE']
