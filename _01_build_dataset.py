@@ -71,7 +71,6 @@ input_images=False
 with open('logs/' + f_time_now(_type='datetime_') + "_01_build_dataset_py_" + ".txt", "a") as _f:
 	i_VAL_SPLIT = 0
 	for db_paths in _list_paths:	
-
 		_string_log_input = [1, '[INFO] Deleting All Files...']
 		f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)		
 		_sub_folders_to_check = f_get_subfolders(db_paths[0])
@@ -138,4 +137,4 @@ with open('logs/' + f_time_now(_type='datetime_') + "_01_build_dataset_py_" + ".
 		else:
 			print("[INFO] images will NOT be copied to train and validation paths")
 			None
-
+		i_VAL_SPLIT = i_VAL_SPLIT + 1

@@ -1,4 +1,4 @@
-import os os
+import osv
 
 class Config:
 

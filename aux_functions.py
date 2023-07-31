@@ -14,19 +14,17 @@ import glob
 
 
 import config
-import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('test_number')
-args = parser.parse_args()
-config = config.Config(args.test_number)
+# Get the test_number from the environment variable
+test_number = os.getenv('TEST_NUMBER')
+if test_number is None:
+    raise ValueError('TEST_NUMBER environment variable not set. Please provide a test number.')
+
+config = config.Config(test_number)
 
 #Inputs
 _scripts_order = config._scripts_order
 _files_generated = config._files_generated
-
-
-
 
 def create_label_encoder_obj(root_dir):
 
