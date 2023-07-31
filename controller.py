@@ -20,6 +20,8 @@ def label_simulator_run():
     print('9: ALL Scripts')    
     input_list = input("Enter the code you want to run splited by spaces: ").split()
     test_number = input("Enter the Test Name and Number: ")
+    os.environ['TEST_NUMBER'] = test_number  # set the environment variable
+
 
     _flag_break = 0
     for i_script in range(len(input_list)):        

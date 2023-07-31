@@ -14,14 +14,14 @@ import cudf
 from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
 
 
-import config
-import argparse
+# import config
+# import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('test_number')
-args = parser.parse_args()
-config = config.Config(args.test_number)
-
+# parser = argparse.ArgumentParser()
+# parser.add_argument('test_number')
+# args = parser.parse_args()
+# config = config.Config(args.test_number)
+from config import config
 
 #Inputs:
 _script_name = os.path.basename(__file__)

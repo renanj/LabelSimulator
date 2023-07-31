@@ -1,11 +1,13 @@
+import os os
+
 class Config:
 
-    def __init__(self,test_number):
+	def __init__(self,test_number):
 
-        self.test_number = test_number
-        self._list_train_val = ['train', 'validation']
+		self.test_number = test_number
+		self._list_train_val = ['train', 'validation']
 
-        self._GPU_Flag_dict = {
+		self._GPU_Flag_dict = {
 			'_01_build_dataset.py': True,
 			'_02_feature_extractor.py': True,
 			'_03_dim_reduction.py': True,
@@ -20,7 +22,7 @@ class Config:
 		}	
 
 
-        self._scripts_order = [	
+		self._scripts_order = [	
 		'_01_build_dataset.py',
 		'_02_feature_extractor.py',
 		'_03_dim_reduction.py',
@@ -33,8 +35,8 @@ class Config:
 		]
 
 
-        self._files_generated = {
-        '_01_build_dataset.py': ['df_index_paths_train.pkl', 'df_index_paths_validation.pkl'],
+		self._files_generated = {
+		'_01_build_dataset.py': ['df_index_paths_train.pkl', 'df_index_paths_validation.pkl'],
 		'_02_feature_extractor.py': ['df_train.pkl', 'df_validation.pkl', 'label_encoder.pkl'],
 		'_03_dim_reduction.py': ['df_2D_train.pkl','df_2D_validation.pkl'],
 		'_04_generator_faiss.py': ['df_faiss_indices_train.pkl', 'df_faiss_indices_validation.pkl', 'df_faiss_distances_train.pkl', 'df_faiss_distances_validation.pkl','df_2D_faiss_indices_train.pkl', 'df_2D_faiss_indices_validation.pkl', 'df_2D_faiss_distances_train.pkl', 'df_2D_faiss_distances_validation.pkl'],
@@ -44,79 +46,87 @@ class Config:
 		}
 
 
+		if self.test_number == 'teste_1':
+
+			self.VAL_SPLIT = [0.20, 0.20]
+			self.MAX_SIZE_SPLIT = [625, 1250]			
+			self._list_data_sets_path = [   
+				[
+					 "data/mnist_1",			 
+					 "../../../../../data_colab/mnist/raw",
+					 "data/mnist_1/splited/train",
+					 "data/mnist_1/splited/validation",
+					 "data/mnist_1/db_feature_extractor",
+					 "data/mnist_1/results_consolidated"
+				],
+				[
+					 "data/plancton_1",			 
+					 "../../../../../data_colab/plancton/raw",
+					 "data/plancton_1/splited/train",
+					 "data/plancton_1/splited/validation",
+					 "data/plancton_1/db_feature_extractor",
+					 "data/plancton_1/results_consolidated"
+				]				
+			]
+			self._batch_size_experiment = True
+			self._batch_size_options = [1, 5, 10, 25, 50, 100]
 
 
-        if self.test_number == 'teste_1':
+		elif self.test_number == 'teste_2':
 
-            self.VAL_SPLIT = [0.20, 0.20]
-            self.MAX_SIZE_SPLIT = [625, 1250]            
-            self._list_data_sets_path = [   
-                [
-                     "data/mnist_1",             
-                     "../../../../../data_colab/mnist/raw",
-                     "data/mnist_1/splited/train",
-                     "data/mnist_1/splited/validation",
-                     "data/mnist_1/db_feature_extractor",
-                     "data/mnist_1/results_consolidated"
-                ],
-                [
-                     "data/plancton_1",             
-                     "../../../../../data_colab/plancton/raw",
-                     "data/plancton_1/splited/train",
-                     "data/plancton_1/splited/validation",
-                     "data/plancton_1/db_feature_extractor",
-                     "data/plancton_1/results_consolidated"
-                ]                
-            ]
-            self._batch_size_experiment = True
-            self._batch_size_options = [1, 5, 10, 25, 50, 100]
-
-
-        elif self.test_number == 'teste_2':
-
-            self.VAL_SPLIT = [0.20, 0.20]
-            self.MAX_SIZE_SPLIT = [6250, 6250]            
-            self._list_data_sets_path = [   
-                [
-                     "data/mnist_2",             
-                     "../../../../../data_colab/mnist/raw",
-                     "data/mnist_2/splited/train",
-                     "data/mnist_2/splited/validation",
-                     "data/mnist_2/db_feature_extractor",
-                     "data/mnist_2/results_consolidated"
-                ],
-                [
-                     "data/plancton_2",             
-                     "../../../../../data_colab/plancton/raw",
-                     "data/plancton_2/splited/train",
-                     "data/plancton_2/splited/validation",
-                     "data/plancton_2/db_feature_extractor",
-                     "data/plancton_2/results_consolidated"
-                ]                
-            ]
-            self._batch_size_experiment = True
-            self._batch_size_options = [10, 25, 50, 100, 500, 1000]
+			self.VAL_SPLIT = [0.20, 0.20]
+			self.MAX_SIZE_SPLIT = [6250, 6250]			
+			self._list_data_sets_path = [   
+				[
+					 "data/mnist_2",			 
+					 "../../../../../data_colab/mnist/raw",
+					 "data/mnist_2/splited/train",
+					 "data/mnist_2/splited/validation",
+					 "data/mnist_2/db_feature_extractor",
+					 "data/mnist_2/results_consolidated"
+				],
+				[
+					 "data/plancton_2",			 
+					 "../../../../../data_colab/plancton/raw",
+					 "data/plancton_2/splited/train",
+					 "data/plancton_2/splited/validation",
+					 "data/plancton_2/db_feature_extractor",
+					 "data/plancton_2/results_consolidated"
+				]				
+			]
+			self._batch_size_experiment = True
+			self._batch_size_options = [10, 25, 50, 100, 500, 1000]
 
 
 
-        elif self.test_number == 'teste_3':
+		elif self.test_number == 'teste_3':
 
-            self.VAL_SPLIT = [0.20]
-            self.MAX_SIZE_SPLIT = [300]            
-            self._list_data_sets_path = [   
-            	[
+			self.VAL_SPLIT = [0.20]
+			self.MAX_SIZE_SPLIT = [300]			
+			self._list_data_sets_path = [   
+				[
 					"data/toy_example",						 
 					"data/toy_example/raw",
 					"data/toy_example/splited/train",
 					"data/toy_example/splited/validation",
 					"data/toy_example/db_feature_extractor",
 					"data/toy_example/results_consolidated"
-            	]              
-            ]
-            self._batch_size_experiment = True
-            self._batch_size_options = [10, 25, 50]            
+				]			  
+			]
+			self._batch_size_experiment = True
+			self._batch_size_options = [10, 25, 50]			
 
-        else:
-            raise ValueError("Invalid configuration name!")
-    
-    
+		else:
+			raise ValueError("Invalid configuration name!")
+	
+
+
+	
+# Get the configuration name from the environment variable.
+test_number = os.getenv('TEST_NUMBER')
+
+if test_number is None:
+    raise ValueError('TEST_NUMBER environment variable not set. Please provide a configuration name.')
+
+# Create a Config instance with the appropriate configuration.
+config = Config(test_number)

@@ -10,8 +10,16 @@ from sklearn.datasets import make_blobs
 
 import os
 import glob
+
+
+
 import config
-config = config.config
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('test_number')
+args = parser.parse_args()
+config = config.Config(args.test_number)
 
 #Inputs
 _scripts_order = config._scripts_order

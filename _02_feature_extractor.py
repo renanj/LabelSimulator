@@ -12,15 +12,15 @@ import pickle
 # import config as config
 # config = config.config
 
-import config
-import argparse
+# import config
+# import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('test_number')
-args = parser.parse_args()
-config = config.Config(args.test_number)
+# parser = argparse.ArgumentParser()
+# parser.add_argument('test_number')
+# args = parser.parse_args()
+# config = config.Config(args.test_number)
 
-
+from config import config
 
 from imutils import paths
 import pandas as pd
