@@ -14,9 +14,15 @@ class config:
 
 	# set the batch size and validation data split
 	BATCH_SIZE = 0
-	VAL_SPLIT = [0.20, 0.20]
-	MAX_SIZE_SPLIT = [6250, 6250] #total do dataset, antes de sofrer o split
-	# MAX_SIZE_SPLIT = [625, 1250] #total do dataset, antes de sofrer o split
+
+	VAL_SPLIT = [0.20, 0.20] #teste 1 e 2
+	# VAL_SPLIT = [0.20] #teste 3
+
+	MAX_SIZE_SPLIT = [625, 1250]  #teste 1
+	# MAX_SIZE_SPLIT = [6250, 6250] #teste 2
+	# MAX_SIZE_SPLIT = [250] #teste 3
+
+	MAX SIZE = #total do dataset, antes de sofrer o split
 
 
 	dim_reduction_perplexity = [25, 75]
@@ -93,6 +99,46 @@ class config:
 	_list_data_sets_path = [   
 
 
+		#teste 1:
+		[
+			 "data/mnist_1",			 
+			 "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
+			 "data/mnist_1/splited/train",
+			 "data/mnist_1/splited/validation",
+			 "data/mnist_1/db_feature_extractor",
+			 "data/mnist_1/results_consolidated"
+		]
+		,[
+			 "data/plancton_1",
+			 "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
+			 "data/plancton_1/splited/train",
+			 "data/plancton_1/splited/validation",
+			 "data/plancton_1/db_feature_extractor",
+			 "data/plancton_1/results_consolidated"
+		]								   
+
+
+
+		#teste 2:
+		,[
+			 "data/mnist_2",			 
+			 "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
+			 "data/mnist_2/splited/train",
+			 "data/mnist_2/splited/validation",
+			 "data/mnist_2/db_feature_extractor",
+			 "data/mnist_2/results_consolidated"
+		]
+		,[
+			 "data/plancton_2",
+			 "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
+			 "data/plancton_2/splited/train",
+			 "data/plancton_2/splited/validation",
+			 "data/plancton_2/db_feature_extractor",
+			 "data/plancton_2/results_consolidated"
+		]	
+
+
+		#teste 3:
 		# [
 		# 	"data/toy_example",						 
 		# 	"data/toy_example/raw",
@@ -102,26 +148,6 @@ class config:
 		# 	"data/toy_example/results_consolidated"
 		# ]
 
-
-		[
-			 "data/mnist",			 
-			 "../../../../../data_colab/mnist/raw",  ## Apontar o RAW para code_lab
-			 "data/mnist/splited/train",
-			 "data/mnist/splited/validation",
-			 "data/mnist/db_feature_extractor",
-			 "data/mnist/results_consolidated"
-		]
-
-
-
-		# ,[
-		# 	 "data/plancton",
-		# 	 "../../../../../data_colab/plancton/raw",  ## Apontar o RAW para code_lab
-		# 	 "data/plancton/splited/train",
-		# 	 "data/plancton/splited/validation",
-		# 	 "data/plancton/db_feature_extractor",
-		# 	 "data/plancton/results_consolidated"
-		# ]								   
 
 
 	]
