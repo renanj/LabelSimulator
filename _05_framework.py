@@ -198,11 +198,22 @@ def f_framework_df(
             #2) Select Sample_ID based on the most uncertainty & query batch size            
             _temp_test_x = _df_train[_temp_X_columns][_df_train['sample_id'].isin(_array_unlabels_sample_ids.get())]                     
             if _is_ensemble_model == True: 
-                #based on this tutorial: https://baal.readthedocs.io/en/latest/notebooks/compatibility/sklearn_tutorial/        
-                x = np.array(list(map(lambda e: e.predict_proba(_temp_test_x), _model.estimators_)))
-                x = np.rollaxis(x, 0, 3)
-                _baal_rank = _al_function(x)         
-                selected_sample_id = _array_unlabels_sample_ids[_baal_rank[:_query_batch_size]]            
+                try:
+                    #based on this tutorial: https://baal.readthedocs.io/en/latest/notebooks/compatibility/sklearn_tutorial/        
+                    x = np.array(list(map(lambda e: e.predict_proba(_temp_test_x), _model.estimators_)))
+                    x = np.rollaxis(x, 0, 3)
+                    _baal_rank = _al_function(x)         
+                    selected_sample_id = _array_unlabels_sample_ids[_baal_rank[:_query_batch_size]]            
+                except AssertionError as e:
+                    print(f"Shape of x before error: {x.shape}")
+                    _list_total_samples_evaluated.append(None)
+                    _list_total_samples_evaluated_only.append(None)
+                    _list_total_samples_evaluated_percetage.append(None)
+                    _list_samples_ids_per_batch.append(None)
+                    _list_time_query_selection.append(None)
+                    _list_time_model_training.append(None)
+                    _list_time_al_cycle.append(None)                    
+                    break                
             else:   
                 try:
                     x = _model.predict_proba(_temp_test_x)
@@ -214,8 +225,15 @@ def f_framework_df(
 
                 except AssertionError as e:
                     print(f"Shape of x before error: {x.shape}")
-                    #raise e from None                
-                    continue
+                    #raise e from None      
+                    _list_total_samples_evaluated.append(None)
+                    _list_total_samples_evaluated_only.append(None)
+                    _list_total_samples_evaluated_percetage.append(None)
+                    _list_samples_ids_per_batch.append(None)
+                    _list_time_query_selection.append(None)
+                    _list_time_model_training.append(None)
+                    _list_time_al_cycle.append(None)                    
+                    break
 
             end_time_query_selection = time.time()
             execution_time_query_selection = end_time_query_selection - start_time_query_selection
@@ -266,9 +284,6 @@ def f_framework_df(
 
 
         
-
-
-
 
     _pd_list_0 = ['Framework_ID_' + str(_input_framework_id)] * len(_array_batch_looping)
     _pd_list_1 = [_database_name] * len(_array_batch_looping)
