@@ -182,6 +182,7 @@ def f_framework_df(
             #2) Select Sample_ID based on the most uncertainty & query batch size
             selected_sample_id = _array_ordered_samples_id[_temp_batch_size:(_temp_batch_size+_query_batch_size)]
             _temp_batch_size = _temp_batch_size+_query_batch_size
+            execution_time_query_selection = 0
 
 
         # If is Model-Based:
