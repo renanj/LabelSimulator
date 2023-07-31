@@ -203,13 +203,20 @@ def f_framework_df(
                 x = np.rollaxis(x, 0, 3)
                 _baal_rank = _al_function(x)         
                 selected_sample_id = _array_unlabels_sample_ids[_baal_rank[:_query_batch_size]]            
-            else:        
-                x = _model.predict_proba(_temp_test_x)
-                x = x.reshape(x.shape[0], x.shape[1], 1)		    
-                _baal_scores = _al_function.compute_score(x) 
-                _baal_rank = _al_function(x) 
-                #2) Select Sample_ID based on the most uncertainty & query batch size
-                selected_sample_id = _array_unlabels_sample_ids[_baal_rank[:_query_batch_size]]                        
+            else:   
+                try:
+                    x = _model.predict_proba(_temp_test_x)
+                    x = x.reshape(x.shape[0], x.shape[1], 1)		    
+                    _baal_scores = _al_function.compute_score(x) 
+                    _baal_rank = _al_function(x) 
+                    #2) Select Sample_ID based on the most uncertainty & query batch size
+                    selected_sample_id = _array_unlabels_sample_ids[_baal_rank[:_query_batch_size]]                        
+
+                except AssertionError as e:
+                    print(f"Shape of x before error: {x.shape}")
+                    #raise e from None                
+                    continue
+
             end_time_query_selection = time.time()
             execution_time_query_selection = end_time_query_selection - start_time_query_selection
 
