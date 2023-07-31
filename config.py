@@ -15,7 +15,8 @@ class config:
 	# set the batch size and validation data split
 	BATCH_SIZE = 0
 	VAL_SPLIT = [0.20, 0.20]
-	MAX_SIZE_SPLIT = [2000, 2000]
+	MAX_SIZE_SPLIT = [6250, 6250] #total do dataset, antes de sofrer o split
+	# MAX_SIZE_SPLIT = [625, 1250] #total do dataset, antes de sofrer o split
 
 
 	dim_reduction_perplexity = [25, 75]
@@ -81,7 +82,6 @@ class config:
 		# '_07_results_consolidation.py': [
 		# 									]
 	}		
-
 
 
 

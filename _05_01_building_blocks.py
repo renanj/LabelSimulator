@@ -229,9 +229,7 @@ def f_run_human_simulations(df_embbedings, df_faiss_distances, df_faiss_indices,
 		else: 
 			None
 
-
-	#FAISS INDICES & DISTANCES DATAFRAME	
-	# df_faiss_indices, df_faiss_distances = bblocks.f_faiss(df_embbedings)
+			
 
 	#BUILDING BLOCKS:
 	print("[INFO] -- Creating Building Blocks...")
@@ -246,7 +244,6 @@ def f_run_human_simulations(df_embbedings, df_faiss_distances, df_faiss_indices,
 	print("CLU:")
 	_centroids_samples_id_list_ordered_CLU, _clusters_samples_id_list_of_lists_ordered_CLU = f_clu(df_embbedings, num_clusters=None, num_iterations=10, gpu_index=True)
 	print("------------------------------------------------\n\n")
-
 
 
 	
@@ -300,6 +297,23 @@ def f_run_human_simulations(df_embbedings, df_faiss_distances, df_faiss_indices,
 			print("End Centroids_First!")
 			print("--------------------\n")	
 
+		elif _sim == 'Outliers_First':
+			print("Starting Outliers_First...")						
+			_samples_id_ordered = list(itertools.chain.from_iterable(zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_OUT)))
+			_samples_id_ordered = list(OrderedDict.fromkeys(_samples_id_ordered))
+			_list_simulations_sample_id.append(_samples_id_ordered)
+			_list_simulations_proceeded.append(_sim)
+			print("Qtd Samples = ", len(_samples_id_ordered))
+			print("End Outliers_First!")
+			print("--------------------\n")
+
+		
+		else:
+			print("We don't have a function ready for {} simulation!", _sim)
+	return _list_simulations_proceeded, _list_simulations_sample_id
+
+
+
 
 		# elif _sim == 'Cluster_Borders_First':
 		#	 print("Starting Cluster_Borders_First'...")			
@@ -342,20 +356,4 @@ def f_run_human_simulations(df_embbedings, df_faiss_distances, df_faiss_indices,
 			# print("Qtd Samples = ", len(_samples_id_ordered))
 			# print("End Cluster_Borders_First'!")
 			# print("--------------------")	
-
-
-		elif _sim == 'Outliers_First':
-			print("Starting Outliers_First...")						
-			_samples_id_ordered = list(itertools.chain.from_iterable(zip(_samples_id_list_ordered_SPB, _samples_id_list_ordered_OUT)))
-			_samples_id_ordered = list(OrderedDict.fromkeys(_samples_id_ordered))
-			_list_simulations_sample_id.append(_samples_id_ordered)
-			_list_simulations_proceeded.append(_sim)
-			print("Qtd Samples = ", len(_samples_id_ordered))
-			print("End Outliers_First!")
-			print("--------------------\n")
-
-		
-		else:
-			print("We don't have a function ready for {} simulation!", _sim)
-	return _list_simulations_proceeded, _list_simulations_sample_id
 

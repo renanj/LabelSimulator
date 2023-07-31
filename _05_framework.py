@@ -29,7 +29,6 @@ import config as config
 config = config.config
 
 
-
 import itertools
 import multiprocessing
 from collections import OrderedDict
@@ -48,8 +47,6 @@ import multiprocessing
 from joblib import Parallel, delayed
 
 
-
-
 def f_framework_df(
     _df_train, 
 	_df_validation, 
@@ -62,13 +59,32 @@ def f_framework_df(
 	_df_faiss_indices=None,
 	_df_faiss_distances=None,
 	_list_ordered_samples_id=None,
-    _input_framework_id=None
-    # _label_encoder=None
-        ):
+    _input_framework_id=None):
 
-    #Variables:
-    _model = LogisticRegression(random_state=0)
-    _model_name = "LogisticRegression"
+    
+    _ensembles_heuristics_list = ["Bald", "BatchBALD", "PowerBALD"]
+    if _query_strategy_name in  _ensembles_heuristics_list:
+        _is_ensemble_model = True
+    else:
+        _is_ensemble_model = False
+
+
+    if _is_ensemble_model == True:
+        base_estimator = LogisticRegression(multi_class='ovr')
+        _model = BaggingClassifier(base_estimator=base_estimator, n_estimators=10, random_state=42)
+        _model_name = "LogisticRegression (Ensemble)"
+    else:
+        _model = LogisticRegression(random_state=0)
+        _model_name = "LogisticRegression"
+
+
+    def f_predict(test, clf):
+        # Predict with all fitted estimators.
+        x = np.array(list(map(lambda e: e.predict_proba(test[0]), clf.estimators_)))
+        # Roll axis because Baal expect [n_samples, n_classes, ..., n_estimations]
+        x = np.rollaxis(x, 0, 3)
+        return x        
+
     
     if _query_strategy_name == "Uncertainty":
         _al_function = Certainty()
@@ -119,10 +135,12 @@ def f_framework_df(
     _array_batch_looping = cp.array(_batch_looping)
 
     _total_samples_evaluated = len(_cold_start_samples_id)
-    _total_samples = len(_array_unlabels_sample_ids) + len(_array_labels_sample_ids)
+    _total_samples = len(_array_unlabels_sample_ids) + len(_array_labels_sample_ids)    
     _total_samples_evaluated_string = str(_total_samples_evaluated) + '/' + str(_total_samples)     
+    _total_samples_evaluated_string_only = str(_total_samples_evaluated)
     # _array_total_samples_evaluated = cp.array(_total_samples_evaluated_string) #25/200
     _list_total_samples_evaluated = [_total_samples_evaluated_string] #25/200
+    _list_total_samples_evaluated_only = [_total_samples_evaluated_string_only] #25
     
     _list_total_samples_evaluated_percetage = []
     _list_total_samples_evaluated_percetage.append(_total_samples_evaluated/_total_samples)
@@ -130,18 +148,25 @@ def f_framework_df(
     # _array_samples_ids_per_batch = cp.array([_cold_start_samples_id])
     _list_samples_ids_per_batch = []
     _list_samples_ids_per_batch.append(_cold_start_samples_id)
+        
+
+    _list_time_query_selection = [0]
+    _list_time_model_training = [0]
+    _list_time_al_cycle = [0]
 
 
-    while len(_array_unlabels_sample_ids) > 0:  
 
-        # print("Missing = ", len(_array_unlabels_sample_ids))
+
+    #Here starts AL Cycle!
+    while len(_array_unlabels_sample_ids) > 0:   
+
+        start_time_al_cycle = time.time()       
 
         if len(_array_unlabels_sample_ids) % 50 == 0:
             print("Missing = ", len(_array_unlabels_sample_ids))
         
 
-        start_time = time.time()
-
+        
         # If is Data-Density-Based:
         if _list_ordered_samples_id is not None:		
             #1) Get the most uncertainty -- this step was done before
@@ -154,27 +179,41 @@ def f_framework_df(
         else:
             #1) Predict in Ulabeled Train Dataset & Get the most uncertainty
             _temp_test_x = _df_train[_temp_X_columns][_df_train['sample_id'].isin(_array_unlabels_sample_ids.get())] 
+
+        
+                
+        #2) Select Sample_ID based on the most uncertainty & query batch size
+        start_time_query_selection = time.time()
+        if _is_ensemble_model == True: 
+            #based on this tutorial: https://baal.readthedocs.io/en/latest/notebooks/compatibility/sklearn_tutorial/        
+            x = np.array(list(map(lambda e: e.predict_proba(_temp_test_x), _model.estimators_)))
+            x = np.rollaxis(x, 0, 3)
+            _baal_rank = _al_function(x)         
+            selected_sample_id = _array_unlabels_sample_ids[_baal_rank[:_query_batch_size]]            
+        else:        
             x = _model.predict_proba(_temp_test_x)
-            x = x.reshape(x.shape[0], x.shape[1], 1)		
-            # _baal_scores = Certainty().compute_score(x) 
-            # _baal_rank = Certainty()(x)        
+            x = x.reshape(x.shape[0], x.shape[1], 1)		    
             _baal_scores = _al_function.compute_score(x) 
-            _baal_rank = _al_function(x)        
-            
+            _baal_rank = _al_function(x) 
             #2) Select Sample_ID based on the most uncertainty & query batch size
-            selected_sample_id = _array_unlabels_sample_ids[_baal_rank[:_query_batch_size]]
+            selected_sample_id = _array_unlabels_sample_ids[_baal_rank[:_query_batch_size]]                        
+        end_time_query_selection = time.time()
+        execution_time_query_selection = end_time_query_selection - start_time_query_selection
+
 	
  
-        #3) Remove selected sample_id from unlabels & add to labels
-        # _array_unlabels_sample_ids = _array_unlabels_sample_ids[_array_unlabels_sample_ids != selected_sample_id] 
+        # 3) Remove selected sample_id from unlabels & add to labels        
         _array_unlabels_sample_ids = _array_unlabels_sample_ids[~cp.isin(_array_unlabels_sample_ids, selected_sample_id)]
         _array_labels_sample_ids= cp.append(_array_labels_sample_ids, selected_sample_id) 
 
         
         #4) Re-training the model
+        start_time_model_training = time.time()
         X_train = _df_train[_df_train['sample_id'].isin(_array_labels_sample_ids.get())].loc[:,_temp_X_columns].astype('float32') 
         y_train = _df_train[_df_train['sample_id'].isin(_array_labels_sample_ids.get())].loc[:,'labels'].astype('float32')    
-        _model.fit(X_train, y_train) 
+        _model.fit(X_train, y_train)                 
+        end_time_model_training = time.time()
+        execution_time_model_training = end_time_model_training - start_time_model_training            
 
 
         #5) Evaluate the model
@@ -185,25 +224,30 @@ def f_framework_df(
         _array_score_validation = cp.append(_array_score_validation, _score_validation) 
 
 
-
         #Dataframe inputs:
         _batch_looping = _batch_looping + 1
         _array_batch_looping = cp.append(_array_batch_looping, _batch_looping) 
 
         _total_samples_evaluated = _total_samples_evaluated + len(selected_sample_id)        
-        _total_samples_evaluated_string = str(_total_samples_evaluated) + '/' + str(_total_samples) 
-        # _array_total_samples_evaluated = cp.append(_array_total_samples_evaluated, _total_samples_evaluated_string) 
+        _total_samples_evaluated_string = str(_total_samples_evaluated) + '/' + str(_total_samples)         
         _list_total_samples_evaluated.append(_total_samples_evaluated_string)        
-        _list_total_samples_evaluated_percetage.append(_total_samples_evaluated/_total_samples)
+        _list_total_samples_evaluated_only.append(_total_samples_evaluated_string_only)        
+        _list_total_samples_evaluated_percetage.append(_total_samples_evaluated/_total_samples)        
+
+        _list_samples_ids_per_batch.append(selected_sample_id.tolist())
+
+        end_time_al_cycle = time.time()
+        execution_time_al_cycle = end_time_al_cycle - start_time_al_cycle                  
+
+        #TIME LISTS:
+        _list_time_query_selection.append(execution_time_query_selection)        
+        _list_time_model_training.append(execution_time_model_training)
+        _list_time_al_cycle.append(execution_time_al_cycle)        
+
+
         
 
 
-        # _array_samples_ids_per_batch =  cp.append(_array_samples_ids_per_batch, [selected_sample_id]) 
-        _list_samples_ids_per_batch.append(selected_sample_id.tolist())
-
-        end_time = time.time()
-        execution_time = end_time - start_time
-        # print(f"Execution time: {execution_time} seconds")	
 
 
     _pd_list_0 = ['Framework_ID_' + str(_input_framework_id)] * len(_array_batch_looping)
@@ -220,25 +264,53 @@ def f_framework_df(
     _pd_list_10 = _array_score_validation.tolist() 
 
     _pd_list_11 = [_query_batch_size] * len(_array_batch_looping)
-
     _pd_list_12 = [_legend_name] * len(_array_batch_looping)
 
+    _pd_list_13 = _list_total_samples_evaluated_only #10, 20,... 100
+
+    _pd_list_14 = _list_time_model_training
+    _pd_list_15 = _list_time_query_selection
+    _pd_list_16 = _list_time_al_cycle
 
 
-    _result_df = pd.DataFrame(list(zip(_pd_list_0, _pd_list_12, _pd_list_1, _pd_list_2, _pd_list_3, _pd_list_11, _pd_list_4, _pd_list_5 , _pd_list_6, _pd_list_7, _pd_list_8, _pd_list_9, _pd_list_10))
+
+    _result_df = pd.DataFrame(list(zip(_pd_list_0, #Framework_ID                                            
+                                            _pd_list_1, #Database", 
+                                            _pd_list_2, #DL_Architecture", 
+                                            _pd_list_3, #Query_Strategy", 
+                                            _pd_list_12, #Query_Strategy_Batch (Legend),   
+                                            _pd_list_11, #Batch Size",
+                                            _pd_list_4, #Model", 
+                                            _pd_list_5 ,  #Round",
+                                           _pd_list_13,  #Samples Evaluated",
+                                            _pd_list_6, #Samples Evaluated / Total Samples",
+                                            _pd_list_7, #Percetage Samples Evaluated",
+                                            _pd_list_8, #Samples IDs",
+                                            _pd_list_9, #Samples Accuracy Train"
+                                            _pd_list_10, #Samples Accuracy Validation"
+                                            _pd_list_14, #Time Model Training (seconds)
+                                            _pd_list_15, #Time Query Selection (seconds)
+                                            _pd_list_16 #Time Model AL Cycle (seconds)
+                                            ) 
+                                        ) 
         ,columns=["Framework_ID", 
-                  "Legend",   
                   "Database", 
                   "DL_Architecture", 
                   "Query_Strategy", 
+                  "Query_Strategy_Batch",   
                   "Batch Size",
                   "Model", 
-                  "Interaction",
+                  "Round",
+                  "Samples Evaluated",
                   "Samples Evaluated / Total Samples",
                   "Percetage Samples Evaluated",
                   "Samples IDs",
                   "Samples Accuracy Train",
-                  "Samples Accuracy Validation" ]                
+                  "Samples Accuracy Validation",
+                  "Time Model Training (seconds)",
+                  "Time Query Selection (seconds)",
+                  "Time Model AL Cycle (seconds)"
+                  ]                
     )							
 
     return _result_df
@@ -252,10 +324,7 @@ _list_data_sets_path = config._list_data_sets_path
 _list_train_val = config._list_train_val
 
 
-
 _batch_size_experiment = True
-
-
 
 with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt", "a") as _f:
 
@@ -328,32 +397,65 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
 
             _list_dfs = []
             _list_query_stragegy = ['Random', 
-                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD',
+                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
                                     'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
                                     'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']
 
             _list_legend_name = ['Random', 
-                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD',
+                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
                                     'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
                                     'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']                                    
 
 
-            # DONT forget to add below if you add above!
+            _list_models_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD,
+
+# _list_query_stragegy = ['Random', 
+#                                     'Uncertainty', 'Margin', 'Entropy', 'Bald',
+#                                     'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
+#                                     'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']            
+
+
+            # _list_query_stragegy = ['Random', 
+            #                         'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD']
+
+            # _list_legend_name = ['Random', 
+            #                         'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD']
+
+
+            ######################################################################################################### 
+            ######### IMPORTANT!  
+            ######### Don't forget to add below if you add some Query Strategy on lists above!
+            ######################################################################################################### 
+
             _list_of_lists_ordered_samples = [
                 _random_samples_id, 
-                None, None, None, None, None,
+                None, None, None, None,
                 list(_simulation_order_df['Equal_Spread'].values), list(_simulation_order_df['Dense_Areas_First'].values), list(_simulation_order_df['Centroids_First'].values), list(_simulation_order_df['Outliers_First'].values),
                 list(_simulation_order_df_2D['Equal_Spread'].values), list(_simulation_order_df_2D['Dense_Areas_First'].values), list(_simulation_order_df_2D['Centroids_First'].values), list(_simulation_order_df_2D['Outliers_First'].values)
-            ]
-            
+            ]            
+            # _list_of_lists_ordered_samples = [_random_samples_id, None, None, None, None, None]
+            ######################################################################################################### 
 
+
+
+            ######################################################################################################### 
+            #########################################################################################################             
+            ######### ACTIVE LEARNING CYCLE!            
+            ######################################################################################################### 
+            ######################################################################################################### 
 
             for i in range(len(_list_query_stragegy)):
 
 
-                if _list_query_stragegy[i] == 'Margin' or _list_query_stragegy[i] == 'Bald' or _list_query_stragegy[i] == 'BatchBALD':                     
+                if _list_query_stragegy[i] in _list_models_for_batch_size_comparison:                     
 
-                    _batch_size_options = [1, 5, 10, 50, 100, int(round(_df_train.shape[0]/25,0))]
+                    if _batch_size_experiment == True:
+                        # _batch_size_options = [1, 5, 10, 50, 100, 300, int(round(_df_train.shape[0]/25,0)), int(round(_df_train.shape[0]/10,0)), int(round(_df_train.shape[0]/5,0))]
+                        _batch_size_options = [1, 5, 10, 25, 50, 100]
+                        # _batch_size_options = [10, 25, 50, 100, 500, 1000]
+                    else:
+                        _batch_size_options = [int(round(_df_train.shape[0]/25,0))]
+
                     for _b_size in _batch_size_options:
 
                         _string_log_input = [4, 'Running Query Strategy = ' +  _list_query_stragegy[i],]    
@@ -363,7 +465,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                             _df_train = _df_train, 
                             _df_validation = _df_validation, 
                             _cold_start_samples_id = _cold_start_samples_id, 
-                            _legend_name = _list_legend_name + '_batch_' + str(_b_size),
+                            _legend_name = _list_legend_name[i] + '_batch_' + str(_b_size),
                             _query_strategy_name = _list_query_stragegy[i],
                             _query_batch_size = _b_size,
                             _database_name = db_paths[0].split('/')[1],
@@ -371,15 +473,11 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                             # _df_faiss_indices=_df_faiss_indices,
                             # _df_faiss_distances=_df_faiss_distances,
                             _list_ordered_samples_id=_list_of_lists_ordered_samples[i],
-                            _input_framework_id = i+1
-                            # _label_encoder=_label_encoder
+                            _input_framework_id = i+1                            
                             )
-
                         _list_dfs.append(_df_temp)                       
 
-
                 else:
-
                     _string_log_input = [4, 'Running Query Strategy = ' +  _list_query_stragegy[i],]    
                     f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)    
 
@@ -390,7 +488,7 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                         _df_train = _df_train, 
                         _df_validation = _df_validation, 
                         _cold_start_samples_id = _cold_start_samples_id, 
-                        _legend_name = _list_legend_name,
+                        _legend_name = _list_legend_name[i] + '_batch_' + str(_b_size),
                         _query_strategy_name = _list_query_stragegy[i],
                         _query_batch_size = int(round(_df_train.shape[0]/25,0)),
                         _database_name = db_paths[0].split('/')[1],
@@ -398,10 +496,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                         # _df_faiss_indices=_df_faiss_indices,
                         # _df_faiss_distances=_df_faiss_distances,
                         _list_ordered_samples_id=_list_of_lists_ordered_samples[i],
-                        _input_framework_id = i+1
-                        # _label_encoder=_label_encoder
+                        _input_framework_id = i+1                        
                         )
-
                     _list_dfs.append(_df_temp)
 
 
