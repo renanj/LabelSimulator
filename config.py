@@ -22,7 +22,7 @@ class config:
 	# MAX_SIZE_SPLIT = [6250, 6250] #teste 2
 	# MAX_SIZE_SPLIT = [250] #teste 3
 
-	MAX SIZE = #total do dataset, antes de sofrer o split
+	#MAX SIZE = #total do dataset, antes de sofrer o split
 
 
 	dim_reduction_perplexity = [25, 75]
