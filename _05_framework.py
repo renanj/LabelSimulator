@@ -46,14 +46,20 @@ from re import S
 import seaborn as sns
 from imutils import paths
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+
+from sklearn.metrics import accuracy_score, confusion_matrix
 # from sklearn.exceptions import DataConversionWarning, ConvergenceWarning
 
 from tqdm import tqdm
 import concurrent.futures
 import multiprocessing
 from joblib import Parallel, delayed
+
+
+
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import BaggingClassifier
+
 
 
 def f_framework_df(
