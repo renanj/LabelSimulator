@@ -10,7 +10,7 @@ def label_simulator_run():
         3: '_03_dim_reduction.py',
         4: '_04_generator_faiss.py',
         5: '_05_framework.py',
-        6: '_06_generate_visualization.py'   
+        6: '_06_generate_visualization.py',   
         7: '_human_simulations_files.py'     
     }
     
