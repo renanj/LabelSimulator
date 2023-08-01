@@ -528,6 +528,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                 try:                    
                     _df_temp_del = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')    
                     _df_temp = _df_temp_del.append(_df_temp)
+                except:
+                    None
 
                 _df_temp.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')
 
