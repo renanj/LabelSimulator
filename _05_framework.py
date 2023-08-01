@@ -32,7 +32,7 @@ from baal.active.heuristics.stochastics import PowerSampling
 
 from config import config
 import _05_01_building_blocks as bblocks
-from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
+from aux_functions import f_time_now, f_saved_strings, f_get_files_to_delete, f_delete_files, f_get_subfolders
 
 warnings.filterwarnings('ignore')
 
@@ -340,172 +340,130 @@ def f_framework_df(
 
 
 
-with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt", "a") as _f:
-
-    _string_log_input = [0, '[INFO] Starting Framework']	
-    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-
-    _string_log_input = [0, '[INFO] num_cores = ' + str(multiprocessing.cpu_count())]	
-    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 
 
 
 
 
-
-
-    for db_paths in _list_data_sets_path:
-                
-        _string_log_input = [1, '[IMAGE DATABASE] = ' + db_paths[0]]	
-        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-        _string_log_input = [1, '[INFO] Deleting All Files...']
-        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+for db_paths in _list_data_sets_path:
 
 
 
-        _sub_folders_to_check = f_get_subfolders(db_paths[0])
-        for _sub_folder in _sub_folders_to_check:	
-            f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)		
+    _sub_folders_to_check = f_get_subfolders(db_paths[0])
+    for _sub_folder in _sub_folders_to_check:	
+        f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)		
 
+    
+    _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
+    for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders: #vgg_16, #vgg_19,... 									
+
+
+        #Open Files!         
+        _df_train = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_train.pkl')
+        _df_faiss_indices = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_faiss_indices_train.pkl')
+        _df_faiss_distances = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_faiss_distances_train.pkl')
+        _df_validation = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_validation.pkl')
         
-        _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
-        for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders: #vgg_16, #vgg_19,... 									
+        _df_2D_train = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_train.pkl')
+        _df_2D_faiss_indices = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_faiss_indices_train.pkl')
+        _df_2D_faiss_distances = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_faiss_distances_train.pkl')
+        _df_2D_validation = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_validation.pkl')
 
+        print("\n\n\n\n\n\n")
+        print("OPEN PATH === ", db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'label_encoder.pkl')
+                   
+        _label_encoder = pickle.load(open(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'label_encoder.pkl', 'rb'))             
+        _df_train['labels'] = _label_encoder.transform(_df_train['labels'])
+        _df_validation['labels'] = _label_encoder.transform(_df_validation['labels'])            
+
+        print("classes = ", _label_encoder.classes_)
+        print("\n\n\n\n\n\n") 
+
+
+        #########################################################################################################             
+        ######### ORDERED SAMPLES CALCULATION
+        #########################################################################################################             
+
+        _random_samples_id, _cold_start_samples_id = bblocks.f_cold_start(_df_train)       
+
+        _dict_simumlations_ordered_samples = {                
+            'Random': _random_samples_id,
+            'Uncertainty': None, 
+            'Margin': None, 
+            'Entropy': None, 
+            'Bald': None, 
+            'BatchBALD': None, 
+            'PowerBALD': None
+        }       
+
+        if config.human_simulations == True:        
+            if config.load_human_simulations_files == True:
+                _simulation_order_df = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df.pkl')
+                _simulation_order_df_2D = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df_2D.pkl')
+
+            else:
+                _list_strategy_name, _list_strategy_ordered_samples_id = bblocks.f_run_human_simulations(df_embbedings = _df_train, 
+                                                        df_faiss_indices=_df_faiss_indices, 
+                                                        df_faiss_distances=_df_faiss_distances)
+                _simulation_order_df = pd.DataFrame(_list_strategy_ordered_samples_id).T
+                _simulation_order_df.columns = _list_strategy_name	
+                _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df.pkl')
+
+
+                _list_strategy_name_2D, _list_strategy_ordered_samples_id_2D = bblocks.f_run_human_simulations(df_embbedings = _df_2D_train, 
+                                                        df_faiss_indices=_df_2D_faiss_indices, 
+                                                        df_faiss_distances=_df_2D_faiss_distances)
+                _simulation_order_df_2D = pd.DataFrame(_list_strategy_ordered_samples_id_2D).T
+                _simulation_order_df_2D.columns = _list_strategy_name_2D	 
+                _simulation_order_df_2D.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df_2D.pkl')
+
+
+            #Update the Dictionary with Ordered Samples
+            new_samples_lists = [
+                list(_simulation_order_df['Equal_Spread'].values),
+                list(_simulation_order_df['Dense_Areas_First'].values),
+                list(_simulation_order_df['Centroids_First'].values),
+                list(_simulation_order_df['Outliers_First'].values),
+
+                list(_simulation_order_df_2D['Equal_Spread'].values),
+                list(_simulation_order_df_2D['Dense_Areas_First'].values),
+                list(_simulation_order_df_2D['Centroids_First'].values),
+                list(_simulation_order_df_2D['Outliers_First'].values)                    
+            ]
+            new_keys = ['Equal_Spread', 'Dense_Areas_First', 'Centroids_First', 'Outliers_First',
+                        'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D', 'Outliers_First_2D']
         
-            _string_log_input = [2, 'Architecture ' + _deep_learning_arq_sub_folder_name]	
-            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-            _string_log_input = [3, 'line_split_01']	
-            f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+        
+
+            for key, value in zip(new_keys, new_samples_lists):
+                _dict_simumlations_ordered_samples[key] = value
 
 
-            #Open Files!         
-            _df_train = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_train.pkl')
-            _df_faiss_indices = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_faiss_indices_train.pkl')
-            _df_faiss_distances = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_faiss_distances_train.pkl')
-            _df_validation = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_validation.pkl')
-            
-            _df_2D_train = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_train.pkl')
-            _df_2D_faiss_indices = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_faiss_indices_train.pkl')
-            _df_2D_faiss_distances = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_faiss_distances_train.pkl')
-            _df_2D_validation = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_2D_validation.pkl')
-
-            print("\n\n\n\n\n\n")
-            print("OPEN PATH === ", db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'label_encoder.pkl')
-                       
-            _label_encoder = pickle.load(open(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'label_encoder.pkl', 'rb'))             
-            _df_train['labels'] = _label_encoder.transform(_df_train['labels'])
-            _df_validation['labels'] = _label_encoder.transform(_df_validation['labels'])            
-
-            print("classes = ", _label_encoder.classes_)
-            print("\n\n\n\n\n\n") 
+        ######################################################################################################### 
+        #########################################################################################################             
+        ######### ACTIVE LEARNING CYCLE!            
+        ######################################################################################################### 
+        ######################################################################################################### 
 
 
-            #########################################################################################################             
-            ######### ORDERED SAMPLES CALCULATION
-            #########################################################################################################             
+        _list_dfs = []
+        _list_query_stragegy = config._list_query_stragegy
+        _batch_size_options = config._batch_size_options
+                           
 
-            _random_samples_id, _cold_start_samples_id = bblocks.f_cold_start(_df_train)       
+        for i in range(len(_list_query_stragegy)):
 
-            _dict_simumlations_ordered_samples = {                
-                'Random': _random_samples_id,
-                'Uncertainty': None, 
-                'Margin': None, 
-                'Entropy': None, 
-                'Bald': None, 
-                'BatchBALD': None, 
-                'PowerBALD': None
-            }       
-
-            if config.human_simulations == True:        
-                if config.load_human_simulations_files == True:
-                    _simulation_order_df = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df.pkl')
-                    _simulation_order_df_2D = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df_2D.pkl')
+            if _list_query_stragegy[i] in config._list_strategies_for_batch_size_comparison:                     
+                if _batch_size_experiment == True:
+                    _batch_size_options = config._batch_size_options
+                    _batch_size_options.append(int(round(_df_train.shape[0]/25,0)))
 
                 else:
-                    _list_strategy_name, _list_strategy_ordered_samples_id = bblocks.f_run_human_simulations(df_embbedings = _df_train, 
-                                                            df_faiss_indices=_df_faiss_indices, 
-                                                            df_faiss_distances=_df_faiss_distances)
-                    _simulation_order_df = pd.DataFrame(_list_strategy_ordered_samples_id).T
-                    _simulation_order_df.columns = _list_strategy_name	
-                    _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df.pkl')
+                    _batch_size_options = [int(round(_df_train.shape[0]/25,0))]
 
 
-                    _list_strategy_name_2D, _list_strategy_ordered_samples_id_2D = bblocks.f_run_human_simulations(df_embbedings = _df_2D_train, 
-                                                            df_faiss_indices=_df_2D_faiss_indices, 
-                                                            df_faiss_distances=_df_2D_faiss_distances)
-                    _simulation_order_df_2D = pd.DataFrame(_list_strategy_ordered_samples_id_2D).T
-                    _simulation_order_df_2D.columns = _list_strategy_name_2D	 
-                    _simulation_order_df_2D.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df_2D.pkl')
-
-
-                #Update the Dictionary with Ordered Samples
-                new_samples_lists = [
-                    list(_simulation_order_df['Equal_Spread'].values),
-                    list(_simulation_order_df['Dense_Areas_First'].values),
-                    list(_simulation_order_df['Centroids_First'].values),
-                    list(_simulation_order_df['Outliers_First'].values),
-
-                    list(_simulation_order_df_2D['Equal_Spread'].values),
-                    list(_simulation_order_df_2D['Dense_Areas_First'].values),
-                    list(_simulation_order_df_2D['Centroids_First'].values),
-                    list(_simulation_order_df_2D['Outliers_First'].values)                    
-                ]
-                new_keys = ['Equal_Spread', 'Dense_Areas_First', 'Centroids_First', 'Outliers_First',
-                            'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D', 'Outliers_First_2D']
-            
-            
-
-                for key, value in zip(new_keys, new_samples_lists):
-                    _dict_simumlations_ordered_samples[key] = value
-
-
-            ######################################################################################################### 
-            #########################################################################################################             
-            ######### ACTIVE LEARNING CYCLE!            
-            ######################################################################################################### 
-            ######################################################################################################### 
-
-
-            _list_dfs = []
-            _list_query_stragegy = config._list_query_stragegy
-            _batch_size_options = config._batch_size_options
-                               
-
-            for i in range(len(_list_query_stragegy)):
-
-                if _list_query_stragegy[i] in config._list_strategies_for_batch_size_comparison:                     
-                    if _batch_size_experiment == True:
-                        _batch_size_options = config._batch_size_options
-
-                    else:
-                        _batch_size_options = [int(round(_df_train.shape[0]/25,0))]
-
-
-                    for _b_size in _batch_size_options:
-
-                        _string_log_input = [4, 'Running Query Strategy = ' +  _list_query_stragegy[i],]    
-                        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)    
-
-                        _df_temp = f_framework_df(
-                            _df_train = _df_train, 
-                            _df_validation = _df_validation, 
-                            _cold_start_samples_id = _cold_start_samples_id, 
-                            _legend_name = _list_query_stragegy[i] + '_batch_' + str(_b_size),
-                            _query_strategy_name = _list_query_stragegy[i],
-                            _query_batch_size = _b_size,
-                            _database_name = db_paths[0].split('/')[1],
-                            _dl_architecture_name = _deep_learning_arq_sub_folder_name, 
-                            # _df_faiss_indices=_df_faiss_indices,
-                            # _df_faiss_distances=_df_faiss_distances,
-                            _list_ordered_samples_id=_dict_simumlations_ordered_samples[_list_query_stragegy[i]],
-                            _input_framework_id = i+1                            
-                            )
-                        _list_dfs.append(_df_temp)                       
-
-                else:
-                    _string_log_input = [4, 'Running Query Strategy = ' +  _list_query_stragegy[i],]    
-                    f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)    
+                for _b_size in _batch_size_options:
 
 
                     _df_temp = f_framework_df(
@@ -514,27 +472,45 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                         _cold_start_samples_id = _cold_start_samples_id, 
                         _legend_name = _list_query_stragegy[i] + '_batch_' + str(_b_size),
                         _query_strategy_name = _list_query_stragegy[i],
-                        _query_batch_size = int(round(_df_train.shape[0]/25,0)),
+                        _query_batch_size = _b_size,
                         _database_name = db_paths[0].split('/')[1],
                         _dl_architecture_name = _deep_learning_arq_sub_folder_name, 
                         # _df_faiss_indices=_df_faiss_indices,
                         # _df_faiss_distances=_df_faiss_distances,
                         _list_ordered_samples_id=_dict_simumlations_ordered_samples[_list_query_stragegy[i]],
-                        _input_framework_id = i+1                        
+                        _input_framework_id = i+1                            
                         )
-                    _list_dfs.append(_df_temp)
+                    _list_dfs.append(_df_temp)                       
 
-                #Save a temporary Pickle 
-                try:                    
-                    _df_temp_del = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')    
-                    _df_temp = _df_temp_del.append(_df_temp)
-                except:
-                    None
+            else:                
 
-                _df_temp.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')
+                _df_temp = f_framework_df(
+                    _df_train = _df_train, 
+                    _df_validation = _df_validation, 
+                    _cold_start_samples_id = _cold_start_samples_id, 
+                    _legend_name = _list_query_stragegy[i] + '_batch_' + str(_b_size),
+                    _query_strategy_name = _list_query_stragegy[i],
+                    _query_batch_size = int(round(_df_train.shape[0]/25,0)),
+                    _database_name = db_paths[0].split('/')[1],
+                    _dl_architecture_name = _deep_learning_arq_sub_folder_name, 
+                    # _df_faiss_indices=_df_faiss_indices,
+                    # _df_faiss_distances=_df_faiss_distances,
+                    _list_ordered_samples_id=_dict_simumlations_ordered_samples[_list_query_stragegy[i]],
+                    _input_framework_id = i+1                        
+                    )
+                _list_dfs.append(_df_temp)
+
+            #Save a temporary Pickle 
+            try:                    
+                _df_temp_del = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')    
+                _df_temp = _df_temp_del.append(_df_temp)
+            except:
+                None
+
+            _df_temp.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')
 
 
 
-            df_final = pd.concat(_list_dfs)
-            df_final = df_final.reset_index(drop=True)
-            df_final.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework.pkl')
+        df_final = pd.concat(_list_dfs)
+        df_final = df_final.reset_index(drop=True)
+        df_final.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework.pkl')

@@ -4,6 +4,8 @@ from cuml.manifold import TSNE
 import multiprocessing
 import os
 import optuna
+import cudf
+import cuml
 
 from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
 
@@ -32,17 +34,54 @@ dim_reduction_list = ['t-SNE']
 
 
 
+# def scoring_function(x):    
+#     return np.random.rand()
+
+# def objective(trial, df):  
+#     n_dimensions = 2
+#     perplexity = trial.suggest_int('perplexity', 5, 50)
+#     learning_rate = trial.suggest_loguniform('learning_rate', 10, 1000)    
+#     n_iter = 3000
+#     _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
+#     tsne = TSNE(n_components=n_dimensions, perplexity=perplexity, learning_rate=learning_rate, n_iter=n_iter)
+#     X_2dimensions = tsne.fit_transform(df.loc[:, _temp_X_columns])
+#     score = scoring_function(X_2dimensions)
+#     return score
+
+# def f_dim_reduction(df, n_trials=50):
+#     study = optuna.create_study(direction='minimize')
+#     study.optimize(lambda trial: objective(trial, df), n_trials=n_trials)
+#     best_params = study.best_params
+#     _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
+
+#     tsne = TSNE(n_components=2, perplexity=best_params['perplexity'], learning_rate=best_params['learning_rate'], n_iter=3000)  # n_components is fixed to 2
+
+#     X_2dimensions = tsne.fit_transform(df.loc[:, _temp_X_columns])
+#     X_2dimensions = X_2dimensions.rename(columns={0: 'X1', 1: 'X2'})                    
+#     #X_2dimensions = pd.DataFrame(X_2dimensions, columns=['X1', 'X2'])
+#     df = pd.concat([df[['sample_id', 'name', 'labels', 'manual_label']], X_2dimensions], axis=1)
+#     return df
+
+
+
 def scoring_function(x):    
     return np.random.rand()
 
 def objective(trial, df):  
     n_dimensions = 2
-    perplexity = trial.suggest_int('perplexity', 5, 50)
-    learning_rate = trial.suggest_loguniform('learning_rate', 10, 1000)    
-    n_iter = 3000
+    n_neighbors = trial.suggest_int('n_neighbors', 2, 50)
+    min_dist = trial.suggest_uniform('min_dist', 0.001, 0.5)
+    learning_rate = trial.suggest_loguniform('learning_rate', 0.1, 1.0)
+    n_epochs = trial.suggest_int('n_epochs', 200, 2000)
+    
     _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
-    tsne = TSNE(n_components=n_dimensions, perplexity=perplexity, learning_rate=learning_rate, n_iter=n_iter)
-    X_2dimensions = tsne.fit_transform(df.loc[:, _temp_X_columns])
+
+    # convert df to cudf DataFrame
+    df_cudf = cudf.DataFrame.from_pandas(df.loc[:, _temp_X_columns])
+
+    umap = cuml.UMAP(n_neighbors=n_neighbors, min_dist=min_dist, learning_rate=learning_rate, n_epochs=n_epochs, output_type='numpy')
+    X_2dimensions = umap.fit_transform(df_cudf)
+
     score = scoring_function(X_2dimensions)
     return score
 
@@ -52,14 +91,15 @@ def f_dim_reduction(df, n_trials=50):
     best_params = study.best_params
     _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
 
-    tsne = TSNE(n_components=2, perplexity=best_params['perplexity'], learning_rate=best_params['learning_rate'], n_iter=3000)  # n_components is fixed to 2
+    # convert df to cudf DataFrame
+    df_cudf = cudf.DataFrame.from_pandas(df.loc[:, _temp_X_columns])
 
-    X_2dimensions = tsne.fit_transform(df.loc[:, _temp_X_columns])
-    X_2dimensions = X_2dimensions.rename(columns={0: 'X1', 1: 'X2'})                    
-    #X_2dimensions = pd.DataFrame(X_2dimensions, columns=['X1', 'X2'])
+    umap = cuml.UMAP(n_neighbors=best_params['n_neighbors'], min_dist=best_params['min_dist'], learning_rate=best_params['learning_rate'], n_epochs=best_params['n_epochs'], output_type='numpy')
+    X_2dimensions = umap.fit_transform(df_cudf)
+
+    X_2dimensions = pd.DataFrame(X_2dimensions, columns=['X1', 'X2'])
     df = pd.concat([df[['sample_id', 'name', 'labels', 'manual_label']], X_2dimensions], axis=1)
     return df
-
 
 
 
@@ -85,6 +125,11 @@ with open('logs/' + f_time_now(_type='datetime_') + "_03_dim_reduction_py_" + ".
 			for item_dim_r in dim_reduction_list:
 				if item_dim_r in item_sub_folder:					
 					_deep_learning_arq_sub_folders.remove(item_sub_folder)
+
+
+        _sub_folders_to_check = f_get_subfolders(db_paths[0])
+        for _sub_folder in _sub_folders_to_check:	
+            f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)							
 
 
 		for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders:			
