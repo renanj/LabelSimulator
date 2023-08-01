@@ -50,7 +50,7 @@ class Config:
 
 		###################################################################### 			
 		# TESTE
-		###################################################################### 			
+		###################################################################### 						
 		if self.test_number == 'toy_example':
 
 			self.VAL_SPLIT = [0.20]
@@ -67,13 +67,13 @@ class Config:
 			]
 
 
-            self._list_query_stragegy = ['Random', 
-	                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
-	                                    'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
-	                                    'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
+			self._list_query_stragegy = ['Random', 
+										'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
+										'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
+										'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
 
 			self.human_simulations = True #Manually Check if the _list_query_strategies contain any of this...
-			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed	                                    					
+			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed															
 			self._batch_size_experiment = True
 			self._batch_size_options = [10, 25, 50]		
 			self._list_strategies_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD	
@@ -100,13 +100,13 @@ class Config:
 				]			
 			]
 
-            self._list_query_stragegy = ['Random', 
-	                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
-	                                    'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
-	                                    'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
+			self._list_query_stragegy = ['Random', 
+										'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
+										'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
+										'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
 
 			self.human_simulations = True #Manually Check if the _list_query_strategies contain any of this...
-			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed	                                    		
+			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed												
 			
 			self._batch_size_experiment = True
 			self._batch_size_options = [1, 5, 10, 25, 50, 100]			
@@ -134,13 +134,13 @@ class Config:
 			]
 
 
-            self._list_query_stragegy = ['Random', 
-	                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
-	                                    'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
-	                                    'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
+			self._list_query_stragegy = ['Random', 
+										'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
+										'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
+										'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
 
 			self.human_simulations = True #Manually Check if the _list_query_strategies contain any of this...
-			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed	                                    		
+			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed												
 			
 			self._batch_size_experiment = True
 			self._batch_size_options = [10, 25, 50, 100, 500, 1000]			
@@ -166,13 +166,13 @@ class Config:
 				]				
 			]
 
-            self._list_query_stragegy = ['Random', 
-	                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
-	                                    'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
-	                                    'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
+			self._list_query_stragegy = ['Random', 
+										'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
+										'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
+										'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
 
 			self.human_simulations = True #Manually Check if the _list_query_strategies contain any of this...
-			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed	                                    		
+			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed												
 			
 			self._batch_size_experiment = True
 			self._batch_size_options = [1, 5, 10, 25, 50, 100]			
@@ -200,13 +200,13 @@ class Config:
 			]
 
 
-            self._list_query_stragegy = ['Random', 
-	                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
-	                                    'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
-	                                    'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
+			self._list_query_stragegy = ['Random', 
+										'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
+										'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
+										'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
 
 			self.human_simulations = True #Manually Check if the _list_query_strategies contain any of this...
-			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed	                                    		
+			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed												
 			
 			self._batch_size_experiment = True
 			self._batch_size_options = [10, 25, 50, 100, 500, 1000]			
@@ -221,6 +221,6 @@ class Config:
 
 test_number = os.getenv('TEST_NUMBER')
 if test_number is None:
-    raise ValueError('TEST_NUMBER environment variable not set. Please provide a configuration name.')
+	raise ValueError('TEST_NUMBER environment variable not set. Please provide a configuration name.')
 
 config = Config(test_number)
