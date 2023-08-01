@@ -167,7 +167,7 @@ class Config:
 			self._list_strategies_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD					
 
 
-		elif self.test_number == 'mnist_2':			
+		elif self.test_number == 'plancton_2':			
 
 			self.VAL_SPLIT = [0.20]
 			self.MAX_SIZE_SPLIT = [6250]	
