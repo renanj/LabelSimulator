@@ -47,10 +47,11 @@ class Config:
 		self._ensembles_heuristics_list = ['Bald', 'BatchBALD', 'PowerBALD'] 
 
 
+
 		###################################################################### 			
 		# TESTE
 		###################################################################### 			
-		elif self.test_number == 'toy_example':
+		if self.test_number == 'toy_example':
 
 			self.VAL_SPLIT = [0.20]
 			self.MAX_SIZE_SPLIT = [300]			
@@ -83,7 +84,7 @@ class Config:
 		###################################################################### 			
 		# TESTE
 		###################################################################### 			
-		if self.test_number == 'mnist_1':
+		elif self.test_number == 'mnist_1':
 
 			self.VAL_SPLIT = [0.20]
 			self.MAX_SIZE_SPLIT = [625]
