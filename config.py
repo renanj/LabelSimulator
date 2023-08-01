@@ -19,6 +19,7 @@ class Config:
 			'_07_results_consolidation.py': True		
 		}	
 
+
 		self._scripts_order = [	
 		'_01_build_dataset.py',
 		'_02_feature_extractor.py',
@@ -30,6 +31,7 @@ class Config:
 		'_06_generate_visualization.py', 
 		'07_results_consolidation.py'
 		]
+
 
 		self._files_generated = {
 		'_01_build_dataset.py': ['df_index_paths_train.pkl', 'df_index_paths_validation.pkl'],
@@ -43,14 +45,11 @@ class Config:
 		}
 
 
+		
 		#Lista de Modelos que queremos que rode com Ensemble de Regressao Logistica (mais demorado) 
 		self._ensembles_heuristics_list = ['Bald', 'BatchBALD', 'PowerBALD'] 
 
 
-
-		###################################################################### 			
-		# TESTE
-		###################################################################### 						
 		if self.test_number == 'toy_example':
 
 			self.VAL_SPLIT = [0.20]
@@ -79,11 +78,6 @@ class Config:
 			self._list_strategies_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD	
 
 
-
-
-		###################################################################### 			
-		# TESTE
-		###################################################################### 			
 		elif self.test_number == 'mnist_1':
 
 			self.VAL_SPLIT = [0.20]
@@ -110,13 +104,10 @@ class Config:
 			
 			self._batch_size_experiment = True
 			self._batch_size_options = [1, 5, 10, 25, 50, 100]			
-			self._list_strategies_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD			
+			self._list_strategies_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD	
 
 
 
-		###################################################################### 			
-		# TESTE
-		###################################################################### 			
 		elif self.test_number == 'mnist_2':
 
 			self.VAL_SPLIT = [0.20]
@@ -145,12 +136,9 @@ class Config:
 			self._batch_size_experiment = True
 			self._batch_size_options = [10, 25, 50, 100, 500, 1000]			
 			self._list_strategies_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD		
+	
 
-
-		###################################################################### 			
-		# TESTE
-		###################################################################### 			
-		if self.test_number == 'plancton_1':
+		elif self.test_number == 'plancton_1':
 
 			self.VAL_SPLIT = [0.20]
 			self.MAX_SIZE_SPLIT = [1250]
@@ -176,14 +164,10 @@ class Config:
 			
 			self._batch_size_experiment = True
 			self._batch_size_options = [1, 5, 10, 25, 50, 100]			
-			self._list_strategies_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD			
+			self._list_strategies_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD					
 
 
-
-		###################################################################### 			
-		# TESTE
-		###################################################################### 			
-		elif self.test_number == 'plancton_2':
+		elif self.test_number == 'mnist_2':			
 
 			self.VAL_SPLIT = [0.20]
 			self.MAX_SIZE_SPLIT = [6250]	
@@ -212,15 +196,15 @@ class Config:
 			self._batch_size_options = [10, 25, 50, 100, 500, 1000]			
 			self._list_strategies_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD		
 
-
-
 		else:
-			raise ValueError("Invalid configuration name!")
-	
-	
+			raise ValueError("Invalid configuration name!")						
 
+	
+# Get the configuration name from the environment variable.
 test_number = os.getenv('TEST_NUMBER')
-if test_number is None:
-	raise ValueError('TEST_NUMBER environment variable not set. Please provide a configuration name.')
 
+if test_number is None:
+    raise ValueError('TEST_NUMBER environment variable not set. Please provide a configuration name.')
+
+# Create a Config instance with the appropriate configuration.
 config = Config(test_number)
