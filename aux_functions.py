@@ -249,18 +249,21 @@ def f_get_files_to_delete(script_name, _scripts_order=_scripts_order, _files_gen
 
 
 
-def f_delete_files (list_files_to_delete, _path):		
+def f_delete_files (list_files_to_delete, _path, NOT_DELETE_files_list=[None]):		
 	if 'raw' in _path:				
 		None		
 	else:					   
 		file_list = os.listdir(_path)				
 		for file in file_list:
 			if file in list_files_to_delete:
-				try:
-					os.remove(_path + '/' + file)	 
-					print("Delelted File = ", file)
-				except:
+				if file in NOT_delete_files_list:
 					None
+				else:
+					try:
+						os.remove(_path + '/' + file)	 
+						print("Delelted File = ", file)
+					except:
+						None
 			else:
 				None
 
@@ -309,18 +312,8 @@ def f_log(_string, _level, _file):
 			#print
 			_print_string = ('  ' * _level) + _string
 			return print(_print_string)
-	except:
+	except:		
 		return None
-
-
-
-	# _string_log_input = ['[INFO] Starting Dimension Reduction', 0]	
-
-	# f_print(_string=_string, _level=__level)
-	# f_write(f_print(_string=_string, _level=_level, _write_option=True), )
-
-
-
 
 
 

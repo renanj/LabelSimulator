@@ -1,54 +1,14 @@
-import pandas as pd
-import numpy as np
-import os
-
-import random
-import math
-import warnings
-import time
-warnings.filterwarnings('ignore')
-# import faiss
-# from faiss import StandardGpuResources
-from tqdm import tqdm
-import cupy as cp
-import cudf
-
-import _05_01_building_blocks as bblocks
-from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
-
-
-from baal.active.heuristics import BALD, Certainty, Margin, Entropy, Variance, Random, BatchBALD
-from baal.active.heuristics.stochastics import PowerSampling
-
-from sklearn.linear_model import LogisticRegression
-
-import pickle
-
-
-# import config as config
-# config = config.config
-
-# import config
-# import argparse
-
-# parser = argparse.ArgumentParser()
-# parser.add_argument('test_number')
-# args = parser.parse_args()
-# config = config.Config(args.test_number)
-
-from config import config
-
 import itertools
 import multiprocessing
 from collections import OrderedDict
-from re import S
 
-import seaborn as sns
+import os
+import math
+import time
+import random
+import pickle
+import warnings
 from imutils import paths
-
-
-from sklearn.metrics import accuracy_score, confusion_matrix
-# from sklearn.exceptions import DataConversionWarning, ConvergenceWarning
 
 from tqdm import tqdm
 import concurrent.futures
@@ -56,9 +16,37 @@ import multiprocessing
 from joblib import Parallel, delayed
 
 
+import cudf
+import cupy as cp
+import pandas as pd
+import numpy as np
+import seaborn as sns
 
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import BaggingClassifier
+from sklearn.linear_model import LogisticRegression
+from baal.active.heuristics import Randomm, Certainty, Margin, Entropy, Variance, BALD, BatchBALD
+from baal.active.heuristics.stochastics import PowerSampling
+
+
+from config import config
+import _05_01_building_blocks as bblocks
+from aux_functions import f_time_now, f_saved_strings, f_log, f_get_files_to_delete, f_delete_files, f_get_subfolders
+
+warnings.filterwarnings('ignore')
+
+
+#Inputs:
+_script_name = os.path.basename(__file__)
+_GPU_flag = config._GPU_Flag_dict[_script_name]
+
+_list_data_sets_path = config._list_data_sets_path
+_list_train_val = config._list_train_val
+
+_batch_size_options_config = config._batch_size_options
+_batch_size_experiment = config._batch_size_experiment
+
 
 
 
@@ -77,7 +65,8 @@ def f_framework_df(
     _input_framework_id=None):
 
     
-    _ensembles_heuristics_list = ["Bald", "BatchBALD", "PowerBALD"]
+    _ensembles_heuristics_list = config._ensembles_heuristics_list
+
     if _query_strategy_name in  _ensembles_heuristics_list:
         _is_ensemble_model = True
     else:
@@ -93,11 +82,9 @@ def f_framework_df(
         _model_name = "LogisticRegression"
 
 
-    def f_predict(test, clf):
-        # Predict with all fitted estimators.
-        x = np.array(list(map(lambda e: e.predict_proba(test[0]), clf.estimators_)))
-        # Roll axis because Baal expect [n_samples, n_classes, ..., n_estimations]
-        x = np.rollaxis(x, 0, 3)
+    def f_predict(test, clf):        
+        x = np.array(list(map(lambda e: e.predict_proba(test[0]), clf.estimators_)))        
+        x = np.rollaxis(x, 0, 3) # Roll axis because Baal expect [n_samples, n_classes, ..., n_estimations]
         return x        
 
     
@@ -283,7 +270,6 @@ def f_framework_df(
         _list_time_al_cycle.append(execution_time_al_cycle)        
 
 
-        
 
     _pd_list_0 = ['Framework_ID_' + str(_input_framework_id)] * len(_array_batch_looping)
     _pd_list_1 = [_database_name] * len(_array_batch_looping)
@@ -352,19 +338,7 @@ def f_framework_df(
 
 
 
-#Inputs:
-_script_name = os.path.basename(__file__)
-_GPU_flag = config._GPU_Flag_dict[_script_name]
-_list_data_sets_path = config._list_data_sets_path
-_list_train_val = config._list_train_val
 
-
-
-_batch_size_options = config._batch_size_options
-_batch_size_experiment = config._batch_size_experiment
-
-
-_batch_size_experiment = True
 
 with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt", "a") as _f:
 
@@ -375,21 +349,28 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
     f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
 
+
+
+
+
+
+
     for db_paths in _list_data_sets_path:
                 
         _string_log_input = [1, '[IMAGE DATABASE] = ' + db_paths[0]]	
         f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
-
-
         _string_log_input = [1, '[INFO] Deleting All Files...']
-        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)		
+        f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
+
+
+
         _sub_folders_to_check = f_get_subfolders(db_paths[0])
         for _sub_folder in _sub_folders_to_check:	
             f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)		
 
         
         _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
-        for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders:									
+        for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders: #vgg_16, #vgg_19,... 									
 
         
             _string_log_input = [2, 'Architecture ' + _deep_learning_arq_sub_folder_name]	
@@ -397,7 +378,8 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
             _string_log_input = [3, 'line_split_01']	
             f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)
 
-        
+
+            #Open Files!         
             _df_train = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_train.pkl')
             _df_faiss_indices = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_faiss_indices_train.pkl')
             _df_faiss_distances = pd.read_pickle(db_paths[4] + '/' + _deep_learning_arq_sub_folder_name + '/' + 'df_faiss_distances_train.pkl')
@@ -418,64 +400,64 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
             print("classes = ", _label_encoder.classes_)
             print("\n\n\n\n\n\n") 
 
-            #Dataframe with Ordered Samples
-            _list_strategy_name, _list_strategy_ordered_samples_id = bblocks.f_run_human_simulations(df_embbedings = _df_train, 
-                                                    df_faiss_indices=_df_faiss_indices, 
-                                                    df_faiss_distances=_df_faiss_distances)
-            _simulation_order_df = pd.DataFrame(_list_strategy_ordered_samples_id).T
-            _simulation_order_df.columns = _list_strategy_name	
+
+            #########################################################################################################             
+            ######### ORDERED SAMPLES CALCULATION
+            #########################################################################################################             
+
+            _random_samples_id, _cold_start_samples_id = bblocks.f_cold_start(_df_train)       
+
+            _dict_simumlations_ordered_samples = {                
+                'Random': _random_samples_id,
+                'Uncertainty': None, 
+                'Margin': None, 
+                'Entropy': None, 
+                'Bald': None, 
+                'BatchBALD': None, 
+                'PowerBALD': None
+            }       
+
+            if config.human_simulations == True:        
+                if config.load_human_simulations_files == True:
+                    _simulation_order_df = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df.pkl')
+                    _simulation_order_df_2D = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df_2D.pkl')
+
+                else:
+                    _list_strategy_name, _list_strategy_ordered_samples_id = bblocks.f_run_human_simulations(df_embbedings = _df_train, 
+                                                            df_faiss_indices=_df_faiss_indices, 
+                                                            df_faiss_distances=_df_faiss_distances)
+                    _simulation_order_df = pd.DataFrame(_list_strategy_ordered_samples_id).T
+                    _simulation_order_df.columns = _list_strategy_name	
+                    _simulation_order_df.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df.pkl')
 
 
-            _list_strategy_name_2D, _list_strategy_ordered_samples_id_2D = bblocks.f_run_human_simulations(df_embbedings = _df_2D_train, 
-                                                    df_faiss_indices=_df_2D_faiss_indices, 
-                                                    df_faiss_distances=_df_2D_faiss_distances)
-            _simulation_order_df_2D = pd.DataFrame(_list_strategy_ordered_samples_id_2D).T
-            _simulation_order_df_2D.columns = _list_strategy_name_2D	        
+                    _list_strategy_name_2D, _list_strategy_ordered_samples_id_2D = bblocks.f_run_human_simulations(df_embbedings = _df_2D_train, 
+                                                            df_faiss_indices=_df_2D_faiss_indices, 
+                                                            df_faiss_distances=_df_2D_faiss_distances)
+                    _simulation_order_df_2D = pd.DataFrame(_list_strategy_ordered_samples_id_2D).T
+                    _simulation_order_df_2D.columns = _list_strategy_name_2D	 
+                    _simulation_order_df_2D.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_simulation_order_df_2D.pkl')
 
 
-            _random_samples_id, _cold_start_samples_id = bblocks.f_cold_start(_df_train)
+                #Update the Dictionary with Ordered Samples
+                new_samples_lists = [
+                    list(_simulation_order_df['Equal_Spread'].values),
+                    list(_simulation_order_df['Dense_Areas_First'].values),
+                    list(_simulation_order_df['Centroids_First'].values),
+                    list(_simulation_order_df['Outliers_First'].values),
 
-            _list_dfs = []
-            _list_query_stragegy = ['Random', 
-                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
-                                    'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
-                                    'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']
+                    list(_simulation_order_df_2D['Equal_Spread'].values),
+                    list(_simulation_order_df_2D['Dense_Areas_First'].values),
+                    list(_simulation_order_df_2D['Centroids_First'].values),
+                    list(_simulation_order_df_2D['Outliers_First'].values)                    
+                ]
+                new_keys = ['Equal_Spread', 'Dense_Areas_First', 'Centroids_First', 'Outliers_First',
+                            'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D', 'Outliers_First_2D']
+            
+            
 
-            _list_legend_name = ['Random', 
-                                    'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
-                                    'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
-                                    'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']                                    
-
-
-            _list_models_for_batch_size_comparison = ['Random','Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD,
-
-# _list_query_stragegy = ['Random', 
-#                                     'Uncertainty', 'Margin', 'Entropy', 'Bald',
-#                                     'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
-#                                     'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']            
-
-
-            # _list_query_stragegy = ['Random', 
-            #                         'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD']
-
-            # _list_legend_name = ['Random', 
-            #                         'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD']
-
-
-            ######################################################################################################### 
-            ######### IMPORTANT!  
-            ######### Don't forget to add below if you add some Query Strategy on lists above!
-            ######################################################################################################### 
-
-            _list_of_lists_ordered_samples = [
-                _random_samples_id, 
-                None, None, None, None,None,
-                list(_simulation_order_df['Equal_Spread'].values), list(_simulation_order_df['Dense_Areas_First'].values), list(_simulation_order_df['Centroids_First'].values), list(_simulation_order_df['Outliers_First'].values),
-                list(_simulation_order_df_2D['Equal_Spread'].values), list(_simulation_order_df_2D['Dense_Areas_First'].values), list(_simulation_order_df_2D['Centroids_First'].values), list(_simulation_order_df_2D['Outliers_First'].values)
-            ]            
-            # _list_of_lists_ordered_samples = [_random_samples_id, None, None, None, None, None]
-            ######################################################################################################### 
-
+                for key, value in zip(new_keys, new_samples_lists):
+                    _dict_simumlations_ordered_samples[key] = value
 
 
             ######################################################################################################### 
@@ -484,17 +466,21 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
             ######################################################################################################### 
             ######################################################################################################### 
 
+
+            _list_dfs = []
+            _list_query_stragegy = config._list_query_stragegy
+            _batch_size_options = config._batch_size_options
+                               
+
             for i in range(len(_list_query_stragegy)):
 
-
-                if _list_query_stragegy[i] in _list_models_for_batch_size_comparison:                     
-
+                if _list_query_stragegy[i] in config._list_strategies_for_batch_size_comparison:                     
                     if _batch_size_experiment == True:
-                        # _batch_size_options = [1, 5, 10, 50, 100, 300, int(round(_df_train.shape[0]/25,0)), int(round(_df_train.shape[0]/10,0)), int(round(_df_train.shape[0]/5,0))]
-                        _batch_size_options = [1, 5, 10, 25, 50, 100]
-                        # _batch_size_options = [10, 25, 50, 100, 500, 1000]
+                        _batch_size_options = config._batch_size_options
+
                     else:
                         _batch_size_options = [int(round(_df_train.shape[0]/25,0))]
+
 
                     for _b_size in _batch_size_options:
 
@@ -505,14 +491,14 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                             _df_train = _df_train, 
                             _df_validation = _df_validation, 
                             _cold_start_samples_id = _cold_start_samples_id, 
-                            _legend_name = _list_legend_name[i] + '_batch_' + str(_b_size),
+                            _legend_name = _list_query_stragegy[i] + '_batch_' + str(_b_size),
                             _query_strategy_name = _list_query_stragegy[i],
                             _query_batch_size = _b_size,
                             _database_name = db_paths[0].split('/')[1],
                             _dl_architecture_name = _deep_learning_arq_sub_folder_name, 
                             # _df_faiss_indices=_df_faiss_indices,
                             # _df_faiss_distances=_df_faiss_distances,
-                            _list_ordered_samples_id=_list_of_lists_ordered_samples[i],
+                            _list_ordered_samples_id=_dict_simumlations_ordered_samples[_list_query_stragegy[i]],
                             _input_framework_id = i+1                            
                             )
                         _list_dfs.append(_df_temp)                       
@@ -521,24 +507,26 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                     _string_log_input = [4, 'Running Query Strategy = ' +  _list_query_stragegy[i],]    
                     f_log(_string = _string_log_input[1], _level = _string_log_input[0], _file = _f)    
 
-                    # print(db_paths[0].split('/')[1],)
-                    # print(_list_of_lists_ordered_samples[i])
 
                     _df_temp = f_framework_df(
                         _df_train = _df_train, 
                         _df_validation = _df_validation, 
                         _cold_start_samples_id = _cold_start_samples_id, 
-                        _legend_name = _list_legend_name[i] + '_batch_' + str(_b_size),
+                        _legend_name = _list_query_stragegy[i] + '_batch_' + str(_b_size),
                         _query_strategy_name = _list_query_stragegy[i],
                         _query_batch_size = int(round(_df_train.shape[0]/25,0)),
                         _database_name = db_paths[0].split('/')[1],
                         _dl_architecture_name = _deep_learning_arq_sub_folder_name, 
                         # _df_faiss_indices=_df_faiss_indices,
                         # _df_faiss_distances=_df_faiss_distances,
-                        _list_ordered_samples_id=_list_of_lists_ordered_samples[i],
+                        _list_ordered_samples_id=_dict_simumlations_ordered_samples[_list_query_stragegy[i]],
                         _input_framework_id = i+1                        
                         )
                     _list_dfs.append(_df_temp)
+
+                #Save a temporary Pickle 
+                _df_temp.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')
+
 
 
             df_final = pd.concat(_list_dfs)
