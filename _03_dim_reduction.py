@@ -38,8 +38,8 @@ def scoring_function(x):
 def objective(trial, df):  
     n_dimensions = 2
     perplexity = trial.suggest_int('perplexity', 5, 50)
-    learning_rate = trial.suggest_loguniform('learning_rate', 10, 1000)
-    # n_iter = trial.suggest_int('n_iter', 1000, 5000)
+    learning_rate = trial.suggest_loguniform('learning_rate', 10, 1000)    
+    n_iter = 3000
     _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
     tsne = TSNE(n_components=n_dimensions, perplexity=perplexity, learning_rate=learning_rate, n_iter=n_iter)
     X_2dimensions = tsne.fit_transform(df.loc[:, _temp_X_columns])
@@ -52,7 +52,7 @@ def f_dim_reduction(df, n_trials=50):
     best_params = study.best_params
     _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
 
-    tsne = TSNE(n_components=2, perplexity=best_params['perplexity'], learning_rate=best_params['learning_rate'], n_iter=best_params['n_iter'])  # n_components is fixed to 2
+    tsne = TSNE(n_components=2, perplexity=best_params['perplexity'], learning_rate=best_params['learning_rate'], n_iter=3000)  # n_components is fixed to 2
 
     X_2dimensions = tsne.fit_transform(df.loc[:, _temp_X_columns])
     X_2dimensions = X_2dimensions.rename(columns={0: 'X1', 1: 'X2'})                    
