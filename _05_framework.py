@@ -26,7 +26,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import BaggingClassifier
 from sklearn.linear_model import LogisticRegression
-from baal.active.heuristics import Randomm, Certainty, Margin, Entropy, Variance, BALD, BatchBALD
+from baal.active.heuristics import Random, Certainty, Margin, Entropy, Variance, BALD, BatchBALD
 from baal.active.heuristics.stochastics import PowerSampling
 
 
@@ -168,7 +168,7 @@ def f_framework_df(
             print("Missing = ", len(_array_unlabels_sample_ids))
         
 
-        
+        start_time_query_selection = time.time()
         # If is Data-Density-Based:
         if _list_ordered_samples_id is not None:		
             #1) Get the most uncertainty -- this step was done before
@@ -180,7 +180,7 @@ def f_framework_df(
 
         # If is Model-Based:
         else:
-            start_time_query_selection = time.time()
+            
             #1) Predict in Ulabeled Train Dataset & Get the most uncertainty            
             #2) Select Sample_ID based on the most uncertainty & query batch size            
             _temp_test_x = _df_train[_temp_X_columns][_df_train['sample_id'].isin(_array_unlabels_sample_ids.get())]                     
@@ -222,8 +222,8 @@ def f_framework_df(
                     _list_time_al_cycle.append(None)                    
                     break
 
-            end_time_query_selection = time.time()
-            execution_time_query_selection = end_time_query_selection - start_time_query_selection
+        end_time_query_selection = time.time()
+        execution_time_query_selection = end_time_query_selection - start_time_query_selection
 
     	
  
@@ -525,6 +525,10 @@ with open('logs/' + f_time_now(_type='datetime_') + "_05_framework_py_" + ".txt"
                     _list_dfs.append(_df_temp)
 
                 #Save a temporary Pickle 
+                try:                    
+                    _df_temp_del = pd.read_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')    
+                    _df_temp = _df_temp_del.append(_df_temp)
+
                 _df_temp.to_pickle(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')
 
 

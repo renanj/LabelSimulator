@@ -39,7 +39,7 @@ def objective(trial, df):
     n_dimensions = 2
     perplexity = trial.suggest_int('perplexity', 5, 50)
     learning_rate = trial.suggest_loguniform('learning_rate', 10, 1000)
-    n_iter = trial.suggest_int('n_iter', 1000, 5000)
+    # n_iter = trial.suggest_int('n_iter', 1000, 5000)
     _temp_X_columns = list(df.loc[:,df.columns.str.startswith("X")].columns)
     tsne = TSNE(n_components=n_dimensions, perplexity=perplexity, learning_rate=learning_rate, n_iter=n_iter)
     X_2dimensions = tsne.fit_transform(df.loc[:, _temp_X_columns])
