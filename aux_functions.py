@@ -256,7 +256,7 @@ def f_delete_files (list_files_to_delete, _path, NOT_DELETE_files_list=[None]):
 		file_list = os.listdir(_path)				
 		for file in file_list:
 			if file in list_files_to_delete:
-				if file in NOT_delete_files_list:
+				if file in NOT_DELETE_files_list:
 					None
 				else:
 					try:
