@@ -85,7 +85,7 @@ class Config:
 		elif self.test_number == 'mnist_1':
 
 			self.VAL_SPLIT = [0.20]
-			self.MAX_SIZE_SPLIT = [625]
+			self.MAX_SIZE_SPLIT = [1250]
 
 			self._list_data_sets_path = [   
 				[

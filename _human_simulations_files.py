@@ -91,15 +91,15 @@ for db_paths in _list_data_sets_path:
 
         if config.human_simulations == True:        
 
-        	print("Original Space")
+            print("Original Space")
 	        _list_strategy_name, _list_strategy_ordered_samples_id = bblocks.f_run_human_simulations(df_embbedings = _df_train, 
 	                                                df_faiss_indices=_df_faiss_indices, 
 	                                                df_faiss_distances=_df_faiss_distances)
 	        _simulation_order_df = pd.DataFrame(_list_strategy_ordered_samples_id).T
 	        _simulation_order_df.columns = _list_strategy_name	
 
-	        print("------------------------------------------")
-			print("2D Space")
+            print("------------------------------------------")
+            print("2D Space")
 	        _list_strategy_name_2D, _list_strategy_ordered_samples_id_2D = bblocks.f_run_human_simulations(df_embbedings = _df_2D_train, 
 	                                                df_faiss_indices=_df_2D_faiss_indices, 
 	                                                df_faiss_distances=_df_2D_faiss_distances)
