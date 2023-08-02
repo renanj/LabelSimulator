@@ -364,10 +364,10 @@ for db_paths in _list_data_sets_path:
     for _sub_folder in _sub_folders_to_check:	
         f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)	
 
-    try:
-        _sub_folders_to_check = f_get_subfolders(config._colab_backup_path + db_paths[0])
-        for _sub_folder in _sub_folders_to_check:   
-            f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)    
+
+    _sub_folders_to_check = f_get_subfolders(config._colab_backup_path + db_paths[0])
+    for _sub_folder in _sub_folders_to_check:   
+        f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)    
 
 
     

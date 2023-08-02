@@ -44,7 +44,7 @@ class Config:
 		'_03_dim_reduction.py': ['df_2D_train.pkl','df_2D_validation.pkl'],
 		'_04_generator_faiss.py': ['df_faiss_indices_train.pkl', 'df_faiss_indices_validation.pkl', 'df_faiss_distances_train.pkl', 'df_faiss_distances_validation.pkl','df_2D_faiss_indices_train.pkl', 'df_2D_faiss_indices_validation.pkl', 'df_2D_faiss_distances_train.pkl', 'df_2D_faiss_distances_validation.pkl'],
 		'_human_simulations_files.py': ['df_simulation_order_df.pkl', 'df_simulation_order_df_2D.pkl'],		
-		'_05_framework.py': ['df_framework.pkl', 'df_framework_temporary'],
+		'_05_framework.py': ['df_framework.pkl', 'df_framework_temporary.pkl'],
 		'_06_generate_visualization.py': ['vis_01_consolidate_accuracy_chart_train.png', 'vis_01_consolidate_accuracy_chart_validation.png', 'vis_02_accuracy_vs_random_chart_train.png', 'vis_02_accuracy_vs_random_chart_validation.png','vis_04_selection_2Dtrain.png', 'vis_04_selection_2Dvalidation.png'],
 		'07_results_consolidation.py': []
 		}
