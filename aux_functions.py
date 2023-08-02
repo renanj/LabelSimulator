@@ -1,6 +1,6 @@
 import time 
 import datetime
-# from datetime import datetime
+from datetime import datetime
 import math
 import pandas as pd
 import numpy as np
@@ -81,7 +81,6 @@ def try_pickle_load(path):
 
 
 def try_to_pickle(pickle_file, path, with_timestamp=False):
-    
     # Extract directory and file name from path
     dir_path = os.path.dirname(path)
     file_name = os.path.basename(path)
@@ -98,7 +97,7 @@ def try_to_pickle(pickle_file, path, with_timestamp=False):
 
     # Add the timestamp between them, if requested
     if with_timestamp:
-        timestamp = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+        timestamp = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
         filename_with_timestamp = f"{filename_base}__{timestamp}{filename_ext}"
     else:
         filename_with_timestamp = file_name
@@ -126,8 +125,8 @@ def get_more_recent_file(file_path1, file_path2):
     time1 = os.path.getmtime(file_path1)
     time2 = os.path.getmtime(file_path2)
 
-    dt1 = datetime.fromtimestamp(time1)
-    dt2 = datetime.fromtimestamp(time2)   
+    dt1 = datetime.datetime.fromtimestamp(time1)
+    dt2 = datetime.datetime.fromtimestamp(time2)   
     time_str1 = dt1.strftime('%Y_%m_%d_%H:%M:%S')
     time_str2 = dt2.strftime('%Y_%m_%d_%H:%M:%S')     
 
@@ -445,16 +444,16 @@ def f_delete_files (list_files_to_delete, _path, NOT_DELETE_files_list=[None]):
 
 
 def f_time_now(_type='datetime'):
-	if _type == 'datetime':
-		return datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M")
-	if _type == 'datetime_':
-		return datetime.datetime.utcnow().strftime("%Y-%m-%d_%H:%M")		
-	elif _type == 'date':
-		return datetime.datetime.utcnow().strftime("%Y-%m-%d")
-	elif _type == 'hour':
-		return datetime.datetime.utcnow().strftime("%H:%M:%S")
-	else:
-		return datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M")
+    if _type == 'datetime':
+        return datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M")
+    if _type == 'datetime_':
+        return datetime.datetime.utcnow().strftime("%Y-%m-%d_%H:%M")        
+    elif _type == 'date':
+        return datetime.datetime.utcnow().strftime("%Y-%m-%d")
+    elif _type == 'hour':
+        return datetime.datetime.utcnow().strftime("%H:%M:%S")
+    else:
+        return datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M")        
 
 
 def f_saved_strings(_string):

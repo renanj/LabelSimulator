@@ -157,6 +157,8 @@ def f_framework_df(
     _list_time_al_cycle = [0]
 
 
+    execution_time_query_selection = 0
+    execution_time_model_training = 0
 
 
     #Here starts AL Cycle!
@@ -165,6 +167,7 @@ def f_framework_df(
         start_time_al_cycle = time.time()       
 
         if len(_array_unlabels_sample_ids) % 50 == 0:
+
             print("Missing = ", len(_array_unlabels_sample_ids))
             print("Time Query Selection = ", execution_time_query_selection)
             print("Time Training = ", execution_time_model_training)
@@ -574,6 +577,8 @@ for db_paths in _list_data_sets_path:
                     #Save in Colab:
                     try_to_pickle(pickle_file=_df_temp, path=config._colab_backup_path +  db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl'
                                 ,with_timestamp=True)
+                    try_to_pickle(pickle_file=_df_temp, path=config._colab_backup_path +  db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl'
+                                ,with_timestamp=False)
 
                 else:
                     #Save in Google Drive
@@ -581,6 +586,8 @@ for db_paths in _list_data_sets_path:
                     #Save in Colab:
                     try_to_pickle(pickle_file=_df_temp, path=config._colab_backup_path +  db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl'
                     ,with_timestamp=True)                    
+                    try_to_pickle(pickle_file=_df_temp, path=config._colab_backup_path +  db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl'
+                    ,with_timestamp=False)                    
 
 
 
