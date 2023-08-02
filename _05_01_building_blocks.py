@@ -12,6 +12,8 @@ from tqdm import tqdm
 import cupy as cp
 import cudf
 
+import time
+
 from sklearn.datasets import make_blobs
 import matplotlib.pyplot as plt
 
@@ -238,23 +240,23 @@ def f_run_human_simulations(df_embbedings, df_faiss_distances, df_faiss_indices,
 	print("SPB:")
 	start_time = time.time()
 	_samples_id_list_ordered_SPB = f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start)
-  end_time = time.time()
-  execution_time = end_time - start_time
-  print("execution_time = ", execution_time)
+	end_time = time.time()
+	execution_time = end_time - start_time
+	print("execution_time = ", execution_time)
 
 	print("DEN:")
 	start_time = time.time()
 	_samples_id_list_ordered_DEN = f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start, k=5)
-  end_time = time.time()
-  execution_time = end_time - start_time
-  print("execution_time = ", execution_time)
+	end_time = time.time()
+	execution_time = end_time - start_time
+	print("execution_time = ", execution_time)
 
 	print("OUT:")
 	start_time = time.time()
 	_samples_id_list_ordered_OUT = f_out(_samples_id_list_ordered_DEN)
 	end_time = time.time()
-  execution_time = end_time - start_time
-  print("execution_time = ", execution_time)
+	execution_time = end_time - start_time
+	print("execution_time = ", execution_time)
 
 
 	print("CLU:")

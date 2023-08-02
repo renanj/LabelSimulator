@@ -81,32 +81,37 @@ def try_pickle_load(path):
 
 
 def try_to_pickle(pickle_file, path, with_timestamp=False):
-    # Extract directory and file name from path
-    dir_path = os.path.dirname(path)
-    file_name = os.path.basename(path)
 
-    # Check if directory exists, if not, create it
-    os.makedirs(dir_path, exist_ok=True)
-
-    # Check if file_name ends with '.pkl', if not, add it
-    if not file_name.endswith('.pkl'):
-        file_name += '.pkl'
-
-    # Separate the filename and extension
-    filename_base, filename_ext = os.path.splitext(file_name)
-
-    # Add the timestamp between them, if requested
-    if with_timestamp:
-        timestamp = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
-        filename_with_timestamp = f"{filename_base}__{timestamp}{filename_ext}"
-    else:
-        filename_with_timestamp = file_name
-
-    _path_and_file_name = os.path.join(dir_path, filename_with_timestamp)
-        
     try:
+
+        # Extract directory and file name from path
+        dir_path = os.path.dirname(path)
+        file_name = os.path.basename(path)
+
+        # Check if directory exists, if not, create it
+        os.makedirs(dir_path, exist_ok=True)
+
+
+        # Check if file_name ends with '.pkl', if not, add it
+        if not file_name.endswith('.pkl'):
+            file_name += '.pkl'
+
+        # Separate the filename and extension
+        filename_base, filename_ext = os.path.splitext(file_name)
+
+        # Add the timestamp between them, if requested
+        if with_timestamp:
+            timestamp = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+            filename_with_timestamp = f"{filename_base}__{timestamp}{filename_ext}"
+        else:
+            filename_with_timestamp = file_name
+
+        _path_and_file_name = os.path.join(dir_path, filename_with_timestamp)
+            
+
         pickle_file.to_pickle(_path_and_file_name)
         print(f'Successfully exported Pickle to {_path_and_file_name}.')
+        
     except Exception as e:
         print(f'Failed to export DataFrame: {e}')
 
