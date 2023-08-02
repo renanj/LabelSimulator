@@ -1,5 +1,6 @@
 import time 
-import datetime
+# import datetime
+from datetime import datetime
 import math
 import pandas as pd
 import numpy as np
@@ -10,6 +11,7 @@ from sklearn.datasets import make_blobs
 
 import os
 import glob
+
 
 
 
@@ -38,6 +40,162 @@ def create_label_encoder_obj(root_dir):
   lb.fit(classes_adjusted)  
 
   return lb
+
+
+
+
+try_read_pickle_dataframe(path)
+try_pickle_load(path)
+try_to_pickle(pickle_file, path, file_name)
+get_more_recent_file(file_path1, file_path2)
+
+
+export_to_pickle(pickle_file=, path=)
+
+
+
+def downlaod_copy_to_google_colab(path_google_drive, path_colab):
+    
+
+
+
+
+for db_paths in _list_data_sets_path:      
+    _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
+    for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders: 
+
+
+
+
+
+
+
+def try_read_pickle_dataframe(path):
+    # Check if the file exists
+    if not os.path.exists(path):
+        print(f'File not found: {path}')
+        return None
+
+    # Try to read the pickle file into a DataFrame
+    try:
+        df = pd.read_pickle(path)
+        print(f'Successfully read DataFrame from {path}.')
+        return df
+    except Exception as e:
+        print(f'Failed to read DataFrame: {e}')
+        return None
+
+
+def try_pickle_load(path):
+
+    # Check if the file exists
+    if not os.path.exists(path):
+        print(f'File not found: {path}')
+        return None
+
+    
+    try:
+        load_file = pickle.load(open(path, 'rb'))        
+        print(f'Successfully read Pickle from  {path}.')
+        return load_file
+    except Exception as e:
+        print(f'Failed to read Pickle File: {e}')
+        return None	
+
+
+
+
+def try_to_pickle(pickle_file, path, with_timestamp=False):
+    
+    # Extract directory and file name from path
+    dir_path = os.path.dirname(path)
+    file_name = os.path.basename(path)
+
+    # Check if directory exists, if not, create it
+    os.makedirs(dir_path, exist_ok=True)
+
+    # Check if file_name ends with '.pkl', if not, add it
+    if not file_name.endswith('.pkl'):
+        file_name += '.pkl'
+
+    # Separate the filename and extension
+    filename_base, filename_ext = os.path.splitext(file_name)
+
+    # Add the timestamp between them, if requested
+    if with_timestamp:
+        timestamp = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+        filename_with_timestamp = f"{filename_base}__{timestamp}{filename_ext}"
+    else:
+        filename_with_timestamp = file_name
+
+    _path_and_file_name = os.path.join(dir_path, filename_with_timestamp)
+        
+    try:
+        pickle_file.to_pickle(_path_and_file_name)
+        print(f'Successfully exported Pickle to {_path_and_file_name}.')
+    except Exception as e:
+        print(f'Failed to export DataFrame: {e}')
+
+
+
+
+
+def get_more_recent_file(file_path1, file_path2):
+    # Get the last modified time for each file
+    # To get the time when the file was created we could use the function getctime 
+    time1 = os.path.getmtime(file_path1)
+    time2 = os.path.getmtime(file_path2)
+  
+    dt1 = datetime.fromtimestamp(time1)
+    dt2 = datetime.fromtimestamp(time2)   
+    time_str1 = dt1.strftime('%Y_%m_%d_%H:%M:%S')
+    time_str2 = dt2.strftime('%Y_%m_%d_%H:%M:%S')     
+
+    # Compare the times and return the file that was modified most recently
+    if time1 > time2:
+        print("More recent is Path 1 = ", file_path1)
+        print("it was saved at ", time_str1) 
+        return file_path1
+    else:
+        print("More recent is Path 2  = ", file_path2)
+        print("it was saved at ", time_str2)
+        return file_path2
+
+def copy_directory(source_path, destination_path, keep_structure=False):
+    """
+    This function is to copy a directory from source_path to destination_path.
+
+    Args:
+    source_path (str): The source directory path.
+    destination_path (str): The destination directory path.
+    keep_structure (bool): If True, keep the full structure of source_path in destination_path. If False, only copy the last directory. Default is False.
+    """
+    
+    # If keep_structure is False, only copy the last directory
+    if not keep_structure:
+        source_path = os.path.basename(os.path.normpath(source_path))
+
+    # Construct the full destination path
+    full_destination_path = os.path.join(destination_path, source_path)
+    
+    # Check if source_path is a directory
+    if os.path.isdir(source_path):
+        # If the destination directory does not exist, create it
+        os.makedirs(full_destination_path, exist_ok=True)
+        # Iterate over files and directories in the source path
+        for item in os.listdir(source_path):
+            s = os.path.join(source_path, item)
+            d = os.path.join(full_destination_path, item)
+            # Check if it's a directory
+            if os.path.isdir(s):
+                # Use shutil.copytree to copy directories
+                shutil.copytree(s, d, dirs_exist_ok=True)
+            else:
+                # Use shutil.copy2 to copy files, including metadata
+                shutil.copy2(s, d)
+        print(f"'{source_path}' copied successfully to '{full_destination_path}'.")
+    else:
+        print(f"'{source_path}' is not a directory.")
 
 
 

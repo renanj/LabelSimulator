@@ -4,6 +4,9 @@ class Config:
 
 	def __init__(self,test_number):
 
+		self._colab_backup_path = '../../../../../backup_LabelSimulator/'
+		self._run_colab_backup_path = True
+
 		self.test_number = test_number
 		self._list_train_val = ['train', 'validation']
 
