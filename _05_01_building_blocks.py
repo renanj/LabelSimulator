@@ -236,11 +236,27 @@ def f_run_human_simulations(df_embbedings, df_faiss_distances, df_faiss_indices,
 	print("Random:")
 	_samples_id_list_random, _samples_id_list_random_cold_start = f_cold_start(df_embbedings)	
 	print("SPB:")
+	start_time = time.time()
 	_samples_id_list_ordered_SPB = f_SPB(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start)
+  end_time = time.time()
+  execution_time = end_time - start_time
+  print("execution_time = ", execution_time)
+
 	print("DEN:")
+	start_time = time.time()
 	_samples_id_list_ordered_DEN = f_den(df_embbedings, df_faiss_distances, df_faiss_indices, _cold_start_samples_id=_samples_id_list_random_cold_start, k=5)
+  end_time = time.time()
+  execution_time = end_time - start_time
+  print("execution_time = ", execution_time)
+
 	print("OUT:")
+	start_time = time.time()
 	_samples_id_list_ordered_OUT = f_out(_samples_id_list_ordered_DEN)
+	end_time = time.time()
+  execution_time = end_time - start_time
+  print("execution_time = ", execution_time)
+
+
 	print("CLU:")
 	_centroids_samples_id_list_ordered_CLU, _clusters_samples_id_list_of_lists_ordered_CLU = f_clu(df_embbedings, num_clusters=None, num_iterations=10, gpu_index=True)
 	print("------------------------------------------------\n\n")
