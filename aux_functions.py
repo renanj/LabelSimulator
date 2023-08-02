@@ -11,9 +11,9 @@ from sklearn.datasets import make_blobs
 
 import os
 import glob
-
-
-
+import pickle
+import shutil
+import re
 
 import config
 
@@ -40,31 +40,6 @@ def create_label_encoder_obj(root_dir):
   lb.fit(classes_adjusted)  
 
   return lb
-
-
-
-
-try_read_pickle_dataframe(path)
-try_pickle_load(path)
-try_to_pickle(pickle_file, path, file_name)
-get_more_recent_file(file_path1, file_path2)
-
-
-export_to_pickle(pickle_file=, path=)
-
-
-
-def downlaod_copy_to_google_colab(path_google_drive, path_colab):
-    
-
-
-
-
-for db_paths in _list_data_sets_path:      
-    _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
-    for _deep_learning_arq_sub_folder_name in _deep_learning_arq_sub_folders: 
-
-
 
 
 
@@ -138,14 +113,19 @@ def try_to_pickle(pickle_file, path, with_timestamp=False):
 
 
 
-
-
 def get_more_recent_file(file_path1, file_path2):
+    # Check if the files exist
+    if not os.path.exists(file_path1):
+        print(f"Path 1 does not exist: {file_path1}")
+        return file_path2
+    if not os.path.exists(file_path2):
+        print(f"Path 2 does not exist: {file_path2}")
+        return file_path1
+
     # Get the last modified time for each file
-    # To get the time when the file was created we could use the function getctime 
     time1 = os.path.getmtime(file_path1)
     time2 = os.path.getmtime(file_path2)
-  
+
     dt1 = datetime.fromtimestamp(time1)
     dt2 = datetime.fromtimestamp(time2)   
     time_str1 = dt1.strftime('%Y_%m_%d_%H:%M:%S')
@@ -161,7 +141,28 @@ def get_more_recent_file(file_path1, file_path2):
         print("it was saved at ", time_str2)
         return file_path2
 
-def copy_directory(source_path, destination_path, keep_structure=False):
+
+
+def delete_all_subfolders_and_files(directory):
+    # Check the directory name for the keyword
+    if "backup" not in directory:
+        print(f"The directory '{directory}' does not contain the keyword 'backup'. Aborting operation.")
+        return
+
+    # Check if the directory exists
+    if os.path.exists(directory):
+        # Delete the directory and all its contents
+        shutil.rmtree(directory)
+
+        # Then recreate the directory
+        os.mkdir(directory)
+        print(f"The directory '{directory}' has been emptied.")
+    else:
+        print(f"The directory '{directory}' does not exist.")
+
+
+
+def copy_directory(source_path, destination_path, keep_structure=True):
     """
     This function is to copy a directory from source_path to destination_path.
 
@@ -194,7 +195,7 @@ def copy_directory(source_path, destination_path, keep_structure=False):
                 # Use shutil.copy2 to copy files, including metadata
                 shutil.copy2(s, d)
         print(f"'{source_path}' copied successfully to '{full_destination_path}'.")
-    else:
+    else:    	
         print(f"'{source_path}' is not a directory.")
 
 
@@ -404,6 +405,21 @@ def f_get_files_to_delete(script_name, _scripts_order=_scripts_order, _files_gen
 
 
 
+def delete_unlisted_files(directory, pattern, preserve_file_list=[None]):
+    # Generate the pattern to match
+    match_pattern = os.path.join(directory, pattern)
+
+    # Get a list of all matching files
+    matching_files = glob.glob(match_pattern)
+
+    for file_path in matching_files:
+        # Get the base name of the file (without the directory)
+        file_name = os.path.basename(file_path)
+        
+        # If the file is not in the provided list, delete it
+        if file_name not in preserve_file_list:
+            os.remove(file_path)
+            print(f"File '{file_name}' has been deleted.")
 
 
 

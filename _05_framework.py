@@ -32,7 +32,7 @@ from baal.active.heuristics.stochastics import PowerSampling
 
 from config import config
 import _05_01_building_blocks as bblocks
-from aux_functions import f_time_now, f_saved_strings, f_get_files_to_delete, f_delete_files, f_get_subfolders, try_read_pickle_dataframe, try_pickle_load, try_to_pickle, get_more_recent_file, copy_directory
+from aux_functions import f_time_now, f_saved_strings, f_get_files_to_delete, f_delete_files, f_get_subfolders, try_read_pickle_dataframe, try_pickle_load, try_to_pickle, get_more_recent_file, copy_directory, delete_unlisted_files
 
 warnings.filterwarnings('ignore')
 
@@ -345,13 +345,12 @@ def f_framework_df(
 
 
 
-
 # Google Drive & Colab sync: 
 if config._run_colab_backup_path == True:
     for db_paths in _list_data_sets_path:
         path_colab = config._colab_backup_path
         path_drive = db_paths[0]
-        copy_directory(source_path=path_drive, destination_path=path_colab)
+        copy_directory(source_path=path_drive, destination_path=path_colab, keep_structure=True)
         print("Saved in Google Colab all Folders and SubFolders from GoogleDrive")    
         # Instructions:
             # 1) First will copy to Colab the Google Drive Folder Structure of tests
@@ -363,7 +362,13 @@ for db_paths in _list_data_sets_path:
 
     _sub_folders_to_check = f_get_subfolders(db_paths[0])
     for _sub_folder in _sub_folders_to_check:	
-        f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)		
+        f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)	
+
+    try:
+        _sub_folders_to_check = f_get_subfolders(config._colab_backup_path + db_paths[0])
+        for _sub_folder in _sub_folders_to_check:   
+            f_delete_files(f_get_files_to_delete(_script_name), _sub_folder)    
+
 
     
     _deep_learning_arq_sub_folders =  [db_paths for db_paths in os.listdir(db_paths[4]) if not db_paths.startswith('.')]
@@ -509,11 +514,15 @@ for db_paths in _list_data_sets_path:
         #Delete df_framework_temporary on Colab & Google Drive
         try:
             os.remove(db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')    
-            print("Delelted File = ", file)
+            print("Delelted File = ", file)            
         except:
             None        
         try:
             os.remove(config._colab_backup_path +  db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')    
+            delete_unlisted_files(
+                directory = config._colab_backup_path +  db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/',
+                pattern = 'df_framework_temporary_*.pkl'
+                )
             print("Delelted File = ", file)
         except:
             None                    
@@ -526,17 +535,13 @@ for db_paths in _list_data_sets_path:
         for i in range(len(_list_query_stragegy)):
 
             print("Running ", _list_query_stragegy[i])
-
             if _list_query_stragegy[i] in config._list_strategies_for_batch_size_comparison and _batch_size_experiment == True:  
                 _batch_size_options = config._batch_size_options
                 _batch_size_options.append(int(round(_df_train.shape[0]/25,0)))        
             else: 
                   _batch_size_options = [int(round(_df_train.shape[0]/25,0))]  
 
-
             for _b_size in _batch_size_options:
-
-                print("batch_size =  ", _b_size)
 
 
                 _df_temp = f_framework_df(
@@ -554,15 +559,15 @@ for db_paths in _list_data_sets_path:
                     _input_framework_id = i+1                            
                     )
                 _list_dfs.append(_df_temp)  
+                                    
 
-
-                #Temporary DataFrame! 
-                if check df_temp already exist:
-                    _path_df_temp_most_recent = get_more_recent_file(
-                            file_path1 = db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl', 
-                            file_path2 = config._colab_backup_path +  db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl'                            
-                    )
-                    _df_temp_del = try_read_pickle_dataframe(_path_df_temp_most_recent)
+                #Temporary DataFrame Check & Creation!                 
+                _path_df_temp_most_recent = get_more_recent_file(
+                        file_path1 = db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl', 
+                        file_path2 = config._colab_backup_path +  db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl'                            
+                )
+                _df_temp_del = try_read_pickle_dataframe(_path_df_temp_most_recent)
+                if _df_temp_del is not None:
                     _df_temp = _df_temp_del.append(_df_temp)
                     #Save in Google Drive
                     try_to_pickle(pickle_file=_df_temp, path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')
@@ -571,7 +576,6 @@ for db_paths in _list_data_sets_path:
                                 ,with_timestamp=True)
 
                 else:
-
                     #Save in Google Drive
                     try_to_pickle(pickle_file=_df_temp, path=db_paths[4] +'/' + _deep_learning_arq_sub_folder_name + '/' + 'df_framework_temporary.pkl')
                     #Save in Colab:

@@ -72,11 +72,10 @@ class Config:
 
 
 			self._list_query_stragegy = ['Random', 
-										'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD', #PowerBALD,
-										'Equal_Spread', 'Dense_Areas_First', 'Centroids_First',  'Outliers_First', 
-										'Equal_Spread_2D', 'Dense_Areas_First_2D', 'Centroids_First_2D',  'Outliers_First_2D']	
+										'Uncertainty', 'Margin', 'Entropy', 'Bald', 'BatchBALD'] #PowerBALD,
+											
 
-			self.human_simulations = True #Manually Check if the _list_query_strategies contain any of this...
+			self.human_simulations = False #Manually Check if the _list_query_strategies contain any of this...
 			self.load_human_simulations_files = False #Just use if we saved the files in google driver -- once they take a lot of time to run and the process may failed															
 			self._batch_size_experiment = True
 			self._batch_size_options = [10, 25, 50]		
